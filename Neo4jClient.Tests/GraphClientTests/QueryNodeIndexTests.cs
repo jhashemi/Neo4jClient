@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
-using NUnit.Framework;
+using Neo4jClient.Test.Fixtures;
+using Xunit;
 
 namespace Neo4jClient.Test.GraphClientTests
 {
-    [TestFixture]
-    public class QueryNodeIndexTests
+    
+    public class QueryNodeIndexTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         [Obsolete]
         public void ShouldReturnQueryResults()
         {
@@ -40,10 +41,10 @@ namespace Neo4jClient.Test.GraphClientTests
                     .QueryIndex<TestNode>("indexName", IndexFor.Node, "name:foo")
                     .ToArray();
 
-                Assert.AreEqual(1, results.Count());
+                Assert.Equal(1, results.Count());
                 var result = results[0];
-                Assert.AreEqual(456, result.Reference.Id);
-                Assert.AreEqual("Foo", result.Data.Name);
+                Assert.Equal(456, result.Reference.Id);
+                Assert.Equal("Foo", result.Data.Name);
             }
         }
 

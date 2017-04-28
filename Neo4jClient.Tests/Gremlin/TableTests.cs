@@ -1,17 +1,18 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
+using Xunit;
 using Neo4jClient.ApiModels;
 using Neo4jClient.ApiModels.Gremlin;
 using Neo4jClient.Gremlin;
+using Neo4jClient.Test.Fixtures;
 using Newtonsoft.Json;
 
 namespace Neo4jClient.Test.Gremlin
 {
-    [TestFixture]
-    public class TableTests
+    
+    public class TableTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void TableShouldAppendStepToQuery()
         {
             var query = new NodeReference(123)
@@ -19,17 +20,17 @@ namespace Neo4jClient.Test.Gremlin
                 .As("foo")
                 .Table<TableResult>();
 
-            Assert.IsInstanceOf<GremlinProjectionEnumerable<TableResult>>(query);
-            Assert.IsInstanceOf<IEnumerable<TableResult>>(query);
-            Assert.IsInstanceOf<IGremlinQuery>(query);
+            Assert.IsAssignableFrom<GremlinProjectionEnumerable<TableResult>>(query);
+            Assert.IsAssignableFrom<IEnumerable<TableResult>>(query);
+            Assert.IsAssignableFrom<IGremlinQuery>(query);
 
             var enumerable = (IGremlinQuery)query;
-            Assert.AreEqual("g.v(p0).outV.as(p1).table(new Table()).cap", enumerable.QueryText);
-            Assert.AreEqual(123, enumerable.QueryParameters["p0"]);
-            Assert.AreEqual("foo", enumerable.QueryParameters["p1"]);
+            Assert.Equal("g.v(p0).outV.as(p1).table(new Table()).cap", enumerable.QueryText);
+            Assert.Equal(123L, enumerable.QueryParameters["p0"]);
+            Assert.Equal("foo", enumerable.QueryParameters["p1"]);
         }
 
-        [Test]
+        [Fact]
         public void TableShouldAppendStepToQueryWithClosures()
         {
             var query = new NodeReference(123)
@@ -42,20 +43,20 @@ namespace Neo4jClient.Test.Gremlin
                     bar => bar.SomeNumber
                 );
 
-            Assert.IsInstanceOf<GremlinProjectionEnumerable<TableResult>>(query);
-            Assert.IsInstanceOf<IEnumerable<TableResult>>(query);
-            Assert.IsInstanceOf<IGremlinQuery>(query);
+            Assert.IsAssignableFrom<GremlinProjectionEnumerable<TableResult>>(query);
+            Assert.IsAssignableFrom<IEnumerable<TableResult>>(query);
+            Assert.IsAssignableFrom<IGremlinQuery>(query);
 
             var enumerable = (IGremlinQuery)query;
-            Assert.AreEqual("g.v(p0).outV.as(p1).inV.as(p2).table(new Table()){it[p3]}{it[p4]}.cap", enumerable.QueryText);
-            Assert.AreEqual(123, enumerable.QueryParameters["p0"]);
-            Assert.AreEqual("foo", enumerable.QueryParameters["p1"]);
-            Assert.AreEqual("bar", enumerable.QueryParameters["p2"]);
-            Assert.AreEqual("SomeText", enumerable.QueryParameters["p3"]);
-            Assert.AreEqual("SomeNumber", enumerable.QueryParameters["p4"]);
+            Assert.Equal("g.v(p0).outV.as(p1).inV.as(p2).table(new Table()){it[p3]}{it[p4]}.cap", enumerable.QueryText);
+            Assert.Equal(123L, enumerable.QueryParameters["p0"]);
+            Assert.Equal("foo", enumerable.QueryParameters["p1"]);
+            Assert.Equal("bar", enumerable.QueryParameters["p2"]);
+            Assert.Equal("SomeText", enumerable.QueryParameters["p3"]);
+            Assert.Equal("SomeNumber", enumerable.QueryParameters["p4"]);
         }
 
-        [Test]
+        [Fact]
         public void TableCapShouldTransferResponseToResult()
         {
             // Arrange
@@ -82,7 +83,7 @@ namespace Neo4jClient.Test.Gremlin
             var result = GremlinTableCapResponse.TransferResponseToResult<TableResult>(responses, new JsonConverter[0]).ToArray();
 
             // Assert
-            Assert.AreEqual("data", result.First().Foo);
+            Assert.Equal("data", result.First().Foo);
         }
 
         public class Foo

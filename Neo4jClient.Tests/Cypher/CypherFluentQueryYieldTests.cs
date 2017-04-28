@@ -1,12 +1,13 @@
 using System;
 using Neo4jClient.Cypher;
+using Neo4jClient.Test.Fixtures;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace Neo4jClient.Test.Cypher
 {
-    [TestFixture]
-    public class CypherFluentQueryYieldTests
+    
+    public class CypherFluentQueryYieldTests : IClassFixture<CultureInfoSetupFixture>
     {
         private static IRawGraphClient GraphClient_30
         {
@@ -18,7 +19,7 @@ namespace Neo4jClient.Test.Cypher
             }
         }
 
-        [Test]
+        [Fact]
         public void YieldsGivenText()
         {
             var client = GraphClient_30;
@@ -26,10 +27,10 @@ namespace Neo4jClient.Test.Cypher
                 .Yield("uuid")
                 .Query;
 
-            Assert.AreEqual("YIELD uuid", query.QueryText);
+            Assert.Equal("YIELD uuid", query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void ThrowArgumentException_WhenNoStoredProcedureIsGiven()
         {
             var client = GraphClient_30;
@@ -39,7 +40,7 @@ namespace Neo4jClient.Test.Cypher
             });
         }
 
-        [Test]
+        [Fact]
 
         public void ThrowsInvalidOperationException_WhenClientVersionIsLessThan_30()
         {

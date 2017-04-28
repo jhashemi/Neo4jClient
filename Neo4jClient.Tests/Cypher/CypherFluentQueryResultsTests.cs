@@ -1,15 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 using Neo4jClient.Cypher;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.Cypher
 {
-    [TestFixture]
-    public class CypherFluentQueryResultsTests
+    
+    public class CypherFluentQueryResultsTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void ReturnColumnAlias()
         {
             // http://docs.neo4j.org/chunked/1.6/query-return.html#return-column-alias
@@ -31,11 +32,11 @@ namespace Neo4jClient.Test.Cypher
                 })
                 .Results;
 
-            Assert.IsInstanceOf<IEnumerable<ReturnPropertyQueryResult>>(results);
+            Assert.IsAssignableFrom<IEnumerable<ReturnPropertyQueryResult>>(results);
         }
 
       
-        [Test]
+        [Fact]
         public void ReturnColumnAliasOfTypeEnum()
         {
             // http://docs.neo4j.org/chunked/1.6/query-return.html#return-column-alias
@@ -57,10 +58,10 @@ namespace Neo4jClient.Test.Cypher
                 })
                 .Results;
 
-            Assert.IsInstanceOf<IEnumerable<FooNode>>(results);
+            Assert.IsAssignableFrom<IEnumerable<FooNode>>(results);
         }
 
-        [Test]
+        [Fact]
         public void ReturnNodeAsSet()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -76,10 +77,10 @@ namespace Neo4jClient.Test.Cypher
                 .Return<Node<FooNode>>("a")
                 .Results;
 
-            CollectionAssert.AreEqual(set, results);
+            Assert.Equal(set, results);
         }
 
-        [Test]
+        [Fact]
         public void ReturnRelationshipWithDataAsSet()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -95,10 +96,10 @@ namespace Neo4jClient.Test.Cypher
                 .Return<RelationshipInstance<FooNode>>("a")
                 .Results;
 
-            CollectionAssert.AreEqual(set, results);
+            Assert.Equal(set, results);
         }
 
-        [Test]
+        [Fact]
         public void ReturnRelationshipAsSet()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -114,10 +115,10 @@ namespace Neo4jClient.Test.Cypher
                 .Return<RelationshipInstance>("a")
                 .Results;
 
-            CollectionAssert.AreEqual(set, results);
+            Assert.Equal(set, results);
         }
 
-        [Test]
+        [Fact]
         public void ExecutingQueryMultipleTimesShouldResetParameters()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -132,16 +133,16 @@ namespace Neo4jClient.Test.Cypher
                 .Return<object>("a.Name")
                 .Query;
 
-            Assert.AreEqual(1, query1.QueryParameters.Count());
-            Assert.AreEqual(1, query1.QueryParameters["p0"]);
+            Assert.Equal(1, query1.QueryParameters.Count());
+            Assert.Equal(1L, query1.QueryParameters["p0"]);
 
             var query2 = cypher
                 .Start("b", (NodeReference)2)
                 .Return<object>("a.Name")
                 .Query;
 
-            Assert.AreEqual(1, query2.QueryParameters.Count());
-            Assert.AreEqual(2, query2.QueryParameters["p0"]);
+            Assert.Equal(1, query2.QueryParameters.Count());
+            Assert.Equal(2L, query2.QueryParameters["p0"]);
         }
 
         public enum MyType {Type1, Type2}

@@ -1,14 +1,15 @@
 ﻿using System;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 using Neo4jClient.Cypher;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.Cypher
 {
-    [TestFixture]
-    public class CypherFluentQueryDeleteTests
+    
+    public class CypherFluentQueryDeleteTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void DeleteMatchedIdentifier()
         {
             // http://docs.neo4j.org/chunked/milestone/query-delete.html#delete-remove-a-node-and-connected-relationships
@@ -23,11 +24,11 @@ namespace Neo4jClient.Test.Cypher
                 .Delete("n, r")
                 .Query;
 
-            Assert.AreEqual("START n=node({p0})\r\nMATCH n-[r]-()\r\nDELETE n, r", query.QueryText);
-            Assert.AreEqual(3, query.QueryParameters["p0"]);
+            Assert.Equal("START n=node({p0})\r\nMATCH n-[r]-()\r\nDELETE n, r", query.QueryText);
+            Assert.Equal(3L, query.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void DeleteProperty()
         {
             // http://docs.neo4j.org/chunked/1.8.M06/query-delete.html#delete-remove-a-property
@@ -42,11 +43,11 @@ namespace Neo4jClient.Test.Cypher
                 .Return<Node<Object>>("andres")
                 .Query;
 
-            Assert.AreEqual("START andres=node({p0})\r\nDELETE andres.age\r\nRETURN andres", query.QueryText);
-            Assert.AreEqual(3, query.QueryParameters["p0"]);
+            Assert.Equal("START andres=node({p0})\r\nDELETE andres.age\r\nRETURN andres", query.QueryText);
+            Assert.Equal(3L, query.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void DeleteIdentifier()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -55,11 +56,11 @@ namespace Neo4jClient.Test.Cypher
                 .Delete("n")
                 .Query;
 
-            Assert.AreEqual("START n=node({p0})\r\nDELETE n", query.QueryText);
-            Assert.AreEqual(3, query.QueryParameters["p0"]);
+            Assert.Equal("START n=node({p0})\r\nDELETE n", query.QueryText);
+            Assert.Equal(3L, query.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void DeleteWithoutReturn()
         {
             // Arrange
@@ -76,12 +77,12 @@ namespace Neo4jClient.Test.Cypher
                 .ExecuteWithoutResults();
 
             // Assert
-            Assert.IsNotNull(executedQuery, "Query was not executed against graph client");
-            Assert.AreEqual("START n=node({p0})\r\nDELETE n", executedQuery.QueryText);
-            Assert.AreEqual(3, executedQuery.QueryParameters["p0"]);
+            Assert.NotNull(executedQuery);
+            Assert.Equal("START n=node({p0})\r\nDELETE n", executedQuery.QueryText);
+            Assert.Equal(3L, executedQuery.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void AllowDeleteClauseAfterWhere()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -92,8 +93,8 @@ namespace Neo4jClient.Test.Cypher
                 .Query;
 
             // Assert
-            Assert.AreEqual("START n=node({p0})\r\nWHERE (...)\r\nDELETE n", query.QueryText);
-            Assert.AreEqual(3, query.QueryParameters["p0"]);
+            Assert.Equal("START n=node({p0})\r\nWHERE (...)\r\nDELETE n", query.QueryText);
+            Assert.Equal(3L, query.QueryParameters["p0"]);
         }
     }
 }

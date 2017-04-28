@@ -1,54 +1,55 @@
-using NUnit.Framework;
+using Xunit;
 using Neo4jClient.Gremlin;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.Gremlin
 {
-    [TestFixture]
-    public class RetainStepTests
+    
+    public class RetainStepTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void RetainVShouldAppendStep()
         {
             var query = new NodeReference(123).RetainV<object>("foo");
-            Assert.AreEqual("g.v(p0).retain(foo)", query.QueryText);
-            Assert.AreEqual(123, query.QueryParameters["p0"]);
+            Assert.Equal("g.v(p0).retain(foo)", query.QueryText);
+            Assert.Equal(123L, query.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void RetainVShouldReturnTypedNodeEnumerable()
         {
             var query = new NodeReference(123).RetainV<object>("foo");
-            Assert.IsInstanceOf<GremlinNodeEnumerable<object>>(query);
+            Assert.IsAssignableFrom<GremlinNodeEnumerable<object>>(query);
         }
 
-        [Test]
+        [Fact]
         public void RetainEShouldAppendStep()
         {
             var query = new NodeReference(123).RetainE("foo");
-            Assert.AreEqual("g.v(p0).retain(foo)", query.QueryText);
-            Assert.AreEqual(123, query.QueryParameters["p0"]);
+            Assert.Equal("g.v(p0).retain(foo)", query.QueryText);
+            Assert.Equal(123L, query.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void RetainEShouldReturnRelationshipEnumerable()
         {
             var query = new NodeReference(123).RetainE("foo");
-            Assert.IsInstanceOf<GremlinRelationshipEnumerable>(query);
+            Assert.IsAssignableFrom<GremlinRelationshipEnumerable>(query);
         }
 
-        [Test]
+        [Fact]
         public void RetainEWithTDataShouldAppendStep()
         {
             var query = new NodeReference(123).RetainE<object>("foo");
-            Assert.AreEqual("g.v(p0).retain(foo)", query.QueryText);
-            Assert.AreEqual(123, query.QueryParameters["p0"]);
+            Assert.Equal("g.v(p0).retain(foo)", query.QueryText);
+            Assert.Equal(123L, query.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void RetainEWithTDataShouldReturnRelationshipEnumerable()
         {
             var query = new NodeReference(123).RetainE<object>("foo");
-            Assert.IsInstanceOf<GremlinRelationshipEnumerable<object>>(query);
+            Assert.IsAssignableFrom<GremlinRelationshipEnumerable<object>>(query);
         }
     }
 }

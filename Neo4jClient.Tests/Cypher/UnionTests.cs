@@ -1,15 +1,16 @@
 ﻿using System.Linq;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 using Neo4jClient.Cypher;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.Cypher
 {
-    [TestFixture]
-    public class UnionTests
+    
+    public class UnionTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
-        [Description("http://docs.neo4j.org/chunked/2.0.0-M01/query-union.html#union-combine-two-queries-and-removing-duplicates")]
+        [Fact]
+        //[Description("http://docs.neo4j.org/chunked/2.0.0-M01/query-union.html#union-combine-two-queries-and-removing-duplicates")]
         public void UnionAll()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -17,12 +18,12 @@ namespace Neo4jClient.Test.Cypher
                 .UnionAll()
                 .Query;
 
-            Assert.AreEqual("UNION ALL", query.QueryText);
-            Assert.AreEqual(0, query.QueryParameters.Count());
+            Assert.Equal("UNION ALL", query.QueryText);
+            Assert.Equal(0, query.QueryParameters.Count());
         }
 
-        [Test]
-        [Description("http://docs.neo4j.org/chunked/2.0.0-M01/query-union.html#union-union-two-queries")]
+        [Fact]
+        //[Description("http://docs.neo4j.org/chunked/2.0.0-M01/query-union.html#union-union-two-queries")]
         public void Union()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -30,8 +31,8 @@ namespace Neo4jClient.Test.Cypher
                 .Union()
                 .Query;
 
-            Assert.AreEqual("UNION", query.QueryText);
-            Assert.AreEqual(0, query.QueryParameters.Count());
+            Assert.Equal("UNION", query.QueryText);
+            Assert.Equal(0, query.QueryParameters.Count());
         }
     }
 }

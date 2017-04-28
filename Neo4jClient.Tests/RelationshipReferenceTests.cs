@@ -1,77 +1,79 @@
-﻿using Neo4jClient.Gremlin;
-using NUnit.Framework;
+﻿using FluentAssertions;
+using Neo4jClient.Gremlin;
+using Neo4jClient.Test.Fixtures;
+using Xunit;
 
 namespace Neo4jClient.Test
 {
-    [TestFixture]
-    public class RelationshipReferenceTests
+    
+    public class RelationshipReferenceTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void ShouldImplicitlyCastFromInt()
         {
             RelationshipReference relationshipReference = 3;
-            Assert.AreEqual(3, relationshipReference.Id);
+            Assert.Equal(3, relationshipReference.Id);
         }
 
-        [Test]
+        [Fact]
         public void ShouldExplicitlyCastFromInt()
         {
             var relationshipReference = (RelationshipReference)3;
-            Assert.IsInstanceOf(typeof(RelationshipReference), relationshipReference);
-            Assert.AreEqual(3, relationshipReference.Id);
+            Assert.IsAssignableFrom(typeof(RelationshipReference), relationshipReference);
+            Assert.Equal(3, relationshipReference.Id);
         }
 
-        [Test]
-        [TestCase(1, 2, ExpectedResult = false)]
-        [TestCase(3, 3, ExpectedResult = true)]
-        public bool Equals(int lhs, int rhs)
+        [Theory]
+        [InlineData(1, 2, false)]
+        [InlineData(3, 3, true)]
+        public void Equals(int lhs, int rhs, bool expected)
         {
-            return new RelationshipReference(lhs) == new RelationshipReference(rhs);
+            (new RelationshipReference(lhs) == new RelationshipReference(rhs)).Should().Be(expected);
         }
 
-        [Test]
-        [TestCase(1, 2, ExpectedResult = false)]
-        [TestCase(3, 3, ExpectedResult = true)]
-        public bool GetHashCode(int lhs, int rhs)
+        [Theory]
+        [InlineData(1, 2, false)]
+        [InlineData(3, 3, true)]
+        public void GetHashCode(int lhs, int rhs, bool expected)
         {
-            return new RelationshipReference(lhs).GetHashCode() == new RelationshipReference(rhs).GetHashCode();
+            (new RelationshipReference(lhs).GetHashCode() == new RelationshipReference(rhs).GetHashCode()).Should().Be(expected);
         }
 
-        [Test]
+        [Fact]
         public void EqualsOperatorShouldReturnFalseWhenComparingInstanceWithNull()
         {
             var lhs = new RelationshipReference(3);
-            Assert.IsFalse(lhs == null);
+            Assert.False(lhs == null);
         }
 
-        [Test]
+        [Fact]
         public void EqualsOperatorShouldReturnTrueWhenComparingNullWithNull()
         {
             RelationshipReference lhs = null;
-            Assert.IsTrue(lhs == null);
+            Assert.True(lhs == null);
         }
 
-        [Test]
+        [Fact]
         public void EqualsShouldReturnFalseWhenComparingWithNull()
         {
             var lhs = new RelationshipReference(3);
-            Assert.IsFalse(lhs.Equals(null));
+            Assert.False(lhs.Equals(null));
         }
 
-        [Test]
+        [Fact]
         public void EqualsShouldReturnFalseWhenComparingWithDifferentType()
         {
             var lhs = new RelationshipReference(3);
-            Assert.IsFalse(lhs.Equals(new object()));
+            Assert.False(lhs.Equals(new object()));
         }
 
-        [Test]
+        [Fact]
         public void GremlinQueryTextShouldReturnSimpleEdgeStep()
         {
             var reference = new RelationshipReference(123);
             var query = ((IGremlinQuery)reference);
-            Assert.AreEqual("g.e(p0)", query.QueryText);
-            Assert.AreEqual(123, query.QueryParameters["p0"]);
+            Assert.Equal("g.e(p0)", query.QueryText);
+            Assert.Equal(123L, query.QueryParameters["p0"]);
         }
     }
 }

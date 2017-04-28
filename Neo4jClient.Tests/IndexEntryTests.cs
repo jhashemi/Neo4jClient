@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
+using Neo4jClient.Test.Fixtures;
+using Xunit;
 
 namespace Neo4jClient.Test
 {
-    [TestFixture]
-    public class IndexEntryTests
+    
+    public class IndexEntryTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void CanInitializeWithLongForm()
         {
             var entry = new IndexEntry
@@ -21,15 +22,15 @@ namespace Neo4jClient.Test
                 }
             };
 
-            Assert.AreEqual("index-entry", entry.Name);
-            Assert.AreEqual(2, entry.KeyValues.Count());
-            Assert.AreEqual("foo", entry.KeyValues.ElementAt(0).Key);
-            Assert.AreEqual(123, entry.KeyValues.ElementAt(0).Value);
-            Assert.AreEqual("bar", entry.KeyValues.ElementAt(1).Key);
-            Assert.AreEqual("baz", entry.KeyValues.ElementAt(1).Value);
+            Assert.Equal("index-entry", entry.Name);
+            Assert.Equal(2, entry.KeyValues.Count());
+            Assert.Equal("foo", entry.KeyValues.ElementAt(0).Key);
+            Assert.Equal(123, entry.KeyValues.ElementAt(0).Value);
+            Assert.Equal("bar", entry.KeyValues.ElementAt(1).Key);
+            Assert.Equal("baz", entry.KeyValues.ElementAt(1).Value);
         }
 
-        [Test]
+        [Fact]
         public void CanInitializeWithCollectionIntializer()
         {
             var entry = new IndexEntry("index-entry")
@@ -38,15 +39,15 @@ namespace Neo4jClient.Test
                 { "bar", "baz" }
             };
 
-            Assert.AreEqual("index-entry", entry.Name);
-            Assert.AreEqual(2, entry.KeyValues.Count());
-            Assert.AreEqual("foo", entry.KeyValues.ElementAt(0).Key);
-            Assert.AreEqual(123, entry.KeyValues.ElementAt(0).Value);
-            Assert.AreEqual("bar", entry.KeyValues.ElementAt(1).Key);
-            Assert.AreEqual("baz", entry.KeyValues.ElementAt(1).Value);
+            Assert.Equal("index-entry", entry.Name);
+            Assert.Equal(2, entry.KeyValues.Count());
+            Assert.Equal("foo", entry.KeyValues.ElementAt(0).Key);
+            Assert.Equal(123, entry.KeyValues.ElementAt(0).Value);
+            Assert.Equal("bar", entry.KeyValues.ElementAt(1).Key);
+            Assert.Equal("baz", entry.KeyValues.ElementAt(1).Value);
         }
 
-        [Test]
+        [Fact]
         public void CanCallAddAfterUsingNameConstructor()
         {
             // ReSharper disable UseObjectOrCollectionInitializer
@@ -54,12 +55,12 @@ namespace Neo4jClient.Test
             entry.Add("qak", "qoo");
             // ReSharper restore UseObjectOrCollectionInitializer
 
-            Assert.AreEqual(1, entry.KeyValues.Count());
-            Assert.AreEqual("qak", entry.KeyValues.ElementAt(0).Key);
-            Assert.AreEqual("qoo", entry.KeyValues.ElementAt(0).Value);
+            Assert.Equal(1, entry.KeyValues.Count());
+            Assert.Equal("qak", entry.KeyValues.ElementAt(0).Key);
+            Assert.Equal("qoo", entry.KeyValues.ElementAt(0).Value);
         }
 
-        [Test]
+        [Fact]
         public void CanCallAddAfterUsingCollectionIntializer()
         {
             // ReSharper disable UseObjectOrCollectionInitializer
@@ -72,12 +73,12 @@ namespace Neo4jClient.Test
 
             entry.Add("qak", "qoo");
 
-            Assert.AreEqual(3, entry.KeyValues.Count());
-            Assert.AreEqual("qak", entry.KeyValues.ElementAt(2).Key);
-            Assert.AreEqual("qoo", entry.KeyValues.ElementAt(2).Value);
+            Assert.Equal(3, entry.KeyValues.Count());
+            Assert.Equal("qak", entry.KeyValues.ElementAt(2).Key);
+            Assert.Equal("qoo", entry.KeyValues.ElementAt(2).Value);
         }
 
-        [Test]
+        [Fact]
         public void AddAfterAssigningCustomListShouldThrowException()
         {
             var entry = new IndexEntry

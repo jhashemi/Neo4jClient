@@ -1,36 +1,37 @@
-﻿using NUnit.Framework;
+﻿using Xunit;
 using Neo4jClient.Gremlin;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.Gremlin
 {
-    [TestFixture]
-    public class FairMergeStepTests
+    
+    public class FairMergeStepTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void FairMergeShouldAppendStepToNodeQuery()
         {
             var query = new NodeReference(123).OutV<object>().FairMerge();
-            Assert.IsInstanceOf<IGremlinNodeQuery<object>>(query);
-            Assert.AreEqual("g.v(p0).outV.fairMerge", query.QueryText);
-            Assert.AreEqual(123, query.QueryParameters["p0"]);
+            Assert.IsAssignableFrom<IGremlinNodeQuery<object>>(query);
+            Assert.Equal("g.v(p0).outV.fairMerge", query.QueryText);
+            Assert.Equal(123L, query.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void FairMergeShouldAppendStepToRelationshipQuery()
         {
             var query = new NodeReference(123).OutE().FairMerge();
-            Assert.IsInstanceOf<IGremlinRelationshipQuery>(query);
-            Assert.AreEqual("g.v(p0).outE.fairMerge", query.QueryText);
-            Assert.AreEqual(123, query.QueryParameters["p0"]);
+            Assert.IsAssignableFrom<IGremlinRelationshipQuery>(query);
+            Assert.Equal("g.v(p0).outE.fairMerge", query.QueryText);
+            Assert.Equal(123L, query.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void FairMergeShouldAppendStepToTypedRelationshipQuery()
         {
             var query = new NodeReference(123).OutE<object>().FairMerge();
-            Assert.IsInstanceOf<IGremlinRelationshipQuery<object>>(query);
-            Assert.AreEqual("g.v(p0).outE.fairMerge", query.QueryText);
-            Assert.AreEqual(123, query.QueryParameters["p0"]);
+            Assert.IsAssignableFrom<IGremlinRelationshipQuery<object>>(query);
+            Assert.Equal("g.v(p0).outE.fairMerge", query.QueryText);
+            Assert.Equal(123L, query.QueryParameters["p0"]);
         }
     }
 }

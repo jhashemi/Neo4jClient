@@ -1,12 +1,13 @@
 using System;
 using Neo4jClient.Cypher;
+using Neo4jClient.Test.Fixtures;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace Neo4jClient.Test.Cypher
 {
-    [TestFixture]
-    public class CypherFluentQueryDetachDeleteTests
+    
+    public class CypherFluentQueryDetachDeleteTests : IClassFixture<CultureInfoSetupFixture>
     {
         private static IRawGraphClient GraphClient_230
         {
@@ -18,7 +19,7 @@ namespace Neo4jClient.Test.Cypher
             }
         }
 
-        [Test]
+        [Fact]
         public void DeleteMatchedIdentifier()
         {
             var client = GraphClient_230;
@@ -27,20 +28,20 @@ namespace Neo4jClient.Test.Cypher
                 .DetachDelete("n, r")
                 .Query;
 
-            Assert.AreEqual("MATCH n-[r]-()\r\nDETACH DELETE n, r", query.QueryText);
+            Assert.Equal("MATCH n-[r]-()\r\nDETACH DELETE n, r", query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void ThrowInvalidOperationException_WhenAttemptingToDeleteProperty()
         {
             var client = GraphClient_230;
-            Assert.That(() => new CypherFluentQuery(client)
+            Assert.Throws<InvalidOperationException>(() => new CypherFluentQuery(client)
                 .DetachDelete("andres.age")
                 .Return<Node<object>>("andres")
-                .Query, Throws.InvalidOperationException);
+                .Query);
         }
 
-        [Test]
+        [Fact]
         public void DeleteIdentifier()
         {
             var client = GraphClient_230;
@@ -49,10 +50,10 @@ namespace Neo4jClient.Test.Cypher
                 .DetachDelete("n")
                 .Query;
 
-            Assert.AreEqual("MATCH n\r\nDETACH DELETE n", query.QueryText);
+            Assert.Equal("MATCH n\r\nDETACH DELETE n", query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void DeleteWithoutReturn()
         {
             // Arrange
@@ -68,11 +69,11 @@ namespace Neo4jClient.Test.Cypher
                 .ExecuteWithoutResults();
 
             // Assert
-            Assert.IsNotNull(executedQuery, "Query was not executed against graph client");
-            Assert.AreEqual("DETACH DELETE n", executedQuery.QueryText);
+            Assert.NotNull(executedQuery);
+            Assert.Equal("DETACH DELETE n", executedQuery.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void AllowDeleteClauseAfterWhere()
         {
             var client = GraphClient_230;
@@ -82,19 +83,19 @@ namespace Neo4jClient.Test.Cypher
                 .Query;
 
             // Assert
-            Assert.AreEqual("WHERE (...)\r\nDETACH DELETE n", query.QueryText);
+            Assert.Equal("WHERE (...)\r\nDETACH DELETE n", query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void ThrowsInvalidOperationException_WhenClientVersionIsLessThan_230()
         {
             var client = GraphClient_230;
             client.CypherCapabilities.Returns(CypherCapabilities.Cypher226);
 
-            Assert.That(() => new CypherFluentQuery(client)
+            Assert.Throws<InvalidOperationException>(() => new CypherFluentQuery(client)
                 .Match("(n)")
                 .DetachDelete("n")
-                .Query, Throws.InvalidOperationException);
+                .Query);
         }
     }
 }

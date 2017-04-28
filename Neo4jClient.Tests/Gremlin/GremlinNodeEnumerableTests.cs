@@ -1,24 +1,25 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 using Neo4jClient.Gremlin;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.Gremlin
 {
-    [TestFixture]
-    public class GremlinNodeEnumerableTests
+    
+    public class GremlinNodeEnumerableTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void GetEnumeratorShouldThrowDetachedNodeExceptionWhenClientNotSet()
         {
             // ReSharper disable ReturnValueOfPureMethodIsNotUsed
             IEnumerable<Node<object>> enumerable = new GremlinNodeEnumerable<object>(new GremlinQuery(null, "abc", null, null));
-            Assert.That(() => enumerable.GetEnumerator(), Throws.TypeOf<DetachedNodeException>());
+            Assert.Throws<DetachedNodeException>(() => enumerable.GetEnumerator());
             // ReSharper restore ReturnValueOfPureMethodIsNotUsed
         }
 
-        [Test]
+        [Fact]
         public void GetEnumeratorShouldExecuteQueryAgainstClient()
         {
             // Arrange
@@ -39,10 +40,10 @@ namespace Neo4jClient.Test.Gremlin
             var results = enumerable.ToArray();
 
             // Assert
-            Assert.AreEqual(expectedResults, results);
+            Assert.Equal(expectedResults, results);
         }
 
-        [Test]
+        [Fact]
         public void DebugQueryTextShouldReturnExpandedText()
         {
             var gremlinQuery = new GremlinQuery(
@@ -65,7 +66,7 @@ namespace Neo4jClient.Test.Gremlin
                 },
                 null);
             var enumerable = new GremlinNodeEnumerable<object>(gremlinQuery);
-            Assert.AreEqual(
+            Assert.Equal(
                 "g['val00']['val01']['val02']['val03']['val04']['val05']['val06']['val07']['val08']['val09']['val10']['val11']",
                 enumerable.DebugQueryText);
         }

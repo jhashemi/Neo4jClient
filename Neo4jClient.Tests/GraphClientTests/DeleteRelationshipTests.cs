@@ -1,20 +1,21 @@
 ﻿using System;
 using FluentAssertions;
-using NUnit.Framework;
+using Neo4jClient.Test.Fixtures;
+using Xunit;
 
 namespace Neo4jClient.Test.GraphClientTests
 {
-    [TestFixture]
-    public class DeleteRelationshipTests
+    
+    public class DeleteRelationshipTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void ShouldThrowInvalidOperationExceptionIfNotConnected()
         {
             var client = new GraphClient(new Uri("http://foo"));
             Assert.Throws<InvalidOperationException>(() => client.DeleteRelationship(123));
         }
 
-        [Test]
+        [Fact]
         public void ShouldDeleteRelationship()
         {
             using (var testHarness = new RestTestHarness
@@ -30,7 +31,7 @@ namespace Neo4jClient.Test.GraphClientTests
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldThrowExceptionWhenDeleteFails()
         {
             using (var testHarness = new RestTestHarness

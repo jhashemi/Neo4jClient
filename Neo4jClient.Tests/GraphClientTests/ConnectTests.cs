@@ -7,16 +7,17 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Neo4jClient.Cypher;
 using Neo4jClient.Execution;
+using Neo4jClient.Test.Fixtures;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
-using NUnit.Framework;
+using Xunit;
 
 namespace Neo4jClient.Test.GraphClientTests
 {
-    [TestFixture]
-    public class ConnectTests
+    
+    public class ConnectTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void ShouldThrowConnectionExceptionFor500Response()
         {
             using (var testHarness = new RestTestHarness
@@ -28,47 +29,47 @@ namespace Neo4jClient.Test.GraphClientTests
             })
             {
                 var ex = Assert.Throws<Exception>(() => testHarness.CreateAndConnectGraphClient());
-                Assert.AreEqual("Received an unexpected HTTP status when executing the request.\r\n\r\nThe response status was: 500 InternalServerError", ex.Message);
+                Assert.Equal("Received an unexpected HTTP status when executing the request.\r\n\r\nThe response status was: 500 InternalServerError", ex.Message);
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldRetrieveApiEndpoints()
         {
             using (var testHarness = new RestTestHarness())
             {
                 var graphClient = (GraphClient)testHarness.CreateAndConnectGraphClient();
-                Assert.AreEqual("/node", graphClient.RootApiResponse.Node);
-                Assert.AreEqual("/index/node", graphClient.RootApiResponse.NodeIndex);
-                Assert.AreEqual("/index/relationship", graphClient.RootApiResponse.RelationshipIndex);
-                Assert.AreEqual("http://foo/db/data/node/123", graphClient.RootApiResponse.ReferenceNode);
-                Assert.AreEqual("/ext", graphClient.RootApiResponse.ExtensionsInfo);
+                Assert.Equal("/node", graphClient.RootApiResponse.Node);
+                Assert.Equal("/index/node", graphClient.RootApiResponse.NodeIndex);
+                Assert.Equal("/index/relationship", graphClient.RootApiResponse.RelationshipIndex);
+                Assert.Equal("http://foo/db/data/node/123", graphClient.RootApiResponse.ReferenceNode);
+                Assert.Equal("/ext", graphClient.RootApiResponse.ExtensionsInfo);
             }
         }
 
-        [Test]
+        [Fact]
         
         public void RootNode_ShouldThrowInvalidOperationException_WhenNotConnectedYet()
         {
             var graphClient = new GraphClient(new Uri("http://foo/db/data"), null);
 
             var ex = Assert.Throws<InvalidOperationException>(() => graphClient.RootNode.ToString());
-            Assert.AreEqual("The graph client is not connected to the server. Call the Connect method first.", ex.Message);
+            Assert.Equal("The graph client is not connected to the server. Call the Connect method first.", ex.Message);
         }
 
-        [Test]
+        [Fact]
         public void RootNode_ShouldReturnReferenceNode()
         {
             using (var testHarness = new RestTestHarness())
             {
                 var graphClient = testHarness.CreateAndConnectGraphClient();
 
-                Assert.IsNotNull(graphClient.RootNode);
-                Assert.AreEqual(123, graphClient.RootNode.Id);
+                Assert.NotNull(graphClient.RootNode);
+                Assert.Equal(123, graphClient.RootNode.Id);
             }
         }
 
-        [Test]
+        [Fact]
         public void RootNode_ShouldReturnNullReferenceNode_WhenNoReferenceNodeDefined()
         {
             using (var testHarness = new RestTestHarness
@@ -89,42 +90,42 @@ namespace Neo4jClient.Test.GraphClientTests
             {
                 var graphClient = testHarness.CreateAndConnectGraphClient();
 
-                Assert.IsNull(graphClient.RootNode);
+                Assert.Null(graphClient.RootNode);
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldParse15M02Version()
         {
             using (var testHarness = new RestTestHarness())
             {
                 var graphClient = (GraphClient)testHarness.CreateAndConnectGraphClient();
 
-                Assert.AreEqual("1.5.0.2", graphClient.RootApiResponse.Version.ToString());
+                Assert.Equal("1.5.0.2", graphClient.RootApiResponse.Version.ToString());
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnCypher19CapabilitiesForPre20Version()
         {
             using (var testHarness = new RestTestHarness())
             {
                 var graphClient = testHarness.CreateAndConnectGraphClient();
-                Assert.AreEqual(CypherCapabilities.Cypher19, graphClient.CypherCapabilities);
+                Assert.Equal(CypherCapabilities.Cypher19, graphClient.CypherCapabilities);
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldSetCypher22CapabilitiesForPost22Version()
         {
             using (var testHarness = new RestTestHarness())
             {
                 var graphClient = testHarness.CreateAndConnectGraphClient(RestTestHarness.Neo4jVersion.Neo22);
-                Assert.AreEqual(CypherCapabilities.Cypher22, graphClient.CypherCapabilities);
+                Assert.Equal(CypherCapabilities.Cypher22, graphClient.CypherCapabilities);
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnCypher19CapabilitiesForVersion20()
         {
             using (var testHarness = new RestTestHarness
@@ -136,19 +137,19 @@ namespace Neo4jClient.Test.GraphClientTests
             })
             {
                 var graphClient = testHarness.CreateAndConnectGraphClient();
-                Assert.AreEqual(CypherCapabilities.Cypher20, graphClient.CypherCapabilities);
+                Assert.Equal(CypherCapabilities.Cypher20, graphClient.CypherCapabilities);
             }
         }
 
-        [Test]
+        [Fact]
         public void UserInfoPreservedInRootUri()
         {
             var graphClient = new GraphClient(new Uri("http://username:password@foo/db/data"));
 
-            Assert.That(graphClient.RootUri.OriginalString, Is.EqualTo("http://username:password@foo/db/data"));
+            Assert.Equal(graphClient.RootUri.OriginalString, "http://username:password@foo/db/data");
         }
 
-        [Test]
+        [Fact]
         public void CredentialsPreservedAllTheWayThroughToHttpStack()
         {
             var httpClient = Substitute.For<IHttpClient>();
@@ -173,11 +174,11 @@ namespace Neo4jClient.Test.GraphClientTests
             var httpCall = httpClient.ReceivedCalls().Last();
             var httpRequest = (HttpRequestMessage) httpCall.GetArguments()[0];
 
-            StringAssert.AreEqualIgnoringCase("Basic", httpRequest.Headers.Authorization.Scheme);
-            StringAssert.AreEqualIgnoringCase("dXNlcm5hbWU6cGFzc3dvcmQ=", httpRequest.Headers.Authorization.Parameter);
+            Assert.Equal("Basic", httpRequest.Headers.Authorization.Scheme, StringComparer.OrdinalIgnoreCase);
+            Assert.Equal("dXNlcm5hbWU6cGFzc3dvcmQ=", httpRequest.Headers.Authorization.Parameter, StringComparer.OrdinalIgnoreCase);
         }
 
-        [Test]
+        [Fact]
         public void PassesCorrectStreamHeader_WhenUseStreamIsTrue()
         {
             var httpClient = Substitute.For<IHttpClient>();
@@ -202,11 +203,11 @@ namespace Neo4jClient.Test.GraphClientTests
             var httpCall = httpClient.ReceivedCalls().Last();
             var httpRequest = (HttpRequestMessage)httpCall.GetArguments()[0];
 
-            Assert.IsTrue(httpRequest.Headers.Contains("X-Stream"));
+            Assert.True(httpRequest.Headers.Contains("X-Stream"));
             Assert.Contains("true", httpRequest.Headers.GetValues("X-Stream").ToList());
         }
 
-        [Test]
+        [Fact]
         public void PassesCorrectStreamHeader_WhenUseStreamIsFalse()
         {
             var httpClient = Substitute.For<IHttpClient>();
@@ -231,11 +232,11 @@ namespace Neo4jClient.Test.GraphClientTests
             var httpCall = httpClient.ReceivedCalls().Last();
             var httpRequest = (HttpRequestMessage)httpCall.GetArguments()[0];
 
-            Assert.IsFalse(httpRequest.Headers.Contains("X-Stream"));
+            Assert.False(httpRequest.Headers.Contains("X-Stream"));
         }
 
 
-        [Test]
+        [Fact]
         public void ShouldParseRootApiResponseFromAuthenticatedConnection()
         {
             using (var testHarness = new RestTestHarness()
@@ -246,11 +247,11 @@ namespace Neo4jClient.Test.GraphClientTests
                 var httpClient = testHarness.GenerateHttpClient("http://foo/db/data");
                 var graphClient = new GraphClient(new Uri("http://username:password@foo/db/data"), httpClient);
                 graphClient.Connect();
-                Assert.AreEqual("/node", graphClient.RootApiResponse.Node);
+                Assert.Equal("/node", graphClient.RootApiResponse.Node);
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldSendCustomUserAgent()
         {
             // Arrange
@@ -261,9 +262,9 @@ namespace Neo4jClient.Test.GraphClientTests
                 .SendAsync(Arg.Do<HttpRequestMessage>(message =>
                 {
                     // Assert
-                    Assert.IsTrue(message.Headers.Contains("User-Agent"), "Contains User-Agent header");
+                    Assert.True(message.Headers.Contains("User-Agent"), "Contains User-Agent header");
                     var userAgent = message.Headers.GetValues("User-Agent").Single();
-                    Assert.AreEqual(expectedUserAgent, userAgent, "User-Agent header value is correct");
+                    Assert.Equal(expectedUserAgent, userAgent);
                 }))
                 .Returns(ci => {
                     var response = new HttpResponseMessage(HttpStatusCode.OK)
@@ -293,15 +294,15 @@ namespace Neo4jClient.Test.GraphClientTests
             graphClient.Connect();
         }
 
-        [Test]
+        [Fact]
         public void ShouldFormatUserAgentCorrectly()
         {
             var graphClient = new GraphClient(new Uri("http://localhost"));
             var userAgent = graphClient.ExecutionConfiguration.UserAgent;
-            Assert.IsTrue(Regex.IsMatch(userAgent, @"Neo4jClient/\d+\.\d+\.\d+\.\d+"), "User agent should be in format Neo4jClient/1.2.3.4");
+            Assert.True(Regex.IsMatch(userAgent, @"Neo4jClient/\d+\.\d+\.\d+\.\d+"), "User agent should be in format Neo4jClient/1.2.3.4");
         }
 
-        [Test]
+        [Fact]
         public void ShouldFormatAuthorisationHeaderCorrectly()
         {
             const string username = "user";
@@ -311,10 +312,10 @@ namespace Neo4jClient.Test.GraphClientTests
             var graphClient = new GraphClient(new Uri("http://localhost"), username, password);
             var httpClient = (HttpClientWrapper) graphClient.ExecutionConfiguration.HttpClient;
 
-            Assert.AreEqual(expectedHeader, httpClient.AuthenticationHeaderValue.Parameter);
+            Assert.Equal(expectedHeader, httpClient.AuthenticationHeaderValue.Parameter);
         }
 
-        [Test]
+        [Fact]
         public void ShouldFireOnCompletedEvenWhenException()
         {
             var httpClient = Substitute.For<IHttpClient>();
@@ -334,8 +335,8 @@ namespace Neo4jClient.Test.GraphClientTests
             Assert.Throws<NotImplementedException>(() => graphClient.Connect());
 
             Assert.NotNull(operationCompletedArgs);
-            Assert.That(operationCompletedArgs.HasException);
-            Assert.AreEqual(typeof(NotImplementedException), operationCompletedArgs.Exception.GetType());
+            Assert.True(operationCompletedArgs.HasException);
+            Assert.Equal(typeof(NotImplementedException), operationCompletedArgs.Exception.GetType());
         }
 
     }

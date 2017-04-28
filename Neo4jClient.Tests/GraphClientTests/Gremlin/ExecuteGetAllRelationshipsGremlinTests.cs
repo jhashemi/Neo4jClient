@@ -1,22 +1,23 @@
 ﻿using System;
 using System.Net;
-using NUnit.Framework;
+using Xunit;
 using System.Linq;
 using Neo4jClient.ApiModels.Gremlin;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.GraphClientTests.Gremlin
 {
-    [TestFixture]
-    public class ExecuteGetAllRelationshipsGremlinTests
+    
+    public class ExecuteGetAllRelationshipsGremlinTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void ShouldThrowInvalidOperationExceptionIfNotConnected()
         {
             var client = new GraphClient(new Uri("http://foo"));
             Assert.Throws<InvalidOperationException>(() => client.ExecuteGetAllRelationshipsGremlin("", null));
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnListOfRelationshipInstances()
         {
             //Arrange
@@ -50,15 +51,15 @@ namespace Neo4jClient.Test.GraphClientTests.Gremlin
                         .ToList();
 
                     //Assert
-                    Assert.AreEqual(1, relationships.Count());
-                    Assert.AreEqual(456, relationships.ElementAt(0).Reference.Id);
-                    Assert.AreEqual(123, relationships.ElementAt(0).StartNodeReference.Id);
-                    Assert.AreEqual(789, relationships.ElementAt(0).EndNodeReference.Id);
-                    Assert.AreEqual("KNOWS", relationships.ElementAt(0).TypeKey);
+                    Assert.Equal(1, relationships.Count());
+                    Assert.Equal(456, relationships.ElementAt(0).Reference.Id);
+                    Assert.Equal(123, relationships.ElementAt(0).StartNodeReference.Id);
+                    Assert.Equal(789, relationships.ElementAt(0).EndNodeReference.Id);
+                    Assert.Equal("KNOWS", relationships.ElementAt(0).TypeKey);
                 }
     }
 
-        [Test]
+        [Fact]
         public void ShouldReturnListOfRelationshipInstancesWithPayloads()
         {
             //Arrange
@@ -94,13 +95,13 @@ namespace Neo4jClient.Test.GraphClientTests.Gremlin
                     .ToList();
 
                 //Assert
-                Assert.AreEqual(1, relationships.Count());
-                Assert.AreEqual(456, relationships.ElementAt(0).Reference.Id);
-                Assert.AreEqual(123, relationships.ElementAt(0).StartNodeReference.Id);
-                Assert.AreEqual(789, relationships.ElementAt(0).EndNodeReference.Id);
-                Assert.AreEqual("KNOWS", relationships.ElementAt(0).TypeKey);
-                Assert.AreEqual("Foo", relationships.ElementAt(0).Data.Foo);
-                Assert.AreEqual("Bar", relationships.ElementAt(0).Data.Bar);
+                Assert.Equal(1, relationships.Count());
+                Assert.Equal(456, relationships.ElementAt(0).Reference.Id);
+                Assert.Equal(123, relationships.ElementAt(0).StartNodeReference.Id);
+                Assert.Equal(789, relationships.ElementAt(0).EndNodeReference.Id);
+                Assert.Equal("KNOWS", relationships.ElementAt(0).TypeKey);
+                Assert.Equal("Foo", relationships.ElementAt(0).Data.Foo);
+                Assert.Equal("Bar", relationships.ElementAt(0).Data.Bar);
             }
         }
 
@@ -110,7 +111,7 @@ namespace Neo4jClient.Test.GraphClientTests.Gremlin
             public string Bar { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnEmptyEnumerableForNullResult()
         {
             //Arrange
@@ -134,11 +135,11 @@ namespace Neo4jClient.Test.GraphClientTests.Gremlin
                     .ToList();
 
                 //Assert
-                Assert.AreEqual(0, nodes.Count());
+                Assert.Equal(0, nodes.Count());
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnListOfRelationshipInstancesWithLongRelationshipId()
         {
             //Arrange
@@ -172,15 +173,15 @@ namespace Neo4jClient.Test.GraphClientTests.Gremlin
                     .ToList();
 
                 //Assert
-                Assert.AreEqual(1, relationships.Count());
-                Assert.AreEqual(21484836470, relationships.ElementAt(0).Reference.Id);
-                Assert.AreEqual(123, relationships.ElementAt(0).StartNodeReference.Id);
-                Assert.AreEqual(789, relationships.ElementAt(0).EndNodeReference.Id);
-                Assert.AreEqual("KNOWS", relationships.ElementAt(0).TypeKey);
+                Assert.Equal(1, relationships.Count());
+                Assert.Equal(21484836470, relationships.ElementAt(0).Reference.Id);
+                Assert.Equal(123, relationships.ElementAt(0).StartNodeReference.Id);
+                Assert.Equal(789, relationships.ElementAt(0).EndNodeReference.Id);
+                Assert.Equal("KNOWS", relationships.ElementAt(0).TypeKey);
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnListOfRelationshipInstancesWithLongStartNodeId()
         {
             //Arrange
@@ -214,15 +215,15 @@ namespace Neo4jClient.Test.GraphClientTests.Gremlin
                     .ToList();
 
                 //Assert
-                Assert.AreEqual(1, relationships.Count());
-                Assert.AreEqual(456, relationships.ElementAt(0).Reference.Id);
-                Assert.AreEqual(21484836470, relationships.ElementAt(0).StartNodeReference.Id);
-                Assert.AreEqual(789, relationships.ElementAt(0).EndNodeReference.Id);
-                Assert.AreEqual("KNOWS", relationships.ElementAt(0).TypeKey);
+                Assert.Equal(1, relationships.Count());
+                Assert.Equal(456, relationships.ElementAt(0).Reference.Id);
+                Assert.Equal(21484836470, relationships.ElementAt(0).StartNodeReference.Id);
+                Assert.Equal(789, relationships.ElementAt(0).EndNodeReference.Id);
+                Assert.Equal("KNOWS", relationships.ElementAt(0).TypeKey);
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnListOfRelationshipInstancesWithLongEndNodeId()
         {
             //Arrange
@@ -256,15 +257,15 @@ namespace Neo4jClient.Test.GraphClientTests.Gremlin
                     .ToList();
 
                 //Assert
-                Assert.AreEqual(1, relationships.Count());
-                Assert.AreEqual(456, relationships.ElementAt(0).Reference.Id);
-                Assert.AreEqual(123, relationships.ElementAt(0).StartNodeReference.Id);
-                Assert.AreEqual(21484836470, relationships.ElementAt(0).EndNodeReference.Id);
-                Assert.AreEqual("KNOWS", relationships.ElementAt(0).TypeKey);
+                Assert.Equal(1, relationships.Count());
+                Assert.Equal(456, relationships.ElementAt(0).Reference.Id);
+                Assert.Equal(123, relationships.ElementAt(0).StartNodeReference.Id);
+                Assert.Equal(21484836470, relationships.ElementAt(0).EndNodeReference.Id);
+                Assert.Equal("KNOWS", relationships.ElementAt(0).TypeKey);
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldFailGracefullyWhenGremlinIsNotAvailable()
         {
             using (var testHarness = new RestTestHarness
@@ -279,7 +280,7 @@ namespace Neo4jClient.Test.GraphClientTests.Gremlin
 
                 var ex = Assert.Throws<Exception>(
                     () => graphClient.ExecuteGetAllRelationshipsGremlin("foo bar query", null));
-                Assert.AreEqual(GraphClient.GremlinPluginUnavailable, ex.Message);
+                Assert.Equal(GraphClient.GremlinPluginUnavailable, ex.Message);
             }
         }
     }

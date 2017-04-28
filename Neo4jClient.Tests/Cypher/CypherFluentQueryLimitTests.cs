@@ -1,15 +1,16 @@
-﻿using NUnit.Framework;
+﻿using Xunit;
 using NSubstitute;
 using Neo4jClient.Cypher;
 using System;
 using System.Linq;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.Cypher
 {
-    [TestFixture]
-    public class CypherFluentQueryLimitTests
+    
+    public class CypherFluentQueryLimitTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void LimitClause()
         {
             // Arrange
@@ -21,14 +22,14 @@ namespace Neo4jClient.Test.Cypher
                 .Query;
 
             // Assert
-            Assert.AreEqual("START n=node({p0})\r\nRETURN n\r\nLIMIT {p1}", query.QueryText);
-            Assert.AreEqual(2, query.QueryParameters.Count);
-            Assert.AreEqual(3, query.QueryParameters["p0"]);
-            Assert.AreEqual(2, query.QueryParameters["p1"]);
+            Assert.Equal("START n=node({p0})\r\nRETURN n\r\nLIMIT {p1}", query.QueryText);
+            Assert.Equal(2, query.QueryParameters.Count);
+            Assert.Equal(3L, query.QueryParameters["p0"]);
+            Assert.Equal(2, query.QueryParameters["p1"]);
         }
 
-        [Test]
-        [Description("https://bitbucket.org/Readify/neo4jclient/issue/140/support-multiple-limit-order-by-clauses-in")]
+        [Fact]
+        //[Description("https://bitbucket.org/Readify/neo4jclient/issue/140/support-multiple-limit-order-by-clauses-in")]
         public void LimitClauseAfterReturnClauseIsTyped()
         {
             // Arrange
@@ -39,10 +40,10 @@ namespace Neo4jClient.Test.Cypher
                 .Limit(2);
 
             // Assert
-            Assert.IsInstanceOf<ICypherFluentQuery<Node<Object>>>(query);
+            Assert.IsAssignableFrom<ICypherFluentQuery<Node<Object>>>(query);
         }
 
-        [Test]
+        [Fact]
         public void NullLimitDoesNotWriteClause()
         {
             // Arrange
@@ -54,13 +55,13 @@ namespace Neo4jClient.Test.Cypher
                 .Query;
 
             // Assert
-            Assert.AreEqual("START n=node({p0})\r\nRETURN n", query.QueryText);
-            Assert.AreEqual(1, query.QueryParameters.Count);
-            Assert.AreEqual(3, query.QueryParameters["p0"]);
+            Assert.Equal("START n=node({p0})\r\nRETURN n", query.QueryText);
+            Assert.Equal(1, query.QueryParameters.Count);
+            Assert.Equal(3L, query.QueryParameters["p0"]);
         }
 
-        [Test]
-        [Description("https://bitbucket.org/Readify/neo4jclient/issue/140/support-multiple-limit-order-by-clauses-in")]
+        [Fact]
+        //[Description("https://bitbucket.org/Readify/neo4jclient/issue/140/support-multiple-limit-order-by-clauses-in")]
         public void LimitClauseAfterWithClause()
         {
             // Arrange
@@ -73,14 +74,14 @@ namespace Neo4jClient.Test.Cypher
 
 
             // Assert
-            Assert.AreEqual("START n=node({p0})\r\nWITH foo\r\nLIMIT {p1}", query.QueryText);
-            Assert.AreEqual(2, query.QueryParameters.Count);
-            Assert.AreEqual(3, query.QueryParameters["p0"]);
-            Assert.AreEqual(2, query.QueryParameters["p1"]);
+            Assert.Equal("START n=node({p0})\r\nWITH foo\r\nLIMIT {p1}", query.QueryText);
+            Assert.Equal(2, query.QueryParameters.Count);
+            Assert.Equal(3L, query.QueryParameters["p0"]);
+            Assert.Equal(2, query.QueryParameters["p1"]);
         }
 
-        [Test]
-        [Description("https://bitbucket.org/Readify/neo4jclient/issue/140/support-multiple-limit-order-by-clauses-in")]
+        [Fact]
+        //[Description("https://bitbucket.org/Readify/neo4jclient/issue/140/support-multiple-limit-order-by-clauses-in")]
         public void LimitClauseAfterWithClauseIsUntyped()
         {
             // Arrange
@@ -97,7 +98,7 @@ namespace Neo4jClient.Test.Cypher
                 .Where(i => i.IsGenericType)
                 .Select(i => i.GetGenericTypeDefinition())
                 .Any(t => t == typeof(ICypherFluentQuery<>));
-            Assert.IsFalse(implementsTypedQueryInterface, "Implementes ICypherFluentQuery<>");
+            Assert.False(implementsTypedQueryInterface, "Implementes ICypherFluentQuery<>");
         }
     }
 }

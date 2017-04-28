@@ -4,20 +4,21 @@ using System.Threading.Tasks;
 using Neo4jClient.ApiModels.Cypher;
 using Neo4jClient.Cypher;
 using Neo4jClient.Execution;
-using NUnit.Framework;
+using Neo4jClient.Test.Fixtures;
+using Xunit;
 
 namespace Neo4jClient.Test.GraphClientTests
 {
-    [TestFixture]
-    public class FactoryTests
+    
+    public class FactoryTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void ShouldThrowExceptionIfConfigurationIsNotDefined()
         {
             Assert.Throws<ArgumentNullException>(() => new GraphClientFactory(null));
         }
 
-        [Test]
+        [Fact]
         public void ShouldThrowExceptionIfRootApiIsNotDefined()
         {
             using (var testHarness = new RestTestHarness
@@ -36,11 +37,11 @@ namespace Neo4jClient.Test.GraphClientTests
                     JsonConverters = GraphClient.DefaultJsonConverters
                 };
 
-                Assert.Throws<InvalidOperationException>(() => NeoServerConfiguration.GetConfiguration(new Uri(testHarness.BaseUri), null, null, executeConfiguration));
+                Assert.Throws<InvalidOperationException>(() => NeoServerConfiguration.GetConfiguration(new Uri(testHarness.BaseUri), null, null, null, executeConfiguration));
             }
         }
 
-        [Test]
+        [Fact]
         public void GraphClientFactoryUseCase()
         {
             const string queryText = @"MATCH (d) RETURN d";
@@ -65,7 +66,7 @@ namespace Neo4jClient.Test.GraphClientTests
                     JsonConverters = GraphClient.DefaultJsonConverters
                 };
 
-                var configuration = NeoServerConfiguration.GetConfiguration(new Uri(testHarness.BaseUri), null, null, executeConfiguration);
+                var configuration = NeoServerConfiguration.GetConfiguration(new Uri(testHarness.BaseUri), null, null,null, executeConfiguration);
 
                 var factory = new GraphClientFactory(configuration);
 

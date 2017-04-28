@@ -1,11 +1,12 @@
-﻿using NUnit.Framework;
+﻿using Neo4jClient.Test.Fixtures;
+using Xunit;
 
 namespace Neo4jClient.Test.GraphClientTests
 {
-    [TestFixture]
-    public class DeleteIndexTests
+    
+    public class DeleteIndexTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void ShouldExecuteSilentlyForSuccessfulDelete()
         {
             using (var testHarness = new RestTestHarness

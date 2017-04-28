@@ -1,13 +1,14 @@
 ﻿using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 using Neo4jClient.Cypher;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.Cypher
 {
-    [TestFixture]
-    public class CypherFluentQueryForEachTests
+    
+    public class CypherFluentQueryForEachTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void ForEachRawText()
         {
             // http://docs.neo4j.org/chunked/milestone/query-foreach.html
@@ -18,8 +19,8 @@ namespace Neo4jClient.Test.Cypher
                 .ForEach("(n IN nodes(p) | SET n.marked = TRUE)")
                 .Query;
 
-            Assert.AreEqual("FOREACH (n IN nodes(p) | SET n.marked = TRUE)", query.QueryText);
-            Assert.AreEqual(0, query.QueryParameters.Count);
+            Assert.Equal("FOREACH (n IN nodes(p) | SET n.marked = TRUE)", query.QueryText);
+            Assert.Equal(0, query.QueryParameters.Count);
         }
     }
 }

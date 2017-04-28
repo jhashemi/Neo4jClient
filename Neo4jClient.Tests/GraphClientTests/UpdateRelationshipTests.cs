@@ -1,12 +1,13 @@
 ﻿using System.Net;
-using NUnit.Framework;
+using Neo4jClient.Test.Fixtures;
+using Xunit;
 
 namespace Neo4jClient.Test.GraphClientTests
 {
-    [TestFixture]
-    public class UpdateRelationshipTests
+    
+    public class UpdateRelationshipTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void ShouldUpdatePayload()
         {
             using (var testHarness = new RestTestHarness
@@ -36,7 +37,7 @@ namespace Neo4jClient.Test.GraphClientTests
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldInitializePayloadDuringUpdate()
         {
             using (var testHarness = new RestTestHarness

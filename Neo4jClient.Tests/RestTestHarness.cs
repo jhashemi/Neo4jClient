@@ -2,15 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading;
 using System.Threading.Tasks;
 using Neo4jClient.Execution;
 using Neo4jClient.Transactions;
 using NSubstitute;
-using NUnit.Framework;
 
 namespace Neo4jClient.Test
 {
@@ -113,7 +109,7 @@ namespace Neo4jClient.Test
         public void AssertRequestConstraintsAreMet()
         {
             if (unservicedRequests.Any())
-                Assert.Fail(string.Join("\r\n\r\n", unservicedRequests.ToArray()));
+                throw new Exception(string.Join("\r\n\r\n", unservicedRequests.ToArray()));
 
             var resourcesThatWereNeverRequested = recordedResponses.Select(r => r.Key).Where(r => !(processedRequests.Contains(r) || requestsThatShouldNotBeProcessed.Contains(r))).Select(r => string.Format("{0} {1}", r.Method, r.Resource)).ToArray();
 
@@ -121,14 +117,14 @@ namespace Neo4jClient.Test
 
             if (processedResourcesThatShouldntHaveBeenRequested.Any())
             {
-                Assert.Fail("The test should not have made REST requests for the following resources: {0}", string.Join(", ", processedResourcesThatShouldntHaveBeenRequested));
+                throw new Exception($"The test should not have made REST requests for the following resources: {string.Join(", ", processedResourcesThatShouldntHaveBeenRequested)}");
             }
 
             if (!resourcesThatWereNeverRequested.Any())
                 return;
 
-            Assert.Fail("The test expected REST requests for the following resources, but they were never made: {0}", string.Join(", ", resourcesThatWereNeverRequested));
-        }
+            throw new Exception($"The test expected REST requests for the following resources, but they were never made: {string.Join(", ", resourcesThatWereNeverRequested)}");
+    }
 
         public IHttpClient GenerateHttpClient(string baseUri)
         {

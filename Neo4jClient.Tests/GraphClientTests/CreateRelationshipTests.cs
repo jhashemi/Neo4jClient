@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Net;
-using NUnit.Framework;
+using Neo4jClient.Test.Fixtures;
+using Xunit;
 
 namespace Neo4jClient.Test.GraphClientTests
 {
-    [TestFixture]
-    public class CreateRelationshipTests
+    
+    public class CreateRelationshipTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void ShouldReturnRelationshipReference()
         {
             using (var testHarness = new RestTestHarness
@@ -39,13 +40,13 @@ namespace Neo4jClient.Test.GraphClientTests
                 var testRelationship = new TestRelationship(81);
                 var relationshipReference = graphClient.CreateRelationship(new NodeReference<TestNode>(81), testRelationship);
 
-                Assert.IsInstanceOf<RelationshipReference>(relationshipReference);
-                Assert.IsNotInstanceOf<RelationshipReference<object>>(relationshipReference);
-                Assert.AreEqual(38, relationshipReference.Id);
+                Assert.IsAssignableFrom<RelationshipReference>(relationshipReference);
+                Assert.IsNotType<RelationshipReference<object>>(relationshipReference);
+                Assert.Equal(38, relationshipReference.Id);
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnAttachedRelationshipReference()
         {
             using (var testHarness = new RestTestHarness
@@ -77,25 +78,25 @@ namespace Neo4jClient.Test.GraphClientTests
                 var testRelationship = new TestRelationship(81);
                 var relationshipReference = graphClient.CreateRelationship(new NodeReference<TestNode>(81), testRelationship);
 
-                Assert.AreEqual(graphClient, ((IAttachedReference)relationshipReference).Client);
+                Assert.Equal(graphClient, ((IAttachedReference)relationshipReference).Client);
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldThrowArgumentNullExceptionForNullNodeReference()
         {
             var client = new GraphClient(new Uri("http://foo"));
             Assert.Throws<ArgumentNullException>(() => client.CreateRelationship((NodeReference<TestNode>)null, new TestRelationship(10)));
         }
 
-        [Test]
+        [Fact]
         public void ShouldThrowInvalidOperationExceptionIfNotConnected()
         {
             var client = new GraphClient(new Uri("http://foo"));
             Assert.Throws<InvalidOperationException>(() => client.CreateRelationship(new NodeReference<TestNode>(5), new TestRelationship(10)));
         }
 
-        [Test]
+        [Fact]
         public void ShouldThrowNotSupportedExceptionForIncomingRelationship()
         {
             using (var testHarness = new RestTestHarness())

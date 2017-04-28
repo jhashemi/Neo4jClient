@@ -1,21 +1,22 @@
 ﻿using System;
 using System.Net;
-using NUnit.Framework;
+using Xunit;
 using Neo4jClient.Gremlin;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.GraphClientTests
 {
-    [TestFixture]
-    public class GetNodeTests
+    
+    public class GetNodeTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void ShouldThrowInvalidOperationExceptionIfNotConnected()
         {
             var client = new GraphClient(new Uri("http://foo"));
             Assert.Throws<InvalidOperationException>(() => client.Get<object>((NodeReference)123));
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnNodeData()
         {
             using (var testHarness = new RestTestHarness
@@ -45,14 +46,14 @@ namespace Neo4jClient.Test.GraphClientTests
                 var graphClient = testHarness.CreateAndConnectGraphClient();
                 var node = graphClient.Get<TestNode>((NodeReference)456);
 
-                Assert.AreEqual(456, node.Reference.Id);
-                Assert.AreEqual("foo", node.Data.Foo);
-                Assert.AreEqual("bar", node.Data.Bar);
-                Assert.AreEqual("baz", node.Data.Baz);
+                Assert.Equal(456, node.Reference.Id);
+                Assert.Equal("foo", node.Data.Foo);
+                Assert.Equal("bar", node.Data.Bar);
+                Assert.Equal("baz", node.Data.Baz);
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnNodeDataForLongId()
         {
             using (var testHarness = new RestTestHarness
@@ -82,14 +83,14 @@ namespace Neo4jClient.Test.GraphClientTests
                 var graphClient = testHarness.CreateAndConnectGraphClient();
                 var node = graphClient.Get<TestNode>((NodeReference)21484836470);
 
-                Assert.AreEqual(21484836470, node.Reference.Id);
-                Assert.AreEqual("foo", node.Data.Foo);
-                Assert.AreEqual("bar", node.Data.Bar);
-                Assert.AreEqual("baz", node.Data.Baz);
+                Assert.Equal(21484836470, node.Reference.Id);
+                Assert.Equal("foo", node.Data.Foo);
+                Assert.Equal("bar", node.Data.Bar);
+                Assert.Equal("baz", node.Data.Baz);
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnNodeDataAndDeserializeToEnumType()
         {
             using (var testHarness = new RestTestHarness
@@ -118,13 +119,13 @@ namespace Neo4jClient.Test.GraphClientTests
                 var graphClient = testHarness.CreateAndConnectGraphClient();
                 var node = graphClient.Get<TestNodeWithEnum>((NodeReference)456);
 
-                Assert.AreEqual(456, node.Reference.Id);
-                Assert.AreEqual("foo", node.Data.Foo);
-                Assert.AreEqual(TestEnum.Value1, node.Data.Status);
+                Assert.Equal(456, node.Reference.Id);
+                Assert.Equal("foo", node.Data.Foo);
+                Assert.Equal(TestEnum.Value1, node.Data.Status);
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnNodeWithReferenceBackToClient()
         {
             using (var testHarness = new RestTestHarness
@@ -154,11 +155,11 @@ namespace Neo4jClient.Test.GraphClientTests
                 var graphClient = testHarness.CreateAndConnectGraphClient();
                 var node = graphClient.Get<TestNode>((NodeReference)456);
 
-                Assert.AreEqual(graphClient, ((IGremlinQuery) node.Reference).Client);
+                Assert.Equal(graphClient, ((IGremlinQuery) node.Reference).Client);
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnNullWhenNodeDoesntExist()
         {
             using (var testHarness = new RestTestHarness
@@ -172,11 +173,11 @@ namespace Neo4jClient.Test.GraphClientTests
                 var graphClient = testHarness.CreateAndConnectGraphClient();
                 var node = graphClient.Get<TestNode>((NodeReference)456);
 
-                Assert.IsNull(node);
+                Assert.Null(node);
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnNodeDataAndDeserialzedJsonDatesForDateTimeOffsetNullableType()
         {
             using (var testHarness = new RestTestHarness
@@ -203,8 +204,8 @@ namespace Neo4jClient.Test.GraphClientTests
                 var graphClient = testHarness.CreateAndConnectGraphClient();
                 var node = graphClient.Get<TestNode>((NodeReference)456);
 
-                Assert.IsNotNull(node.Data.DateOffSet);
-                Assert.AreEqual("2011-06-30 08:15:46Z", node.Data.DateOffSet.Value.ToString("u"));
+                Assert.NotNull(node.Data.DateOffSet);
+                Assert.Equal("2011-06-30 08:15:46Z", node.Data.DateOffSet.Value.ToString("u"));
             }
         }
 

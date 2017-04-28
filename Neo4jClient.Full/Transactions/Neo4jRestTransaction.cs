@@ -10,9 +10,9 @@ namespace Neo4jClient.Transactions
     /// <summary>
     /// Implements the Neo4j HTTP transaction for multiple HTTP requests
     /// </summary>
-    internal class Neo4jTransaction : INeo4jTransaction
+    internal class Neo4jRestTransaction: INeo4jTransaction
     {
-        private readonly ITransactionalGraphClient _client;
+        private readonly ITransactionalGraphClient client;
 
         public bool IsOpen { get; private set; }
 
@@ -28,7 +28,7 @@ namespace Neo4jClient.Transactions
                     throw new InvalidOperationException("Id is unknown at this point");
                 }
 
-                var transactionEndpoint = _client.TransactionEndpoint.ToString();
+                var transactionEndpoint = client.TransactionEndpoint.ToString();
                 int transactionEndpointLength = transactionEndpoint.Length;
                 if (!transactionEndpoint.EndsWith("/"))
                 {
@@ -38,19 +38,19 @@ namespace Neo4jClient.Transactions
             }
         }
 
-        internal static Neo4jTransaction FromIdAndClient(int transactionId, ITransactionalGraphClient client)
+        internal static Neo4jRestTransaction FromIdAndClient(int transactionId, ITransactionalGraphClient client)
         {
-            return new Neo4jTransaction(client)
+            return new Neo4jRestTransaction(client)
             {
                 Endpoint = client.TransactionEndpoint.AddPath(transactionId.ToString())
             };
         }
 
-        public Neo4jTransaction(ITransactionalGraphClient graphClient)
+        public Neo4jRestTransaction(ITransactionalGraphClient graphClient)
         {
             Endpoint = null;
             IsOpen = true;
-            _client = graphClient;
+            client = graphClient;
         }
 
         protected void CleanupAfterClosedTransaction()
@@ -95,7 +95,7 @@ namespace Neo4jClient.Transactions
                 return;
             }
 
-            DoCommit(Endpoint, _client.ExecutionConfiguration, _client.Serializer, CustomHeaders);
+            DoCommit(Endpoint, client.ExecutionConfiguration, client.Serializer, CustomHeaders);
             CleanupAfterClosedTransaction();
         }
 
@@ -114,10 +114,10 @@ namespace Neo4jClient.Transactions
 
             //This change is due to: https://github.com/Readify/Neo4jClient/issues/127 and https://github.com/neo4j/neo4j/issues/5806 - 
             HttpStatusCode[] expectedStatusCodes = {HttpStatusCode.OK};
-            if (_client.CypherCapabilities.AutoRollsBackOnError && _client.ExecutionConfiguration.HasErrors)
+            if (client.CypherCapabilities.AutoRollsBackOnError && client.ExecutionConfiguration.HasErrors)
                     expectedStatusCodes = new [] {HttpStatusCode.OK, HttpStatusCode.NotFound};
 
-            Request.With(_client.ExecutionConfiguration)
+            Request.With(client.ExecutionConfiguration)
                 .Delete(Endpoint)
                 .WithExpectedStatusCodes(expectedStatusCodes)
                 .Execute();
@@ -137,7 +137,7 @@ namespace Neo4jClient.Transactions
                 return;
             }
 
-            DoKeepAlive(Endpoint, _client.ExecutionConfiguration, _client.Serializer);
+            DoKeepAlive(Endpoint, client.ExecutionConfiguration, client.Serializer);
         }
 
         /// <summary>
@@ -145,11 +145,11 @@ namespace Neo4jClient.Transactions
         /// </summary>
         internal void ForceKeepAlive()
         {
-            var keepAliveUri = Endpoint ?? _client.TransactionEndpoint;
+            var keepAliveUri = Endpoint ?? client.TransactionEndpoint;
             var transactionEndpoint = DoKeepAlive(
                 keepAliveUri, 
-                _client.ExecutionConfiguration,
-                _client.Serializer,newTransaction: Endpoint == null);
+                client.ExecutionConfiguration,
+                client.Serializer,newTransaction: Endpoint == null);
             
             if (Endpoint != null)
             {

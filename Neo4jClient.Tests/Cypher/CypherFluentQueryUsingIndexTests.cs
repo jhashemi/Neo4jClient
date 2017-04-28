@@ -1,14 +1,15 @@
 ﻿using System;
-using NUnit.Framework;
+using Xunit;
 using NSubstitute;
 using Neo4jClient.Cypher;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.Cypher
 {
-    [TestFixture]
-    public class CypherFluentQueryUsingIndexTests
+    
+    public class CypherFluentQueryUsingIndexTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void UsesIndex()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -18,12 +19,12 @@ namespace Neo4jClient.Test.Cypher
                 .Return(foo => new { qux = foo.As<object>() } )
                 .Query;
 
-            Assert.AreEqual("MATCH (foo:Bar { id: 123 })\r\nUSING INDEX :Bar(id)\r\nRETURN foo AS qux", query.QueryText);
+            Assert.Equal("MATCH (foo:Bar { id: 123 })\r\nUSING INDEX :Bar(id)\r\nRETURN foo AS qux", query.QueryText);
         }
 
-        [Test]
-        [TestCase(null)]
-        [TestCase("")]
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
         public void UsingEmptyIndexIsInvalid(string index)
         {
             var client = Substitute.For<IRawGraphClient>();

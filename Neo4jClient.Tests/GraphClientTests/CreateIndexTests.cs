@@ -1,13 +1,14 @@
 ﻿using System;
-using NUnit.Framework;
+using Neo4jClient.Test.Fixtures;
+using Xunit;
 
 namespace Neo4jClient.Test.GraphClientTests
 {
-    [TestFixture]
-    public class CreateIndexTests
+    
+    public class CreateIndexTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
-        [TestCase(
+        [Theory]
+        [InlineData(
             IndexFor.Node,
             IndexProvider.lucene,
             IndexType.fulltext,
@@ -16,7 +17,7 @@ namespace Neo4jClient.Test.GraphClientTests
                 'name': 'foo',
                 'config': { 'type': 'fulltext', 'provider': 'lucene' }
             }")]
-        [TestCase(
+        [InlineData(
             IndexFor.Node,
             IndexProvider.lucene,
             IndexType.exact,
@@ -25,7 +26,7 @@ namespace Neo4jClient.Test.GraphClientTests
                 'name': 'foo',
                 'config': { 'type': 'exact', 'provider': 'lucene' }
             }")]
-        [TestCase(
+        [InlineData(
             IndexFor.Relationship,
             IndexProvider.lucene,
             IndexType.fulltext,
@@ -34,7 +35,7 @@ namespace Neo4jClient.Test.GraphClientTests
                 'name': 'foo',
                 'config': { 'type': 'fulltext', 'provider': 'lucene' }
             }")]
-        [TestCase(
+        [InlineData(
             IndexFor.Relationship,
             IndexProvider.lucene,
             IndexType.exact,
@@ -70,8 +71,8 @@ namespace Neo4jClient.Test.GraphClientTests
             }
         }
 
-        [Test]
-        [TestCase(
+        [Theory]
+        [InlineData(
             IndexFor.Node,
             IndexProvider.lucene,
             IndexType.fulltext,
@@ -80,7 +81,7 @@ namespace Neo4jClient.Test.GraphClientTests
                 'name': 'foo',
                 'config': { 'type': 'fulltext', 'provider': 'lucene' }
             }")]
-        [TestCase(
+        [InlineData(
             IndexFor.Node,
             IndexProvider.lucene,
             IndexType.exact,
@@ -89,7 +90,7 @@ namespace Neo4jClient.Test.GraphClientTests
                 'name': 'foo',
                 'config': { 'type': 'exact', 'provider': 'lucene' }
             }")]
-        [TestCase(
+        [InlineData(
             IndexFor.Relationship,
             IndexProvider.lucene,
             IndexType.fulltext,
@@ -98,7 +99,7 @@ namespace Neo4jClient.Test.GraphClientTests
                 'name': 'foo',
                 'config': { 'type': 'fulltext', 'provider': 'lucene' }
             }")]
-        [TestCase(
+        [InlineData(
             IndexFor.Relationship,
             IndexProvider.lucene,
             IndexType.exact,

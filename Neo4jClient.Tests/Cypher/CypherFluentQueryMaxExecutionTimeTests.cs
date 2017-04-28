@@ -1,13 +1,14 @@
 ﻿using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 using Neo4jClient.Cypher;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.Cypher
 {
-    [TestFixture]
-    public class CypherFluentQueryMaxExecutionTimeTests
+    
+    public class CypherFluentQueryMaxExecutionTimeTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void SetsMaxExecutionTime_WhenUsingAReturnTypeQuery()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -17,10 +18,10 @@ namespace Neo4jClient.Test.Cypher
                 .Return<object>("n")
                 .Query;
 
-            Assert.AreEqual(100, query.MaxExecutionTime);
+            Assert.Equal(100, query.MaxExecutionTime);
         }
 
-        [Test]
+        [Fact]
         public void SetsMaxExecutionTime_WhenUsingANonReturnTypeQuery()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -30,7 +31,7 @@ namespace Neo4jClient.Test.Cypher
                 .Set("n.Value = 'value'")
                 .Query;
 
-            Assert.AreEqual(100, query.MaxExecutionTime);
+            Assert.Equal(100, query.MaxExecutionTime);
         }
 
     }

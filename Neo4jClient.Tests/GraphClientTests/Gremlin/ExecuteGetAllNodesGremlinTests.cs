@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
-using NUnit.Framework;
+using Xunit;
 using System.Linq;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.GraphClientTests.Gremlin
 {
-    [TestFixture]
-    public class ExecuteGetAllNodesGremlinTests
+    
+    public class ExecuteGetAllNodesGremlinTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void ShouldThrowInvalidOperationExceptionIfNotConnected()
         {
             var client = new GraphClient(new Uri("http://foo"));
@@ -22,7 +23,7 @@ namespace Neo4jClient.Test.GraphClientTests.Gremlin
             public string Baz { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnIEnumerableOfObjects()
         {
             using (var testHarness = new RestTestHarness
@@ -90,17 +91,17 @@ namespace Neo4jClient.Test.GraphClientTests.Gremlin
                     .ToList();
 
                 //Assert
-                Assert.AreEqual(2, nodes.Count());
-                Assert.AreEqual(5, nodes.ElementAt(0).Reference.Id);
-                Assert.AreEqual("bar", nodes.ElementAt(0).Data.Bar);
-                Assert.AreEqual("baz", nodes.ElementAt(0).Data.Baz);
-                Assert.AreEqual(6, nodes.ElementAt(1).Reference.Id);
-                Assert.AreEqual("123", nodes.ElementAt(1).Data.Bar);
-                Assert.AreEqual("456", nodes.ElementAt(1).Data.Baz);
+                Assert.Equal(2, nodes.Count());
+                Assert.Equal(5, nodes.ElementAt(0).Reference.Id);
+                Assert.Equal("bar", nodes.ElementAt(0).Data.Bar);
+                Assert.Equal("baz", nodes.ElementAt(0).Data.Baz);
+                Assert.Equal(6, nodes.ElementAt(1).Reference.Id);
+                Assert.Equal("123", nodes.ElementAt(1).Data.Bar);
+                Assert.Equal("456", nodes.ElementAt(1).Data.Baz);
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnEmptyEnumerableForNullResult()
         {
             using (var testHarness = new RestTestHarness
@@ -122,11 +123,11 @@ namespace Neo4jClient.Test.GraphClientTests.Gremlin
                     .ToList();
 
                 //Assert
-                Assert.AreEqual(0, nodes.Count());
+                Assert.Equal(0, nodes.Count());
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldFailGracefullyWhenGremlinIsNotAvailable()
         {
             using (var testHarness = new RestTestHarness
@@ -141,7 +142,7 @@ namespace Neo4jClient.Test.GraphClientTests.Gremlin
 
                 var ex = Assert.Throws<Exception>(
                     () => graphClient.ExecuteGetAllNodesGremlin<Foo>("foo bar query", null));
-                Assert.AreEqual(GraphClient.GremlinPluginUnavailable, ex.Message);
+                Assert.Equal(GraphClient.GremlinPluginUnavailable, ex.Message);
             }
         }
     }

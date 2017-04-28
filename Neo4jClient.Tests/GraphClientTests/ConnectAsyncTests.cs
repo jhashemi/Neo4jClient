@@ -4,16 +4,17 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Neo4jClient.Execution;
+using Neo4jClient.Test.Fixtures;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
-using NUnit.Framework;
+using Xunit;
 
 namespace Neo4jClient.Test.GraphClientTests
 {
-    [TestFixture]
-    public class ConnectAsyncTests
+    
+    public class ConnectAsyncTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public async Task CredentialsPreservedAllTheWayThroughToHttpStack()
         {
             var httpClient = Substitute.For<IHttpClient>();
@@ -38,11 +39,11 @@ namespace Neo4jClient.Test.GraphClientTests
             var httpCall = httpClient.ReceivedCalls().Last();
             var httpRequest = (HttpRequestMessage) httpCall.GetArguments()[0];
 
-            StringAssert.AreEqualIgnoringCase("Basic", httpRequest.Headers.Authorization.Scheme);
-            StringAssert.AreEqualIgnoringCase("dXNlcm5hbWU6cGFzc3dvcmQ=", httpRequest.Headers.Authorization.Parameter);
+            Assert.Equal("Basic", httpRequest.Headers.Authorization.Scheme, StringComparer.OrdinalIgnoreCase);
+            Assert.Equal("dXNlcm5hbWU6cGFzc3dvcmQ=", httpRequest.Headers.Authorization.Parameter, StringComparer.OrdinalIgnoreCase);
         }
 
-        [Test]
+        [Fact]
         public async Task PassesCorrectStreamHeader_WhenUseStreamIsFalse()
         {
             var httpClient = Substitute.For<IHttpClient>();
@@ -67,10 +68,10 @@ namespace Neo4jClient.Test.GraphClientTests
             var httpCall = httpClient.ReceivedCalls().Last();
             var httpRequest = (HttpRequestMessage) httpCall.GetArguments()[0];
 
-            Assert.IsFalse(httpRequest.Headers.Contains("X-Stream"));
+            Assert.False(httpRequest.Headers.Contains("X-Stream"));
         }
 
-        [Test]
+        [Fact]
         public async Task PassesCorrectStreamHeader_WhenUseStreamIsTrue()
         {
             var httpClient = Substitute.For<IHttpClient>();
@@ -95,12 +96,12 @@ namespace Neo4jClient.Test.GraphClientTests
             var httpCall = httpClient.ReceivedCalls().Last();
             var httpRequest = (HttpRequestMessage) httpCall.GetArguments()[0];
 
-            Assert.IsTrue(httpRequest.Headers.Contains("X-Stream"));
+            Assert.True(httpRequest.Headers.Contains("X-Stream"));
             Assert.Contains("true", httpRequest.Headers.GetValues("X-Stream").ToList());
         }
 
 
-        [Test]
+        [Fact]
         public void ShouldFireOnCompletedEvenWhenException()
         {
             var httpClient = Substitute.For<IHttpClient>();
@@ -117,12 +118,12 @@ namespace Neo4jClient.Test.GraphClientTests
             Assert.Throws<AggregateException>(() => graphClient.ConnectAsync().Wait());
 
             Assert.NotNull(operationCompletedArgs);
-            Assert.That(operationCompletedArgs.HasException);
-            Assert.AreEqual(typeof(NotImplementedException), operationCompletedArgs.Exception.GetType());
+            Assert.True(operationCompletedArgs.HasException);
+            Assert.Equal(typeof(NotImplementedException), operationCompletedArgs.Exception.GetType());
         }
 
 
-        [Test]
+        [Fact]
         public async Task ShouldParseRootApiResponseFromAuthenticatedConnection()
         {
             using (var testHarness = new RestTestHarness
@@ -133,11 +134,11 @@ namespace Neo4jClient.Test.GraphClientTests
                 var httpClient = testHarness.GenerateHttpClient("http://foo/db/data");
                 var graphClient = new GraphClient(new Uri("http://username:password@foo/db/data"), httpClient);
                 await graphClient.ConnectAsync();
-                Assert.AreEqual("/node", graphClient.RootApiResponse.Node);
+                Assert.Equal("/node", graphClient.RootApiResponse.Node);
             }
         }
 
-        [Test]
+        [Fact]
         public async Task ShouldSendCustomUserAgent()
         {
             // Arrange
@@ -148,9 +149,9 @@ namespace Neo4jClient.Test.GraphClientTests
                 .SendAsync(Arg.Do<HttpRequestMessage>(message =>
                 {
                     // Assert
-                    Assert.IsTrue(message.Headers.Contains("User-Agent"), "Contains User-Agent header");
+                    Assert.True(message.Headers.Contains("User-Agent"), "Contains User-Agent header");
                     var userAgent = message.Headers.GetValues("User-Agent").Single();
-                    Assert.AreEqual(expectedUserAgent, userAgent, "User-Agent header value is correct");
+                    Assert.Equal(expectedUserAgent, userAgent);
                 }))
                 .Returns(ci =>
                 {

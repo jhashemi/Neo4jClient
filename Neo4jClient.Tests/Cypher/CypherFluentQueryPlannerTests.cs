@@ -1,17 +1,18 @@
 ﻿using System;
 using Neo4jClient.Cypher;
+using Neo4jClient.Test.Fixtures;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace Neo4jClient.Test.Cypher
 {
     /// <summary>
     ///     Tests for the UNWIND operator
     /// </summary>
-    [TestFixture]
-    public class CypherFluentQueryPlannerTests
+    
+    public class CypherFluentQueryPlannerTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void TestPlannerWithFreeTextConstruction()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -21,13 +22,14 @@ namespace Neo4jClient.Test.Cypher
                 .Planner("FreePlanner")
                 .Query;
 
-            Assert.AreEqual("PLANNER FreePlanner", query.QueryText);
+            Assert.Equal("PLANNER FreePlanner", query.QueryText);
         }
 
-        [Test, Sequential]
-        public void TestPlannerWithCypherPlannerVariant(
-            [Values(CypherPlanner.CostGreedy,CypherPlanner.CostIdp, CypherPlanner.Rule)] CypherPlanner input,
-            [Values("COST", "IDP", "RULE")] string expected)
+        [Theory]
+        [InlineData(CypherPlanner.CostGreedy, "COST")]
+        [InlineData(CypherPlanner.CostIdp, "IDP")]
+        [InlineData(CypherPlanner.Rule, "RULE")]
+        public void TestPlannerWithCypherPlannerVariant(CypherPlanner input, string expected)
         {
             var client = Substitute.For<IRawGraphClient>();
             client.CypherCapabilities.Returns(CypherCapabilities.Cypher22);
@@ -36,10 +38,10 @@ namespace Neo4jClient.Test.Cypher
                 .Planner(input)
                 .Query;
 
-            Assert.AreEqual(string.Format("PLANNER {0}", expected), query.QueryText);
+            Assert.Equal(string.Format("PLANNER {0}", expected), query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void ThrowsInvalidOperationException_WhenNeo4jVersionIsLessThan22()
         {
             var client = Substitute.For<IRawGraphClient>();

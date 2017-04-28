@@ -1,54 +1,55 @@
-using NUnit.Framework;
+using Xunit;
 using Neo4jClient.Gremlin;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.Gremlin
 {
-    [TestFixture]
-    public class StoreStepTests
+    
+    public class StoreStepTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void StoreVShouldAppendStepAndDeclareVariable()
         {
             var query = new NodeReference(123).StoreV<object>("foo");
-            Assert.AreEqual("foo = [];g.v(p0).store(foo)", query.QueryText);
-            Assert.AreEqual(123, query.QueryParameters["p0"]);
+            Assert.Equal("foo = [];g.v(p0).store(foo)", query.QueryText);
+            Assert.Equal(123L, query.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void StoreVShouldReturnTypedNodeEnumerable()
         {
             var query = new NodeReference(123).StoreV<object>("foo");
-            Assert.IsInstanceOf<GremlinNodeEnumerable<object>>(query);
+            Assert.IsAssignableFrom<GremlinNodeEnumerable<object>>(query);
         }
 
-        [Test]
+        [Fact]
         public void StoreEShouldAppendStepAndDeclareVariable()
         {
             var query = new NodeReference(123).StoreE("foo");
-            Assert.AreEqual("foo = [];g.v(p0).store(foo)", query.QueryText);
-            Assert.AreEqual(123, query.QueryParameters["p0"]);
+            Assert.Equal("foo = [];g.v(p0).store(foo)", query.QueryText);
+            Assert.Equal(123L, query.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void StoreEShouldReturnRelationshipEnumerable()
         {
             var query = new NodeReference(123).StoreE("foo");
-            Assert.IsInstanceOf<GremlinRelationshipEnumerable>(query);
+            Assert.IsAssignableFrom<GremlinRelationshipEnumerable>(query);
         }
 
-        [Test]
+        [Fact]
         public void StoreEWithTDataShouldAppendStepAndDeclareVariable()
         {
             var query = new NodeReference(123).StoreE<object>("foo");
-            Assert.AreEqual("foo = [];g.v(p0).store(foo)", query.QueryText);
-            Assert.AreEqual(123, query.QueryParameters["p0"]);
+            Assert.Equal("foo = [];g.v(p0).store(foo)", query.QueryText);
+            Assert.Equal(123L, query.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void StoreEWithTDataShouldReturnRelationshipEnumerable()
         {
             var query = new NodeReference(123).StoreE<object>("foo");
-            Assert.IsInstanceOf<GremlinRelationshipEnumerable<object>>(query);
+            Assert.IsAssignableFrom<GremlinRelationshipEnumerable<object>>(query);
         }
     }
 }

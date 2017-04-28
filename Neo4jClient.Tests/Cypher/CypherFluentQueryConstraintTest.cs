@@ -1,14 +1,15 @@
-﻿using NUnit.Framework;
+﻿using Xunit;
 using NSubstitute;
 using Neo4jClient.Cypher;
 using System;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.Cypher
 {
-    [TestFixture]
-    public class CypherFluentQueryConstraintTest
+    
+    public class CypherFluentQueryConstraintTest : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void CreateUniqueConstraint()
         {
             // Arrange
@@ -18,10 +19,10 @@ namespace Neo4jClient.Test.Cypher
                 .Query;
 
             // Assert
-            Assert.AreEqual("CREATE CONSTRAINT ON (book:Book) ASSERT book.isbn IS UNIQUE", query.QueryText);
+            Assert.Equal("CREATE CONSTRAINT ON (book:Book) ASSERT book.isbn IS UNIQUE", query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void DropUniqueConstraint()
         {
             // Arrange
@@ -31,7 +32,7 @@ namespace Neo4jClient.Test.Cypher
                 .Query;
 
             // Assert
-            Assert.AreEqual("DROP CONSTRAINT ON (book:Book) ASSERT book.isbn IS UNIQUE", query.QueryText);
+            Assert.Equal("DROP CONSTRAINT ON (book:Book) ASSERT book.isbn IS UNIQUE", query.QueryText);
         }
     }
 }

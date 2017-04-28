@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Globalization;
-using NUnit.Framework;
+using Xunit;
 using Neo4jClient.Serialization;
+using Neo4jClient.Test.Fixtures;
 using Newtonsoft.Json;
 
 namespace Neo4jClient.Test.Serialization
 {
-    [TestFixture]
-    public class CustomJsonSerializerTests
+    
+    public class CustomJsonSerializerTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void JsonSerializerShouldSerializeTimeZoneInfo()
         {
             // Arrange
@@ -25,10 +26,10 @@ namespace Neo4jClient.Test.Serialization
             var result = serializer.Serialize(timeZoneData);
 
             // Assert
-            Assert.AreEqual(ausEasternStandardTime, result.Replace("\"",""));
+            Assert.Equal(ausEasternStandardTime, result.Replace("\"",""));
         }
 
-        [Test]
+        [Fact]
         public void SerializeTimeSpan()
         {
             // Arrange
@@ -43,10 +44,10 @@ namespace Neo4jClient.Test.Serialization
             var result = serializer.Serialize(model.Foo);
 
             // Assert
-            Assert.AreEqual("400.13:03:02.0100000", result.Replace("\"", ""));
+            Assert.Equal("400.13:03:02.0100000", result.Replace("\"", ""));
         }
 
-        [Test]
+        [Fact]
         public void ShouldSerializeDateTimeOffsetInCorrectStringFormat()
         {
             //Arrange
@@ -63,12 +64,12 @@ namespace Neo4jClient.Test.Serialization
             //Assert
             const string expected =
                 "{\r\n  \"DateTime\": \"2012-08-31T00:11:00.3642578+10:00\",\r\n  \"DateTimeNullable\": \"2012-08-31T00:11:00.3642578+10:00\"\r\n}";
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [Test]
-        [TestCase("2012-08-31T00:11:00.3642578")]
-        [TestCase("2012-08-31T00:11:00Z")]
+        [Theory]
+        [InlineData("2012-08-31T00:11:00.3642578")]
+        [InlineData("2012-08-31T00:11:00Z")]
         public void ShouldSerializeDateTimeInCorrectStringFormat(string dateTimeStr)
         {
             //Arrange
@@ -85,10 +86,10 @@ namespace Neo4jClient.Test.Serialization
             //Assert
             var expected =
                 "{\r\n  \"DateTime\": \"" + dateTimeStr + "\",\r\n  \"DateTimeNullable\": \"" + dateTimeStr + "\"\r\n}";
-            Assert.AreEqual(expected, actual);
+            Assert.Equal(expected, actual);
         }
 
-        [Test]
+        [Fact]
         public void JsonSerializerShouldSerializeAllProperties()
         {
             // Arrange
@@ -104,10 +105,10 @@ namespace Neo4jClient.Test.Serialization
             const string expectedValue = "{\r\n  \"Foo\": \"foo\",\r\n  \"Bar\": \"bar\"\r\n}";
 
             // Assert
-            Assert.AreEqual(expectedValue, result);
+            Assert.Equal(expectedValue, result);
         }
 
-        [Test]
+        [Fact]
         public void JsonSerializerShouldNotSerializeNullProperties()
         {
             // Arrange
@@ -124,10 +125,10 @@ namespace Neo4jClient.Test.Serialization
             const string expectedValue = "{\r\n  \"Foo\": \"foo\"\r\n}";
 
             // Assert
-            Assert.AreEqual(expectedValue, result);
+            Assert.Equal(expectedValue, result);
         }
 
-        [Test]
+        [Fact]
         public void JsonSerializerShouldSerializeEnumToString()
         {
             // Arrange
@@ -144,7 +145,7 @@ namespace Neo4jClient.Test.Serialization
             const string expectedValue = "{\r\n  \"Status\": \"Value1\"\r\n}";
 
             // Assert
-            Assert.AreEqual(expectedValue, result);
+            Assert.Equal(expectedValue, result);
         }
 
         public class TestNode
@@ -196,7 +197,7 @@ namespace Neo4jClient.Test.Serialization
             public Gender? GenderNullable { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void JsonSerializerWithEnumConverterShouldConvertEnumToStringValues()
         {
             // Arrange
@@ -221,7 +222,7 @@ namespace Neo4jClient.Test.Serialization
             var result = serializer.Serialize(testClass);
 
             // Assert
-            Assert.AreEqual(expected, result);
+            Assert.Equal(expected, result);
         }
 
         public class NodeWithBuiltInTypes
@@ -230,7 +231,7 @@ namespace Neo4jClient.Test.Serialization
             public bool? Bar { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void ShouldSerializeNullableInt32ToJsonNumberUsingDefaultJsonConverters()
         {
             // Arrange
@@ -246,10 +247,10 @@ namespace Neo4jClient.Test.Serialization
             const string expectedValue = "{\r\n  \"Foo\": 123\r\n}";
 
             // Assert
-            Assert.AreEqual(expectedValue, result);
+            Assert.Equal(expectedValue, result);
         }
 
-        [Test]
+        [Fact]
         public void ShouldSerializeNullableBoolToJsonBooleanUsingDefaultJsonConverters()
         {
             // Arrange
@@ -265,7 +266,7 @@ namespace Neo4jClient.Test.Serialization
             const string expectedValue = "{\r\n  \"Bar\": true\r\n}";
 
             // Assert
-            Assert.AreEqual(expectedValue, result);
+            Assert.Equal(expectedValue, result);
         }
     }
 }

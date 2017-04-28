@@ -1,20 +1,22 @@
 ﻿using System.Net;
-using NUnit.Framework;
+using FluentAssertions;
+using Neo4jClient.Test.Fixtures;
+using Xunit;
 
 namespace Neo4jClient.Test.GraphClientTests
 {
-    [TestFixture]
-    public class IndexExistsTests
+    
+    public class IndexExistsTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
-        [TestCase(IndexFor.Node, "/index/node/MyIndex", HttpStatusCode.OK, ExpectedResult = true)]
-        [TestCase(IndexFor.Node, "/index/node/MyIndex", HttpStatusCode.NotFound, ExpectedResult = false)]
-        [TestCase(IndexFor.Relationship, "/index/relationship/MyIndex", HttpStatusCode.OK, ExpectedResult = true)]
-        [TestCase(IndexFor.Relationship, "/index/relationship/MyIndex", HttpStatusCode.NotFound, ExpectedResult = false)]
-        public bool ShouldReturnIfIndexIsFound(
+        [Theory]
+        [InlineData(IndexFor.Node, "/index/node/MyIndex", HttpStatusCode.OK, true)]
+        [InlineData(IndexFor.Node, "/index/node/MyIndex", HttpStatusCode.NotFound, false)]
+        [InlineData(IndexFor.Relationship, "/index/relationship/MyIndex", HttpStatusCode.OK, true)]
+        [InlineData(IndexFor.Relationship, "/index/relationship/MyIndex", HttpStatusCode.NotFound, false)]
+        public void ShouldReturnIfIndexIsFound(
             IndexFor indexFor,
             string indexPath,
-            HttpStatusCode httpStatusCode)
+            HttpStatusCode httpStatusCode, bool expectedResult)
         {
             using (var testHarness = new RestTestHarness
             {
@@ -25,7 +27,7 @@ namespace Neo4jClient.Test.GraphClientTests
             })
             {
                 var graphClient = testHarness.CreateAndConnectGraphClient();
-                return graphClient.CheckIndexExists("MyIndex", indexFor);
+                graphClient.CheckIndexExists("MyIndex", indexFor).Should().Be(expectedResult);
             }
         }
     }

@@ -1,121 +1,116 @@
 ﻿using System;
 using System.Linq;
-using NUnit.Framework;
+using FluentAssertions;
+using Neo4jClient.Test.Fixtures;
+using Xunit;
 
 namespace Neo4jClient.Test
 {
-    [TestFixture]
-    public class RelationshipTests
+    
+    public class RelationshipTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void GetAllowedSourceNodeTypesShouldReturnAllTypes()
         {
             // Act
             var types = Relationship.GetAllowedNodeTypes(typeof (TestRelationship), RelationshipEnd.SourceNode);
 
             // Assert
-            CollectionAssert.AreEquivalent(
-                new[] { typeof(Foo), typeof(Bar) },
-                types.ToArray()
-            );
+            new[] {typeof(Foo), typeof(Bar)}.Should().BeEquivalentTo(types.ToArray());
         }
 
-        [Test]
+        [Fact]
         public void GetAllowedTargetNodeTypesShouldReturnAllTypes()
         {
             // Act
             var types = Relationship.GetAllowedNodeTypes(typeof(TestRelationship), RelationshipEnd.TargetNode);
 
-            // Assert
-            CollectionAssert.AreEquivalent(
-                new[] { typeof(Bar), typeof(Baz) },
-                types.ToArray()
-            );
+            new[] {typeof(Bar), typeof(Baz)}.Should().BeEquivalentTo(types.ToArray());
         }
 
-        [Test]
-        [TestCase(RelationshipDirection.Incoming)]
-        [TestCase(RelationshipDirection.Outgoing)]
+        [Theory]
+        [InlineData(RelationshipDirection.Incoming)]
+        [InlineData(RelationshipDirection.Outgoing)]
         public void DetermineRelationshipDirectionShouldReturnExplicitDirection(RelationshipDirection direction)
         {
             // Arrange
             var relationship = new TestRelationship(new NodeReference(0)) { Direction = direction };
             var calculatedDirection = Relationship.DetermineRelationshipDirection(null, relationship);
-            Assert.AreEqual(direction, calculatedDirection);
+            Assert.Equal(direction, calculatedDirection);
         }
 
-        [Test]
+        [Fact]
         public void DetermineRelationshipDirectionShouldReturnOutgoingWhenBaseNodeIsOnlyValidAsASourceNodeAndOtherNodeIsOnlyValidAsATargetNode()
         {
             var baseNodeType = typeof(Foo);
             var relationship = new TestRelationship(new NodeReference<Baz>(123));
             var calculatedDirection = Relationship.DetermineRelationshipDirection(baseNodeType, relationship);
 
-            Assert.AreEqual(RelationshipDirection.Outgoing, calculatedDirection);
+            Assert.Equal(RelationshipDirection.Outgoing, calculatedDirection);
         }
 
-        [Test]
+        [Fact]
         public void DetermineRelationshipDirectionShouldReturnOutgoingWhenBaseNodeIsOnlyValidAsASourceNodeEvenIfOtherNodeIsAlsoValidAsASourceNode()
         {
             var baseNodeType = typeof(Foo);
             var relationship = new TestRelationship(new NodeReference<Bar>(123));
             var calculatedDirection = Relationship.DetermineRelationshipDirection(baseNodeType, relationship);
 
-            Assert.AreEqual(RelationshipDirection.Outgoing, calculatedDirection);
+            Assert.Equal(RelationshipDirection.Outgoing, calculatedDirection);
         }
 
-        [Test]
+        [Fact]
         public void DetermineRelationshipDirectionShouldReturnIncomingWhenBaseNodeIsOnlyValidAsATargetNodeAndOtherNodeIsOnlyValidAsASourceNode()
         {
             var baseNodeType = typeof(Baz);
             var relationship = new TestRelationship(new NodeReference<Foo>(123));
             var calculatedDirection = Relationship.DetermineRelationshipDirection(baseNodeType, relationship);
 
-            Assert.AreEqual(RelationshipDirection.Incoming, calculatedDirection);
+            Assert.Equal(RelationshipDirection.Incoming, calculatedDirection);
         }
 
-        [Test]
+        [Fact]
         public void DetermineRelationshipDirectionShouldReturnIncomingWhenBaseNodeIsOnlyValidAsATargetNodeEvenIfOtherNodeIsAlsoValidAsATargetNode()
         {
             var baseNodeType = typeof(Baz);
             var relationship = new TestRelationship(new NodeReference<Bar>(123));
             var calculatedDirection = Relationship.DetermineRelationshipDirection(baseNodeType, relationship);
 
-            Assert.AreEqual(RelationshipDirection.Incoming, calculatedDirection);
+            Assert.Equal(RelationshipDirection.Incoming, calculatedDirection);
         }
 
-        [Test]
+        [Fact]
         public void DetermineRelationshipDirectionShouldThrowExceptionWhenBothNodesAreValidAsSourceAndTargetNodes()
         {
             var baseNodeType = typeof(Bar);
             var relationship = new TestRelationship(new NodeReference<Bar>(123));
-            Assert.That(() => Relationship.DetermineRelationshipDirection(baseNodeType, relationship), Throws.TypeOf<AmbiguousRelationshipDirectionException>());
+            Assert.Throws<AmbiguousRelationshipDirectionException>(() => Relationship.DetermineRelationshipDirection(baseNodeType, relationship));
         }
 
-        [Test]
+        [Fact]
         public void DetermineRelationshipDirectionShouldReturnIncomingWhenBaseNodeOnlyValidAsTargetAndSourceNodeNotDefinedAsEither()
         {
             var baseNodeType = typeof(Baz);
             var relationship = new TestRelationship(new NodeReference<Qak>(123));
-            Assert.That(() => Assert.AreEqual(RelationshipDirection.Incoming, Relationship.DetermineRelationshipDirection(baseNodeType, relationship)), Throws.TypeOf<AmbiguousRelationshipDirectionException>());
+            Assert.Throws<AmbiguousRelationshipDirectionException>(() => Assert.Equal(RelationshipDirection.Incoming, Relationship.DetermineRelationshipDirection(baseNodeType, relationship)));
         }
 
-        [Test]
+        [Fact]
         public void DetermineRelationshipDirectionShouldThrowExceptionWhenNeitherNodeIsValidAtEitherEnd()
         {
             var baseNodeType = typeof(Zip);
             var relationship = new TestRelationship(new NodeReference<Qak>(123));
-            Assert.That(() => Relationship.DetermineRelationshipDirection(baseNodeType, relationship), Throws.TypeOf<AmbiguousRelationshipDirectionException>());
+            Assert.Throws<AmbiguousRelationshipDirectionException>(() => Relationship.DetermineRelationshipDirection(baseNodeType, relationship));
         }
 
-        [Test]
+        [Fact]
         public void DetermineRelationshipDirectionShouldReturnOutgoingWhenBaseNodeIsValidAsASourceNodeAndOtherNodeIsAnUntypedReference()
         {
             var baseNodeType = typeof(Bar);
             var relationship = new TestRelationship(new NodeReference(123));
             var calculatedDirection = Relationship.DetermineRelationshipDirection(baseNodeType, relationship);
 
-            Assert.AreEqual(RelationshipDirection.Outgoing, calculatedDirection);
+            Assert.Equal(RelationshipDirection.Outgoing, calculatedDirection);
         }
 
         public class Foo { }

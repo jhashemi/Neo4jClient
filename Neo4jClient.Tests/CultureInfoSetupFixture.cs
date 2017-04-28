@@ -1,14 +1,12 @@
 ﻿using System.Globalization;
 using System.Threading;
-using NUnit.Framework;
 
-namespace Neo4jClient.Test
+namespace Neo4jClient.Test.Fixtures
 {
-    [SetUpFixture]
     public class CultureInfoSetupFixture
     {
-        [SetUp]
-        public void SetCultureToSomethingNonLatinToEnsureCodeUnderTestDoesntAssumeEnAu()
+        //SetCultureToSomethingNonLatinToEnsureCodeUnderTestDoesntAssumeEnAu()
+        public CultureInfoSetupFixture()
         {
             // Issue https://bitbucket.org/Readify/neo4jclient/issue/15/take-cultureinfo-into-account-for-proper
 

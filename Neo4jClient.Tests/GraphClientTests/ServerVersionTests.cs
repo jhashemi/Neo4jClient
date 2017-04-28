@@ -1,11 +1,12 @@
-﻿using NUnit.Framework;
+﻿using Neo4jClient.Test.Fixtures;
+using Xunit;
 
 namespace Neo4jClient.Test.GraphClientTests
 {
-    [TestFixture]
-    public class ServerVersionTests
+    
+    public class ServerVersionTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void ShouldParse15M02Version()
         {
             using (var testHarness = new RestTestHarness
@@ -15,7 +16,7 @@ namespace Neo4jClient.Test.GraphClientTests
             {
                 var graphClient = (GraphClient)testHarness.CreateAndConnectGraphClient();
 
-                Assert.AreEqual("1.5.0.2", graphClient.ServerVersion.ToString());
+                Assert.Equal("1.5.0.2", graphClient.ServerVersion.ToString());
             }
         }
     }

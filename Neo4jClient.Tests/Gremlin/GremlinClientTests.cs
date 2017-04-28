@@ -1,23 +1,24 @@
 ﻿using System.Collections.Generic;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 using Neo4jClient.Gremlin;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.Gremlin
 {
-    [TestFixture]
-    public class GremlinClientTests
+    
+    public class GremlinClientTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void VShouldEumerateAllVertexes()
         {
             var client = Substitute.For<IGraphClient>();
             var gremlinClient = new GremlinClient(client);
             var query = gremlinClient.V;
-            Assert.AreEqual("g.V", query.QueryText);
+            Assert.Equal("g.V", query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void VShouldCombineWithGremlinCount()
         {
             var client = Substitute.For<IGraphClient>();
@@ -29,19 +30,19 @@ namespace Neo4jClient.Test.Gremlin
             client.Gremlin.Returns(gremlinClient);
 
             var result = gremlinClient.V.GremlinCount();
-            Assert.AreEqual(123, result);
+            Assert.Equal(123, result);
         }
 
-        [Test]
+        [Fact]
         public void EShouldEumerateAllEdges()
         {
             var client = Substitute.For<IGraphClient>();
             var gremlinClient = new GremlinClient(client);
             var query = gremlinClient.E;
-            Assert.AreEqual("g.E", query.QueryText);
+            Assert.Equal("g.E", query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void EShouldCombineWithGremlinCount()
         {
             var client = Substitute.For<IGraphClient>();
@@ -53,7 +54,7 @@ namespace Neo4jClient.Test.Gremlin
             client.Gremlin.Returns(gremlinClient);
 
             var result = gremlinClient.E.GremlinCount();
-            Assert.AreEqual(123, result);
+            Assert.Equal(123, result);
         }
     }
 }

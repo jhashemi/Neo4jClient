@@ -1,16 +1,17 @@
 ﻿using Neo4jClient.Cypher;
+using Neo4jClient.Test.Fixtures;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace Neo4jClient.Test.Cypher
 {
     /// <summary>
     ///     Tests for the UNWIND operator
     /// </summary>
-    [TestFixture]
-    public class CypherFluentQueryUnwindTests
+    
+    public class CypherFluentQueryUnwindTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void TestUnwindConstruction()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -18,10 +19,10 @@ namespace Neo4jClient.Test.Cypher
                 .Unwind("collection", "column")
                 .Query;
 
-            Assert.AreEqual("UNWIND collection AS column", query.QueryText);
+            Assert.Equal("UNWIND collection AS column", query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void TestUnwindAfterWithTResultVariant()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -30,10 +31,10 @@ namespace Neo4jClient.Test.Cypher
                 .Unwind("collection", "column")
                 .Query;
 
-            Assert.AreEqual("WITH collection\r\nUNWIND collection AS column", query.QueryText);
+            Assert.Equal("WITH collection\r\nUNWIND collection AS column", query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void TestUnwindUsingCollection()
         {
             var collection = new[] { 1, 2, 3 };
@@ -42,9 +43,9 @@ namespace Neo4jClient.Test.Cypher
                 .Unwind(collection, "alias")
                 .Query;
 
-            Assert.AreEqual("UNWIND {p0} AS alias", query.QueryText);
-            Assert.AreEqual(1, query.QueryParameters.Count);
-            Assert.AreEqual(collection, query.QueryParameters["p0"]);
+            Assert.Equal("UNWIND {p0} AS alias", query.QueryText);
+            Assert.Equal(1, query.QueryParameters.Count);
+            Assert.Equal(collection, query.QueryParameters["p0"]);
         }
     }
 }

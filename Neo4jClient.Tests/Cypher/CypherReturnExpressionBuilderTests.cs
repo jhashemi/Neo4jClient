@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using NUnit.Framework;
+using Xunit;
 using Neo4jClient.Cypher;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.Cypher
 {
-    [TestFixture]
-    public class CypherReturnExpressionBuilderTests
+    
+    public class CypherReturnExpressionBuilderTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void ReturnProperty()
         {
             // http://docs.neo4j.org/chunked/1.6/query-return.html#return-column-alias
@@ -25,10 +26,10 @@ namespace Neo4jClient.Test.Cypher
 
             var returnExpression = CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters);
 
-            Assert.AreEqual("a.Age AS SomethingTotallyDifferent", returnExpression.Text);
+            Assert.Equal("a.Age AS SomethingTotallyDifferent", returnExpression.Text);
         }
 
-        [Test]
+        [Fact]
         public void ReturnNode()
         {            
             Expression<Func<ICypherResultItem, object>> expression =
@@ -39,10 +40,10 @@ namespace Neo4jClient.Test.Cypher
 
             var returnExpression = CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters);
 
-            Assert.AreEqual("a AS FooNode", returnExpression.Text);
+            Assert.Equal("a AS FooNode", returnExpression.Text);
         }
         
-        [Test]
+        [Fact]
         public void ReturnPropertyWithNullablePropertyOnRightHandSide()
         {
             Expression<Func<ICypherResultItem, Foo>> expression =
@@ -53,10 +54,10 @@ namespace Neo4jClient.Test.Cypher
 
             var returnExpression = CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters);
 
-            Assert.AreEqual("a.AgeNullable AS Age", returnExpression.Text);
+            Assert.Equal("a.AgeNullable AS Age", returnExpression.Text);
         }
 
-        [Test]
+        [Fact]
         public void ReturnMultipleProperties()
         {
             // http://docs.neo4j.org/chunked/1.6/query-return.html#return-column-alias
@@ -72,10 +73,10 @@ namespace Neo4jClient.Test.Cypher
 
             var returnExpression = CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters);
 
-            Assert.AreEqual("a.Age AS SomethingTotallyDifferent, a.Name AS FirstName", returnExpression.Text);
+            Assert.Equal("a.Age AS SomethingTotallyDifferent, a.Name AS FirstName", returnExpression.Text);
         }
 
-        [Test]
+        [Fact]
         public void ReturnMultiplePropertiesInAnonymousType()
         {
             // http://docs.neo4j.org/chunked/1.6/query-return.html#return-column-alias
@@ -91,10 +92,10 @@ namespace Neo4jClient.Test.Cypher
 
             var returnExpression = CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters);
 
-            Assert.AreEqual("a.Age AS SomethingTotallyDifferent, a.Name AS FirstName", returnExpression.Text);
+            Assert.Equal("a.Age AS SomethingTotallyDifferent, a.Name AS FirstName", returnExpression.Text);
         }
 
-        [Test]
+        [Fact]
         public void ReturnMultiplePropertiesFromMultipleColumns()
         {
             // http://docs.neo4j.org/chunked/milestone/cypher-query-lang.html
@@ -111,10 +112,10 @@ namespace Neo4jClient.Test.Cypher
 
             var returnExpression = CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters);
 
-            Assert.AreEqual("john.Age AS SomethingTotallyDifferent, fof.Name AS FirstName", returnExpression.Text);
+            Assert.Equal("john.Age AS SomethingTotallyDifferent, fof.Name AS FirstName", returnExpression.Text);
         }
 
-        [Test]
+        [Fact]
         public void NullablePropertiesShouldBeQueriedAsCypherOptionalProperties_PreNeo4j20()
         {
             // http://docs.neo4j.org/chunked/1.6/query-return.html#return-optional-properties
@@ -130,10 +131,10 @@ namespace Neo4jClient.Test.Cypher
 
             var returnExpression = CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Cypher19, GraphClient.DefaultJsonConverters);
 
-            Assert.AreEqual("n.Age AS Age, n.NumberOfCats? AS NumberOfCats", returnExpression.Text);
+            Assert.Equal("n.Age AS Age, n.NumberOfCats? AS NumberOfCats", returnExpression.Text);
         }
 
-        [Test]
+        [Fact]
         public void NullablePropertiesShouldNotGetSpecialHandling()
         {
             Expression<Func<ICypherResultItem, OptionalPropertiesQueryResult>> expression =
@@ -145,10 +146,10 @@ namespace Neo4jClient.Test.Cypher
 
             var returnExpression = CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters);
 
-            Assert.AreEqual("n.Age AS Age, n.NumberOfCats AS NumberOfCats", returnExpression.Text);
+            Assert.Equal("n.Age AS Age, n.NumberOfCats AS NumberOfCats", returnExpression.Text);
         }
 
-        [Test]
+        [Fact]
         public void ReturnNodeInColumn()
         {
             // START a=node(1)
@@ -162,10 +163,10 @@ namespace Neo4jClient.Test.Cypher
 
             var returnExpression = CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters);
 
-            Assert.AreEqual("a AS Foo", returnExpression.Text);
+            Assert.Equal("a AS Foo", returnExpression.Text);
         }
 
-        [Test]
+        [Fact]
         public void ReturnMultipleNodesInColumns()
         {
             // START a=node(1)
@@ -181,10 +182,10 @@ namespace Neo4jClient.Test.Cypher
 
             var returnExpression = CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters);
 
-            Assert.AreEqual("a AS Foo, b AS Bar", returnExpression.Text);
+            Assert.Equal("a AS Foo, b AS Bar", returnExpression.Text);
         }
 
-        [Test]
+        [Fact]
         public void ReturnCollectedNodesInColumn()
         {
             // http://docs.neo4j.org/chunked/1.8.M05/query-aggregation.html#aggregation-collect
@@ -200,11 +201,11 @@ namespace Neo4jClient.Test.Cypher
 
             var returnExpression = CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters);
 
-            Assert.AreEqual("collect(a) AS Foo", returnExpression.Text);
+            Assert.Equal("collect(a) AS Foo", returnExpression.Text);
         }
 
 
-        [Test]
+        [Fact]
         public void ReturnCollectedDistinctNodesInColumn()
         {
             // http://docs.neo4j.org/chunked/1.9.M05/query-aggregation.html#aggregation-distinct
@@ -220,10 +221,10 @@ namespace Neo4jClient.Test.Cypher
 
             var returnExpression = CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters);
 
-            Assert.AreEqual("collect(distinct a) AS Foo", returnExpression.Text);
+            Assert.Equal("collect(distinct a) AS Foo", returnExpression.Text);
         }
 
-        [Test]
+        [Fact]
         public void ReturnHeadCollectedNodesInColumn()
         {
             // http://docs.neo4j.org/chunked/milestone/query-functions-scalar.html#functions-head
@@ -239,10 +240,10 @@ namespace Neo4jClient.Test.Cypher
 
             var returnExpression = CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters);
 
-            Assert.AreEqual("head(collect(a)) AS Foo", returnExpression.Text);
+            Assert.Equal("head(collect(a)) AS Foo", returnExpression.Text);
         }
 
-        [Test]
+        [Fact]
         public void ReturnLastCollectedNodesInColumn()
         {
             // http://docs.neo4j.org/chunked/milestone/query-functions-scalar.html#functions-last
@@ -258,10 +259,10 @@ namespace Neo4jClient.Test.Cypher
 
             var returnExpression = CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters);
 
-            Assert.AreEqual("last(collect(a)) AS Foo", returnExpression.Text);
+            Assert.Equal("last(collect(a)) AS Foo", returnExpression.Text);
         }
 
-        [Test]
+        [Fact]
         public void ReturnCountInAnonymousType()
         {
             // http://docs.neo4j.org/chunked/1.8.M05/query-aggregation.html#aggregation-collect
@@ -277,10 +278,10 @@ namespace Neo4jClient.Test.Cypher
 
             var returnExpression = CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters);
 
-            Assert.AreEqual("count(b) AS Foo", returnExpression.Text);
+            Assert.Equal("count(b) AS Foo", returnExpression.Text);
         }
 
-        [Test]
+        [Fact]
         public void ReturnCountOnItsOwn()
         {
             // http://docs.neo4j.org/chunked/1.8.M05/query-aggregation.html#aggregation-collect
@@ -292,20 +293,20 @@ namespace Neo4jClient.Test.Cypher
 
             var returnExpression = CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters);
 
-            Assert.AreEqual("count(b)", returnExpression.Text);
+            Assert.Equal("count(b)", returnExpression.Text);
         }
 
-        [Test]
-        [Description("https://bitbucket.org/Readify/neo4jclient/issue/116/bug-in-returning-single-nullable-value")]
+        [Fact]
+        //[Description("https://bitbucket.org/Readify/neo4jclient/issue/116/bug-in-returning-single-nullable-value")]
         public void ReturnCountOnItsOwnAsNullableLong()
         {
             Expression<Func<ICypherResultItem, long?>> expression = b => b.Count();
             var returnExpression = CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters);
-            Assert.AreEqual("count(b)", returnExpression.Text);
+            Assert.Equal("count(b)", returnExpression.Text);
         }
 
-        [Test]
-        [Description("https://bitbucket.org/Readify/neo4jclient/issue/165/as-throws-systemargumentexception-in")]
+        [Fact]
+        //[Description("https://bitbucket.org/Readify/neo4jclient/issue/165/as-throws-systemargumentexception-in")]
         public void ReturnComplexAnonymousWithValueTypesAndCustomExpressions()
         {
             Expression<Func<ICypherResultItem, ICypherResultItem, ICypherResultItem, object>> expression = (ping, reviews, reviewer) => new
@@ -318,11 +319,11 @@ namespace Neo4jClient.Test.Cypher
                 Avatars = Return.As<IEnumerable<string>>("collect(distinct reviewer.Avatar)[0..{maxAvatars}]")
             };
             var returnExpression = CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters);
-            Assert.AreEqual("ping.Id AS PingId, ping.Image AS PingImage, ping.Description AS PingDescription, reviews AS Reviews, count(distinct reviewer) AS Reviewers, collect(distinct reviewer.Avatar)[0..{maxAvatars}] AS Avatars", returnExpression.Text);
+            Assert.Equal("ping.Id AS PingId, ping.Image AS PingImage, ping.Description AS PingDescription, reviews AS Reviews, count(distinct reviewer) AS Reviewers, collect(distinct reviewer.Avatar)[0..{maxAvatars}] AS Avatars", returnExpression.Text);
         }
 
-        [Test]
-        [Description("https://github.com/Readify/Neo4jClient/pull/56#issuecomment-44158504")]
+        [Fact]
+        //[Description("https://github.com/Readify/Neo4jClient/pull/56#issuecomment-44158504")]
         public void ReturnComplexTupleWithValueTypesAndCustomExpressions()
         {
             Expression<Func<ICypherResultItem, ICypherResultItem, ICypherResultItem, object>> expression = (ping, reviews, reviewer) => new
@@ -335,10 +336,10 @@ namespace Neo4jClient.Test.Cypher
                 Return.As<IEnumerable<string>>("collect(distinct reviewer.Avatar)[0..{maxAvatars}]")
             );
             var returnExpression = CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters);
-            Assert.AreEqual("ping.Id AS Item1, ping.Image AS Item2, ping.Description AS Item3, reviews AS Item4, count(distinct reviewer) AS Item5, collect(distinct reviewer.Avatar)[0..{maxAvatars}] AS Item6", returnExpression.Text);
+            Assert.Equal("ping.Id AS Item1, ping.Image AS Item2, ping.Description AS Item3, reviews AS Item4, count(distinct reviewer) AS Item5, collect(distinct reviewer.Avatar)[0..{maxAvatars}] AS Item6", returnExpression.Text);
         }
 
-        [Test]
+        [Fact]
         public void ReturnLabelsInAnonymousType()
         {
             // MATCH (a:User)
@@ -353,26 +354,26 @@ namespace Neo4jClient.Test.Cypher
 
             var returnExpression = CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters);
 
-            Assert.AreEqual("labels(b) AS Foo", returnExpression.Text);
+            Assert.Equal("labels(b) AS Foo", returnExpression.Text);
         }
 
-        [Test]
+        [Fact]
         public void ReturnAllOnItsOwn()
         {
             Expression<Func<long>> expression = () => All.Count();
             var returnExpression = CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters);
-            Assert.AreEqual("count(*)", returnExpression.Text);
+            Assert.Equal("count(*)", returnExpression.Text);
         }
 
-        [Test]
+        [Fact]
         public void ReturnCustomStatementOnItsOwn()
         {
             Expression<Func<long>> expression = () => Return.As<long>("custom statement");
             var returnExpression = CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters);
-            Assert.AreEqual("custom statement", returnExpression.Text);
+            Assert.Equal("custom statement", returnExpression.Text);
         }
 
-        [Test]
+        [Fact]
         public void ReturnCustomCypherTextFromConstant()
         {
             // START a=node(1)
@@ -387,10 +388,10 @@ namespace Neo4jClient.Test.Cypher
 
             var returnExpression = CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters);
 
-            Assert.AreEqual("abs(sum(a.age) - sum(b.age)) AS Foo", returnExpression.Text);
+            Assert.Equal("abs(sum(a.age) - sum(b.age)) AS Foo", returnExpression.Text);
         }
 
-        [Test]
+        [Fact]
         public void ReturnCustomCypherTextFromDynamicCode()
         {
             // START a=node(1)
@@ -405,10 +406,10 @@ namespace Neo4jClient.Test.Cypher
 
             var returnExpression = CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters);
 
-            Assert.AreEqual("abs(sum(a.age) - sum(b.age)) AS Foo", returnExpression.Text);
+            Assert.Equal("abs(sum(a.age) - sum(b.age)) AS Foo", returnExpression.Text);
         }
 
-        [Test]
+        [Fact]
         public void ThrowNiceErrorForChainedMethods()
         {
             Expression<Func<ICypherResultItem, object>> expression =
@@ -420,20 +421,20 @@ namespace Neo4jClient.Test.Cypher
                 };
 
             var ex = Assert.Throws<ArgumentException>(() => CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters));
-            Assert.AreEqual(CypherReturnExpressionBuilder.ReturnExpressionCannotBeSerializedToCypherExceptionMessage, ex.Message);
+            Assert.Equal(CypherReturnExpressionBuilder.ReturnExpressionCannotBeSerializedToCypherExceptionMessage, ex.Message);
         }
 
-        [Test]
+        [Fact]
         public void ThrowNiceErrorForStructInNewExpression()
         {
             Expression<Func<ICypherResultItem, object>> expression =
                 a => new KeyValuePair<ICypherResultItem, ICypherResultItem>();
             
             var ex = Assert.Throws<ArgumentException>(() => CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters));
-            StringAssert.StartsWith(CypherReturnExpressionBuilder.ReturnExpressionCannotBeStruct, ex.Message);
+            Assert.StartsWith(CypherReturnExpressionBuilder.ReturnExpressionCannotBeStruct, ex.Message);
         }
 
-        [Test]
+        [Fact]
         public void ThrowNiceErrorForStructInMemberInitExpression()
         {
             Expression<Func<ICypherResultItem, object>> expression =
@@ -442,22 +443,22 @@ namespace Neo4jClient.Test.Cypher
                 };
 
             var ex = Assert.Throws<ArgumentException>(() => CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters));
-            StringAssert.StartsWith(CypherReturnExpressionBuilder.ReturnExpressionCannotBeStruct, ex.Message);
+            Assert.StartsWith(CypherReturnExpressionBuilder.ReturnExpressionCannotBeStruct, ex.Message);
         }
 
-        [Test]
-        [Description("https://bitbucket.org/Readify/neo4jclient/issue/47/problem-casting-cypher-query-results-to")]
+        [Fact]
+        //[Description("https://bitbucket.org/Readify/neo4jclient/issue/47/problem-casting-cypher-query-results-to")]
         public void ThrowNiceErrorForConstructorsWithArguments()
         {
             Expression<Func<ICypherResultItem, object>> expression =
                 a => new KeyValuePair<ICypherResultItem, ICypherResultItem>(a, a);
 
             var ex = Assert.Throws<ArgumentException>(() => CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters));
-            StringAssert.StartsWith(CypherReturnExpressionBuilder.ReturnExpressionShouldBeOneOfExceptionMessage, ex.Message);
+            Assert.StartsWith(CypherReturnExpressionBuilder.ReturnExpressionShouldBeOneOfExceptionMessage, ex.Message);
         }
 
-        [Test]
-        [Description("https://bitbucket.org/Readify/neo4jclient/issue/159/problems-with-nodebyindexlookup")]
+        [Fact]
+        //[Description("https://bitbucket.org/Readify/neo4jclient/issue/159/problems-with-nodebyindexlookup")]
         public void ThrowNiceErrorForConstructorsWithArgumentsInReturnAs()
         {
             Expression<Func<ICypherResultItem, object>> expression =
@@ -467,55 +468,62 @@ namespace Neo4jClient.Test.Cypher
 
             const string expectedMessage =
                 "You've called As<TypeWithoutDefaultConstructor>() in your return clause, where TypeWithoutDefaultConstructor is not a supported type. It must be a simple type (like int, string, or long), a class with a default constructor (so that we can deserialize into it), RelationshipInstance, RelationshipInstance<T>, list of RelationshipInstance, or list of RelationshipInstance<T>.";
-            StringAssert.StartsWith(expectedMessage, ex.Message);
+            Assert.StartsWith(expectedMessage, ex.Message);
         }
 
-        [Test]
-        [Description("https://bitbucket.org/Readify/neo4jclient/issue/171/remove-false-protection-around-return-a")]
+        [Fact]
+        //[Description("https://bitbucket.org/Readify/neo4jclient/issue/171/remove-false-protection-around-return-a")]
         public void AllowArrayOfRelationshipInstanceInReturnAs()
         {
             Expression<Func<ICypherResultItem, object>> expression = a => a.As<RelationshipInstance[]>();
-            Assert.DoesNotThrow(() => CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters));
+            
+            var ex = Record.Exception(() => CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters));
+            Assert.Null(ex);
         }
 
-        [Test]
-        [Description("https://bitbucket.org/Readify/neo4jclient/issue/171/remove-false-protection-around-return-a")]
+        [Fact]
+        //[Description("https://bitbucket.org/Readify/neo4jclient/issue/171/remove-false-protection-around-return-a")]
         public void AllowListOfRelationshipInstanceInReturnAs()
         {
             Expression<Func<ICypherResultItem, object>> expression = a => a.As<List<RelationshipInstance>>();
-            Assert.DoesNotThrow(() => CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters));
+            var ex = Record.Exception(() => CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters));
+            Assert.Null(ex);
         }
 
-        [Test]
-        [Description("https://bitbucket.org/Readify/neo4jclient/issue/171/remove-false-protection-around-return-a")]
+        [Fact]
+        //[Description("https://bitbucket.org/Readify/neo4jclient/issue/171/remove-false-protection-around-return-a")]
         public void AllowEnumerableOfRelationshipInstanceInReturnAs()
         {
             Expression<Func<ICypherResultItem, object>> expression = a => a.As<IEnumerable<RelationshipInstance<object>>>();
-            Assert.DoesNotThrow(() => CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters));
+            var ex = Record.Exception(() => CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters));
+            Assert.Null(ex);
         }
 
-        [Test]
-        [Description("https://bitbucket.org/Readify/neo4jclient/issue/171/remove-false-protection-around-return-a")]
+        [Fact]
+        //[Description("https://bitbucket.org/Readify/neo4jclient/issue/171/remove-false-protection-around-return-a")]
         public void AllowArrayOfInt32InReturnAs()
         {
             Expression<Func<ICypherResultItem, object>> expression = a => a.As<int[]>();
-            Assert.DoesNotThrow(() => CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters));
+            var ex = Record.Exception(() => CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters));
+            Assert.Null(ex);
         }
 
-        [Test]
-        [Description("https://bitbucket.org/Readify/neo4jclient/issue/171/remove-false-protection-around-return-a")]
+        [Fact]
+        //[Description("https://bitbucket.org/Readify/neo4jclient/issue/171/remove-false-protection-around-return-a")]
         public void AllowEnumerableOfInt32InReturnAs()
         {
             Expression<Func<ICypherResultItem, object>> expression = a => a.As<IEnumerable<int>>();
-            Assert.DoesNotThrow(() => CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters));
+            var ex = Record.Exception(() => CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters));
+            Assert.Null(ex);
         }
 
-        [Test]
-        [Description("https://bitbucket.org/Readify/neo4jclient/issue/171/remove-false-protection-around-return-a")]
+        [Fact]
+        //[Description("https://bitbucket.org/Readify/neo4jclient/issue/171/remove-false-protection-around-return-a")]
         public void AllowListOfInt32InReturnAs()
         {
             Expression<Func<ICypherResultItem, object>> expression = a => a.As<List<int>>();
-            Assert.DoesNotThrow(() => CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters));
+            var ex = Record.Exception(() => CypherReturnExpressionBuilder.BuildText(expression, CypherCapabilities.Default, GraphClient.DefaultJsonConverters));
+            Assert.Null(ex);
         }
 
         public class TypeWithoutDefaultConstructor

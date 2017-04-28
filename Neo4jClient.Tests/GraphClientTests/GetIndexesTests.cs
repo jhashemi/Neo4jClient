@@ -1,13 +1,14 @@
 ﻿using System.Linq;
 using System.Net;
-using NUnit.Framework;
+using Neo4jClient.Test.Fixtures;
+using Xunit;
 
 namespace Neo4jClient.Test.GraphClientTests
 {
-    [TestFixture]
-    public class GetIndexesTests
+    
+    public class GetIndexesTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void ShouldReturnNodeIndexes()
         {
             using (var testHarness = new RestTestHarness
@@ -36,25 +37,25 @@ namespace Neo4jClient.Test.GraphClientTests
             {
                 var graphClient = testHarness.CreateAndConnectGraphClient();
                 var indexes = graphClient.GetIndexes(IndexFor.Node);
-                Assert.AreEqual(2, indexes.Count());
+                Assert.Equal(2, indexes.Count());
 
                 var index = indexes.ElementAt(0);
-                Assert.AreEqual("agency24871-clients", index.Key);
-                Assert.AreEqual(true, index.Value.ToLowerCase);
-                Assert.AreEqual("http://localhost:5102/db/data/index/node/agency24871-clients/{key}/{value}", index.Value.Template);
-                Assert.AreEqual("lucene", index.Value.Provider);
-                Assert.AreEqual("fulltext", index.Value.Type);
+                Assert.Equal("agency24871-clients", index.Key);
+                Assert.Equal(true, index.Value.ToLowerCase);
+                Assert.Equal("http://localhost:5102/db/data/index/node/agency24871-clients/{key}/{value}", index.Value.Template);
+                Assert.Equal("lucene", index.Value.Provider);
+                Assert.Equal("fulltext", index.Value.Type);
 
                 index = indexes.ElementAt(1);
-                Assert.AreEqual("agency36681-clients", index.Key);
-                Assert.AreEqual(false, index.Value.ToLowerCase);
-                Assert.AreEqual("http://localhost:5102/db/data/index/node/agency36681-clients/{key}/{value}", index.Value.Template);
-                Assert.AreEqual("lucene", index.Value.Provider);
-                Assert.AreEqual("exact", index.Value.Type);
+                Assert.Equal("agency36681-clients", index.Key);
+                Assert.Equal(false, index.Value.ToLowerCase);
+                Assert.Equal("http://localhost:5102/db/data/index/node/agency36681-clients/{key}/{value}", index.Value.Template);
+                Assert.Equal("lucene", index.Value.Provider);
+                Assert.Equal("exact", index.Value.Type);
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnEmptyDictionaryOfIndexesForHttpResponse204()
         {
             using (var testHarness = new RestTestHarness
@@ -67,7 +68,7 @@ namespace Neo4jClient.Test.GraphClientTests
             {
                 var graphClient = testHarness.CreateAndConnectGraphClient();
                 var indexes = graphClient.GetIndexes(IndexFor.Node);
-                Assert.IsFalse(indexes.Any());
+                Assert.False(indexes.Any());
             }
         }
     }

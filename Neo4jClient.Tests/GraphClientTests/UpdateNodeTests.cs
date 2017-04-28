@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using NUnit.Framework;
+using Neo4jClient.Test.Fixtures;
+using Xunit;
 
 namespace Neo4jClient.Test.GraphClientTests
 {
-    [TestFixture]
-    public class UpdateNodeTests
+    
+    public class UpdateNodeTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void ShouldUpdateNode()
         {
             var nodeToUpdate = new TestNode { Foo = "foo", Bar = "bar", Baz = "baz" };
@@ -53,13 +54,13 @@ namespace Neo4jClient.Test.GraphClientTests
                     }
                     );
 
-                Assert.AreEqual("fooUpdated", nodeToUpdate.Foo);
-                Assert.AreEqual("bazUpdated", nodeToUpdate.Baz);
-                Assert.AreEqual("bar", nodeToUpdate.Bar);
+                Assert.Equal("fooUpdated", nodeToUpdate.Foo);
+                Assert.Equal("bazUpdated", nodeToUpdate.Baz);
+                Assert.Equal("bar", nodeToUpdate.Bar);
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnNodeAfterUpdating()
         {
             var nodeToUpdate = new TestNode { Foo = "foo", Bar = "bar", Baz = "baz" };
@@ -102,14 +103,14 @@ namespace Neo4jClient.Test.GraphClientTests
                         nodeFromDb.Baz = "bazUpdated";
                     });
 
-                Assert.AreEqual(pocoReference, updatedNode.Reference);
-                Assert.AreEqual("fooUpdated", updatedNode.Data.Foo);
-                Assert.AreEqual("bazUpdated", updatedNode.Data.Baz);
-                Assert.AreEqual("bar", updatedNode.Data.Bar);
+                Assert.Equal(pocoReference, updatedNode.Reference);
+                Assert.Equal("fooUpdated", updatedNode.Data.Foo);
+                Assert.Equal("bazUpdated", updatedNode.Data.Baz);
+                Assert.Equal("bar", updatedNode.Data.Bar);
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldUpdateNodeWithIndexEntries()
         {
             var nodeToUpdate = new TestNode { Foo = "foo", Bar = "bar", Baz = "baz" };
@@ -168,13 +169,13 @@ namespace Neo4jClient.Test.GraphClientTests
                             }
                     });
 
-                Assert.AreEqual("fooUpdated", nodeToUpdate.Foo);
-                Assert.AreEqual("bazUpdated", nodeToUpdate.Baz);
-                Assert.AreEqual("bar", nodeToUpdate.Bar);
+                Assert.Equal("fooUpdated", nodeToUpdate.Foo);
+                Assert.Equal("bazUpdated", nodeToUpdate.Baz);
+                Assert.Equal("bar", nodeToUpdate.Bar);
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldRunDelegateForChanges()
         {
             var nodeToUpdate = new TestNode { Id = 1, Foo = "foo", Bar = "bar", Baz = "baz" };
@@ -223,11 +224,11 @@ namespace Neo4jClient.Test.GraphClientTests
                     diff => { hasChanged = diff.Any(); }
                     );
 
-                Assert.IsTrue(hasChanged);
+                Assert.True(hasChanged);
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldReplaceNode()
         {
             var newData = new TestNode { Foo = "foo", Bar = "bar", Baz = "baz" };
@@ -248,7 +249,7 @@ namespace Neo4jClient.Test.GraphClientTests
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldReplaceNodeWithIndexEntries()
         {
             var newData = new TestNode { Foo = "foo", Bar = "bar", Baz = "baz" };

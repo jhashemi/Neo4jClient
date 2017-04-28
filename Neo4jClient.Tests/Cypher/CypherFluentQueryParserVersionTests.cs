@@ -1,13 +1,14 @@
 ﻿using System;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 using Neo4jClient.Cypher;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.Cypher
 {
-    public class CypherFluentQueryParserVersionTests
+    public class CypherFluentQueryParserVersionTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void SetsVersionToFreeTextGiven()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -20,11 +21,11 @@ namespace Neo4jClient.Test.Cypher
                 .Return<object>("n")
                 .Query;
 
-            Assert.AreEqual("CYPHER 2.1.experimental\r\nSTART n=node(*)\r\nRETURN n", query.QueryText);
-            Assert.AreEqual(0, query.QueryParameters.Count);   
+            Assert.Equal("CYPHER 2.1.experimental\r\nSTART n=node(*)\r\nRETURN n", query.QueryText);
+            Assert.Equal(0, query.QueryParameters.Count);   
         }
 
-        [Test]
+        [Fact]
         public void SetsVersion_WhenUsingVersionOverload()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -37,11 +38,11 @@ namespace Neo4jClient.Test.Cypher
                 .Return<object>("n")
                 .Query;
 
-            Assert.AreEqual("CYPHER 1.9\r\nSTART n=node(*)\r\nRETURN n", query.QueryText);
-            Assert.AreEqual(0, query.QueryParameters.Count);
+            Assert.Equal("CYPHER 1.9\r\nSTART n=node(*)\r\nRETURN n", query.QueryText);
+            Assert.Equal(0, query.QueryParameters.Count);
         }
 
-        [Test]
+        [Fact]
         public void SetsVersion_WhenUsingIntOverload()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -54,11 +55,11 @@ namespace Neo4jClient.Test.Cypher
                 .Return<object>("n")
                 .Query;
 
-            Assert.AreEqual("CYPHER 1.9\r\nSTART n=node(*)\r\nRETURN n", query.QueryText);
-            Assert.AreEqual(0, query.QueryParameters.Count);
+            Assert.Equal("CYPHER 1.9\r\nSTART n=node(*)\r\nRETURN n", query.QueryText);
+            Assert.Equal(0, query.QueryParameters.Count);
         }
 
-        [Test]
+        [Fact]
         public void UsesLegacy_WhenVersionRequestedIsLessThan1_9()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -71,8 +72,8 @@ namespace Neo4jClient.Test.Cypher
                 .Return<object>("n")
                 .Query;
 
-            Assert.AreEqual("CYPHER LEGACY\r\nSTART n=node(*)\r\nRETURN n", query.QueryText);
-            Assert.AreEqual(0, query.QueryParameters.Count);            
+            Assert.Equal("CYPHER LEGACY\r\nSTART n=node(*)\r\nRETURN n", query.QueryText);
+            Assert.Equal(0, query.QueryParameters.Count);            
         }
     }
 }

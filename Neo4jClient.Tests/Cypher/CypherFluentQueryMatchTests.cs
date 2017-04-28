@@ -1,14 +1,15 @@
-﻿using NUnit.Framework;
+﻿using Xunit;
 using NSubstitute;
 using Neo4jClient.Cypher;
 using System.Linq;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.Cypher
 {
-    [TestFixture]
-    public class CypherFluentQueryMatchTests
+    
+    public class CypherFluentQueryMatchTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void MatchRelatedNodes()
         {
             // http://docs.neo4j.org/chunked/1.6/query-match.html#match-related-nodes
@@ -23,11 +24,11 @@ namespace Neo4jClient.Test.Cypher
                 .Return<object>("x")
                 .Query;
 
-            Assert.AreEqual("START n=node({p0})\r\nMATCH (n)--(x)\r\nRETURN x", query.QueryText);
-            Assert.AreEqual(3, query.QueryParameters["p0"]);
+            Assert.Equal("START n=node({p0})\r\nMATCH (n)--(x)\r\nRETURN x", query.QueryText);
+            Assert.Equal(3L, query.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void OptionalMatch()
         {
             // http://docs.neo4j.org/chunked/2.0.0-RC1/query-optional-match.html
@@ -39,11 +40,11 @@ namespace Neo4jClient.Test.Cypher
                 .OptionalMatch("(n)--(x)")
                 .Query;
 
-            Assert.AreEqual("OPTIONAL MATCH (n)--(x)", query.QueryText);
-            Assert.AreEqual(0, query.QueryParameters.Count());
+            Assert.Equal("OPTIONAL MATCH (n)--(x)", query.QueryText);
+            Assert.Equal(0, query.QueryParameters.Count());
         }
 
-        [Test]
+        [Fact]
         public void MultipleMatchClauses()
         {
             // MATCH (n)
@@ -58,11 +59,11 @@ namespace Neo4jClient.Test.Cypher
                 .OptionalMatch("(x)--(a)")
                 .Query;
 
-            Assert.AreEqual("MATCH (n)\r\nOPTIONAL MATCH (n)--(x)\r\nOPTIONAL MATCH (x)--(a)", query.QueryText);
-            Assert.AreEqual(0, query.QueryParameters.Count());
+            Assert.Equal("MATCH (n)\r\nOPTIONAL MATCH (n)--(x)\r\nOPTIONAL MATCH (x)--(a)", query.QueryText);
+            Assert.Equal(0, query.QueryParameters.Count());
         }
 
-        [Test]
+        [Fact]
         public void MultipleMatchClausesWithPairedWhereClauses()
         {
             // MATCH (n)
@@ -85,8 +86,8 @@ namespace Neo4jClient.Test.Cypher
 
             const string expected = "MATCH (n)\r\nWHERE (n.Foo = {p0})\r\nOPTIONAL MATCH (n)--(x)\r\nWHERE (x.Bar = {p1})\r\nOPTIONAL MATCH (x)--(a)\r\nWHERE (a.Baz = {p2})";
 
-            Assert.AreEqual(expected, query.QueryText);
-            Assert.AreEqual(3, query.QueryParameters.Count());
+            Assert.Equal(expected, query.QueryText);
+            Assert.Equal(3, query.QueryParameters.Count());
         }
 
         // ReSharper disable once ClassNeverInstantiated.Local

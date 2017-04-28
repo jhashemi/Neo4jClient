@@ -1,54 +1,55 @@
-using NUnit.Framework;
+using Xunit;
 using Neo4jClient.Gremlin;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.Gremlin
 {
-    [TestFixture]
-    public class ExceptStepTests
+    
+    public class ExceptStepTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void ExceptVShouldAppendStep()
         {
             var query = new NodeReference(123).ExceptV<object>("foo");
-            Assert.AreEqual("g.v(p0).except(foo)", query.QueryText);
-            Assert.AreEqual(123, query.QueryParameters["p0"]);
+            Assert.Equal("g.v(p0).except(foo)", query.QueryText);
+            Assert.Equal(123L, query.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void ExceptVShouldReturnTypedNodeEnumerable()
         {
             var query = new NodeReference(123).ExceptV<object>("foo");
-            Assert.IsInstanceOf<GremlinNodeEnumerable<object>>(query);
+            Assert.IsAssignableFrom<GremlinNodeEnumerable<object>>(query);
         }
 
-        [Test]
+        [Fact]
         public void ExceptEShouldAppendStep()
         {
             var query = new NodeReference(123).ExceptE("foo");
-            Assert.AreEqual("g.v(p0).except(foo)", query.QueryText);
-            Assert.AreEqual(123, query.QueryParameters["p0"]);
+            Assert.Equal("g.v(p0).except(foo)", query.QueryText);
+            Assert.Equal(123L, query.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void ExceptEShouldReturnRelationshipEnumerable()
         {
             var query = new NodeReference(123).ExceptE("foo");
-            Assert.IsInstanceOf<GremlinRelationshipEnumerable>(query);
+            Assert.IsAssignableFrom<GremlinRelationshipEnumerable>(query);
         }
 
-        [Test]
+        [Fact]
         public void ExceptEWithTDataShouldAppendStep()
         {
             var query = new NodeReference(123).ExceptE<object>("foo");
-            Assert.AreEqual("g.v(p0).except(foo)", query.QueryText);
-            Assert.AreEqual(123, query.QueryParameters["p0"]);
+            Assert.Equal("g.v(p0).except(foo)", query.QueryText);
+            Assert.Equal(123L, query.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void ExceptEWithTDataShouldReturnRelationshipEnumerable()
         {
             var query = new NodeReference(123).ExceptE<object>("foo");
-            Assert.IsInstanceOf<GremlinRelationshipEnumerable<object>>(query);
+            Assert.IsAssignableFrom<GremlinRelationshipEnumerable<object>>(query);
         }
     }
 }

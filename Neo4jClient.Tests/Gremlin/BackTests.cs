@@ -1,57 +1,58 @@
-﻿using NUnit.Framework;
+﻿using Xunit;
 using Neo4jClient.Gremlin;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.Gremlin
 {
-    [TestFixture]
-    public class BackTests
+    
+    public class BackTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void BackVShouldAppendStep()
         {
             var query = new NodeReference(123).BackV<object>("foo");
-            Assert.AreEqual("g.v(p0).back(p1)", query.QueryText);
-            Assert.AreEqual(123, query.QueryParameters["p0"]);
-            Assert.AreEqual("foo", query.QueryParameters["p1"]);
+            Assert.Equal("g.v(p0).back(p1)", query.QueryText);
+            Assert.Equal(123L, query.QueryParameters["p0"]);
+            Assert.Equal("foo", query.QueryParameters["p1"]);
         }
 
-        [Test]
+        [Fact]
         public void BackVShouldReturnTypedNodeEnumerable()
         {
             var query = new NodeReference(123).BackV<object>("foo");
-            Assert.IsInstanceOf<GremlinNodeEnumerable<object>>(query);
+            Assert.IsAssignableFrom<GremlinNodeEnumerable<object>>(query);
         }
 
-        [Test]
+        [Fact]
         public void BackEShouldAppendStep()
         {
             var query = new NodeReference(123).BackE("foo");
-            Assert.AreEqual("g.v(p0).back(p1)", query.QueryText);
-            Assert.AreEqual(123, query.QueryParameters["p0"]);
-            Assert.AreEqual("foo", query.QueryParameters["p1"]);
+            Assert.Equal("g.v(p0).back(p1)", query.QueryText);
+            Assert.Equal(123L, query.QueryParameters["p0"]);
+            Assert.Equal("foo", query.QueryParameters["p1"]);
         }
 
-        [Test]
+        [Fact]
         public void BackEShouldReturnRelationshipEnumerable()
         {
             var query = new NodeReference(123).BackE("foo");
-            Assert.IsInstanceOf<GremlinRelationshipEnumerable>(query);
+            Assert.IsAssignableFrom<GremlinRelationshipEnumerable>(query);
         }
 
-        [Test]
+        [Fact]
         public void BackEWithTDataShouldAppendStep()
         {
             var query = new NodeReference(123).BackE<object>("foo");
-            Assert.AreEqual("g.v(p0).back(p1)", query.QueryText);
-            Assert.AreEqual(123, query.QueryParameters["p0"]);
-            Assert.AreEqual("foo", query.QueryParameters["p1"]);
+            Assert.Equal("g.v(p0).back(p1)", query.QueryText);
+            Assert.Equal(123L, query.QueryParameters["p0"]);
+            Assert.Equal("foo", query.QueryParameters["p1"]);
         }
 
-        [Test]
+        [Fact]
         public void BackEWithTDataShouldReturnRelationshipEnumerable()
         {
             var query = new NodeReference(123).BackE<object>("foo");
-            Assert.IsInstanceOf<GremlinRelationshipEnumerable<object>>(query);
+            Assert.IsAssignableFrom<GremlinRelationshipEnumerable<object>>(query);
         }
     }
 }

@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
+using FluentAssertions;
+using Xunit;
 using Neo4jClient.Cypher;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.Cypher
 {
-    [TestFixture]
-    public class StartBitFormatterTests
+    
+    public class StartBitFormatterTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
-        [Description("http://docs.neo4j.org/chunked/2.0.0-M01/query-start.html#start-node-by-id")]
+        [Fact]
+        //[Description("http://docs.neo4j.org/chunked/2.0.0-M01/query-start.html#start-node-by-id")]
         public void SingleNodeReference()
         {
             var cypher = ToCypher(new
@@ -18,12 +20,12 @@ namespace Neo4jClient.Test.Cypher
                 n1 = (NodeReference) 1
             });
 
-            Assert.AreEqual("n1=node({p0})", cypher.QueryText);
-            Assert.AreEqual(1, cypher.QueryParameters.Count);
-            Assert.AreEqual(1, cypher.QueryParameters["p0"]);
+            Assert.Equal("n1=node({p0})", cypher.QueryText);
+            Assert.Equal(1, cypher.QueryParameters.Count);
+            Assert.Equal(1L, cypher.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void SingleNode()
         {
             var cypher = ToCypher(new
@@ -31,12 +33,12 @@ namespace Neo4jClient.Test.Cypher
                 n1 = new Node<object>(new object(), 123, null)
             });
 
-            Assert.AreEqual("n1=node({p0})", cypher.QueryText);
-            Assert.AreEqual(1, cypher.QueryParameters.Count);
-            Assert.AreEqual(123, cypher.QueryParameters["p0"]);
+            Assert.Equal("n1=node({p0})", cypher.QueryText);
+            Assert.Equal(1, cypher.QueryParameters.Count);
+            Assert.Equal(123L, cypher.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void EnumerableOfNodes()
         {
             var cypher = ToCypher(new
@@ -44,12 +46,12 @@ namespace Neo4jClient.Test.Cypher
                 n1 = new[] {123, 456}.Select(id => new Node<object>(new object(), id, null))
             });
 
-            Assert.AreEqual("n1=node({p0})", cypher.QueryText);
-            Assert.AreEqual(1, cypher.QueryParameters.Count);
-            Assert.AreEqual(new[] {123, 456}, cypher.QueryParameters["p0"]);
+            Assert.Equal("n1=node({p0})", cypher.QueryText);
+            Assert.Equal(1, cypher.QueryParameters.Count);
+            Assert.Equal(new[] {123L, 456L}, cypher.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void RootNodeReference()
         {
             var cypher = ToCypher(new
@@ -57,13 +59,13 @@ namespace Neo4jClient.Test.Cypher
                 n1 = new RootNode(123)
             });
 
-            Assert.AreEqual("n1=node({p0})", cypher.QueryText);
-            Assert.AreEqual(1, cypher.QueryParameters.Count);
-            Assert.AreEqual(123, cypher.QueryParameters["p0"]);
+            Assert.Equal("n1=node({p0})", cypher.QueryText);
+            Assert.Equal(1, cypher.QueryParameters.Count);
+            Assert.Equal(123L, cypher.QueryParameters["p0"]);
         }
 
-        [Test]
-        [Description("http://docs.neo4j.org/chunked/2.0.0-M01/query-start.html#start-node-by-id")]
+        [Fact]
+        //[Description("http://docs.neo4j.org/chunked/2.0.0-M01/query-start.html#start-node-by-id")]
         public void MultipleNodeReferences()
         {
             var cypher = ToCypher(new
@@ -72,14 +74,14 @@ namespace Neo4jClient.Test.Cypher
                 n2 = (NodeReference)2
             });
 
-            Assert.AreEqual("n1=node({p0}), n2=node({p1})", cypher.QueryText);
-            Assert.AreEqual(2, cypher.QueryParameters.Count);
-            Assert.AreEqual(1, cypher.QueryParameters["p0"]);
-            Assert.AreEqual(2, cypher.QueryParameters["p1"]);
+            Assert.Equal("n1=node({p0}), n2=node({p1})", cypher.QueryText);
+            Assert.Equal(2, cypher.QueryParameters.Count);
+            Assert.Equal(1L, cypher.QueryParameters["p0"]);
+            Assert.Equal(2L, cypher.QueryParameters["p1"]);
         }
 
-        [Test]
-        [Description("http://docs.neo4j.org/chunked/2.0.0-M01/query-start.html#start-multiple-nodes-by-id")]
+        [Fact]
+        //[Description("http://docs.neo4j.org/chunked/2.0.0-M01/query-start.html#start-multiple-nodes-by-id")]
         public void ArrayOfNodeReferences()
         {
             var cypher = ToCypher(new
@@ -87,13 +89,13 @@ namespace Neo4jClient.Test.Cypher
                 n1 = new NodeReference[] { 1, 2 }
             });
 
-            Assert.AreEqual("n1=node({p0})", cypher.QueryText);
-            Assert.AreEqual(1, cypher.QueryParameters.Count);
-            Assert.AreEqual(new[] {1, 2}, cypher.QueryParameters["p0"]);
+            Assert.Equal("n1=node({p0})", cypher.QueryText);
+            Assert.Equal(1, cypher.QueryParameters.Count);
+            Assert.Equal(new[] {1L, 2L}, cypher.QueryParameters["p0"]);
         }
 
-        [Test]
-        [Description("http://docs.neo4j.org/chunked/2.0.0-M01/query-start.html#start-multiple-nodes-by-id")]
+        [Fact]
+        //[Description("http://docs.neo4j.org/chunked/2.0.0-M01/query-start.html#start-multiple-nodes-by-id")]
         public void EnumerableOfNodeReferences()
         {
             var cypher = ToCypher(new
@@ -101,13 +103,13 @@ namespace Neo4jClient.Test.Cypher
                 n1 = new[] { 1, 2 }.Select(id => (NodeReference)id)
             });
 
-            Assert.AreEqual("n1=node({p0})", cypher.QueryText);
-            Assert.AreEqual(1, cypher.QueryParameters.Count);
-            Assert.AreEqual(new[] { 1, 2 }, cypher.QueryParameters["p0"]);
+            Assert.Equal("n1=node({p0})", cypher.QueryText);
+            Assert.Equal(1, cypher.QueryParameters.Count);
+            Assert.Equal(new[] { 1L, 2L }, cypher.QueryParameters["p0"]);
         }
 
-        [Test]
-        [Description("http://docs.neo4j.org/chunked/2.0.0-M01/query-start.html#start-multiple-nodes-by-id")]
+        [Fact]
+        //[Description("http://docs.neo4j.org/chunked/2.0.0-M01/query-start.html#start-multiple-nodes-by-id")]
         public void EnumerableOfTypedNodeReferences()
         {
             var cypher = ToCypher(new
@@ -115,12 +117,12 @@ namespace Neo4jClient.Test.Cypher
                 n1 = new[] { 1, 2 }.Select(id => (NodeReference<object>)id)
             });
 
-            Assert.AreEqual("n1=node({p0})", cypher.QueryText);
-            Assert.AreEqual(1, cypher.QueryParameters.Count);
-            Assert.AreEqual(new[] { 1, 2 }, cypher.QueryParameters["p0"]);
+            Assert.Equal("n1=node({p0})", cypher.QueryText);
+            Assert.Equal(1, cypher.QueryParameters.Count);
+            Assert.Equal(new[] { 1L, 2L }, cypher.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void SingleRelationshipReference()
         {
             var cypher = ToCypher(new
@@ -128,12 +130,12 @@ namespace Neo4jClient.Test.Cypher
                 r1 = (RelationshipReference)1
             });
 
-            Assert.AreEqual("r1=relationship({p0})", cypher.QueryText);
-            Assert.AreEqual(1, cypher.QueryParameters.Count);
-            Assert.AreEqual(1, cypher.QueryParameters["p0"]);
+            Assert.Equal("r1=relationship({p0})", cypher.QueryText);
+            Assert.Equal(1, cypher.QueryParameters.Count);
+            Assert.Equal(1L, cypher.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void ArrayOfRelationshipReferences()
         {
             var cypher = ToCypher(new
@@ -141,12 +143,12 @@ namespace Neo4jClient.Test.Cypher
                 r1 = new RelationshipReference[] { 1, 2 }
             });
 
-            Assert.AreEqual("r1=relationship({p0})", cypher.QueryText);
-            Assert.AreEqual(1, cypher.QueryParameters.Count);
-            Assert.AreEqual(new[] {1, 2}, cypher.QueryParameters["p0"]);
+            Assert.Equal("r1=relationship({p0})", cypher.QueryText);
+            Assert.Equal(1, cypher.QueryParameters.Count);
+            Assert.Equal(new[] {1L, 2L}, cypher.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void EnumerableOfRelationshipReferences()
         {
             var cypher = ToCypher(new
@@ -154,13 +156,13 @@ namespace Neo4jClient.Test.Cypher
                 r1 = new[] { 1, 2 }.Select(id => (RelationshipReference)id)
             });
 
-            Assert.AreEqual("r1=relationship({p0})", cypher.QueryText);
-            Assert.AreEqual(1, cypher.QueryParameters.Count);
-            Assert.AreEqual(new[] { 1, 2 }, cypher.QueryParameters["p0"]);
+            Assert.Equal("r1=relationship({p0})", cypher.QueryText);
+            Assert.Equal(1, cypher.QueryParameters.Count);
+            Assert.Equal(new[] { 1L, 2L }, cypher.QueryParameters["p0"]);
         }
 
-        [Test]
-        [Description("http://docs.neo4j.org/chunked/2.0.0-M01/query-start.html#start-all-nodes")]
+        [Fact]
+        //[Description("http://docs.neo4j.org/chunked/2.0.0-M01/query-start.html#start-all-nodes")]
         public void AllNodes()
         {
             var cypher = ToCypher(new
@@ -168,11 +170,11 @@ namespace Neo4jClient.Test.Cypher
                 n = All.Nodes
             });
 
-            Assert.AreEqual("n=node(*)", cypher.QueryText);
-            Assert.AreEqual(0, cypher.QueryParameters.Count);
+            Assert.Equal("n=node(*)", cypher.QueryText);
+            Assert.Equal(0, cypher.QueryParameters.Count);
         }
 
-        [Test]
+        [Fact]
         public void CustomString()
         {
             var cypher = ToCypher(new
@@ -180,12 +182,12 @@ namespace Neo4jClient.Test.Cypher
                 n1 = "foo"
             });
 
-            Assert.AreEqual("n1=foo", cypher.QueryText);
-            Assert.AreEqual(0, cypher.QueryParameters.Count);
+            Assert.Equal("n1=foo", cypher.QueryText);
+            Assert.Equal(0, cypher.QueryParameters.Count);
         }
 
-        [Test]
-        [Description("http://docs.neo4j.org/chunked/2.0.0-M01/query-start.html#start-node-by-index-lookup")]
+        [Fact]
+        //[Description("http://docs.neo4j.org/chunked/2.0.0-M01/query-start.html#start-node-by-index-lookup")]
         public void NodeByIndexLookup()
         {
             var cypher = ToCypher(new
@@ -193,13 +195,13 @@ namespace Neo4jClient.Test.Cypher
                 n = Node.ByIndexLookup("someIndex", "name", "A")
             });
 
-            Assert.AreEqual("n=node:`someIndex`(name = {p0})", cypher.QueryText);
-            Assert.AreEqual(1, cypher.QueryParameters.Count);
-            Assert.AreEqual("A", cypher.QueryParameters["p0"]);
+            Assert.Equal("n=node:`someIndex`(name = {p0})", cypher.QueryText);
+            Assert.Equal(1, cypher.QueryParameters.Count);
+            Assert.Equal("A", cypher.QueryParameters["p0"]);
         }
 
-        [Test]
-        [Description("http://docs.neo4j.org/chunked/2.0.0-M01/query-start.html#start-node-by-index-query")]
+        [Fact]
+        //[Description("http://docs.neo4j.org/chunked/2.0.0-M01/query-start.html#start-node-by-index-query")]
         public void NodeByIndexQuery()
         {
             var cypher = ToCypher(new
@@ -207,13 +209,13 @@ namespace Neo4jClient.Test.Cypher
                 n = Node.ByIndexQuery("someIndex", "name:A")
             });
 
-            Assert.AreEqual("n=node:`someIndex`({p0})", cypher.QueryText);
-            Assert.AreEqual(1, cypher.QueryParameters.Count);
-            Assert.AreEqual("name:A", cypher.QueryParameters["p0"]);
+            Assert.Equal("n=node:`someIndex`({p0})", cypher.QueryText);
+            Assert.Equal(1, cypher.QueryParameters.Count);
+            Assert.Equal("name:A", cypher.QueryParameters["p0"]);
         }
 
-        [Test]
-        [Description("http://docs.neo4j.org/chunked/2.0.0-M01/query-start.html#start-relationship-by-index-lookup")]
+        [Fact]
+        //[Description("http://docs.neo4j.org/chunked/2.0.0-M01/query-start.html#start-relationship-by-index-lookup")]
         public void RelationshipByIndexLookup()
         {
             var cypher = ToCypher(new
@@ -221,12 +223,12 @@ namespace Neo4jClient.Test.Cypher
                 r = Relationship.ByIndexLookup("someIndex", "name", "A")
             });
 
-            Assert.AreEqual("r=relationship:`someIndex`(name = {p0})", cypher.QueryText);
-            Assert.AreEqual(1, cypher.QueryParameters.Count);
-            Assert.AreEqual("A", cypher.QueryParameters["p0"]);
+            Assert.Equal("r=relationship:`someIndex`(name = {p0})", cypher.QueryText);
+            Assert.Equal(1, cypher.QueryParameters.Count);
+            Assert.Equal("A", cypher.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void RelationshipByIndexQuery()
         {
             var cypher = ToCypher(new
@@ -234,12 +236,12 @@ namespace Neo4jClient.Test.Cypher
                 r = Relationship.ByIndexQuery("someIndex", "name:A")
             });
 
-            Assert.AreEqual("r=relationship:`someIndex`({p0})", cypher.QueryText);
-            Assert.AreEqual(1, cypher.QueryParameters.Count);
-            Assert.AreEqual("name:A", cypher.QueryParameters["p0"]);
+            Assert.Equal("r=relationship:`someIndex`({p0})", cypher.QueryText);
+            Assert.Equal(1, cypher.QueryParameters.Count);
+            Assert.Equal("name:A", cypher.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void Mixed()
         {
             var nodeRef = (NodeReference)2;
@@ -270,37 +272,36 @@ namespace Neo4jClient.Test.Cypher
                 "r3=relationship:`indexName`({p6}), " +
                 "all=node(*)";
 
-            Assert.AreEqual(expected, cypher.QueryText);
-            Assert.AreEqual(7, cypher.QueryParameters.Count);
-            Assert.AreEqual(2, cypher.QueryParameters["p0"]);
-            Assert.AreEqual("value", cypher.QueryParameters["p1"]);
-            Assert.AreEqual("query", cypher.QueryParameters["p2"]);
-            Assert.AreEqual(3, cypher.QueryParameters["p3"]);
-            Assert.AreEqual(new[] {3, 4}, cypher.QueryParameters["p4"]);
-            Assert.AreEqual("value", cypher.QueryParameters["p5"]);
-            Assert.AreEqual("query", cypher.QueryParameters["p6"]);
+            Assert.Equal(expected, cypher.QueryText);
+            Assert.Equal(7, cypher.QueryParameters.Count);
+            Assert.Equal(2L, cypher.QueryParameters["p0"]);
+            Assert.Equal("value", cypher.QueryParameters["p1"]);
+            Assert.Equal("query", cypher.QueryParameters["p2"]);
+            Assert.Equal(3L, cypher.QueryParameters["p3"]);
+            Assert.Equal(new[] {3L, 4L}, cypher.QueryParameters["p4"]);
+            Assert.Equal("value", cypher.QueryParameters["p5"]);
+            Assert.Equal("query", cypher.QueryParameters["p6"]);
         }
 
-        [Test]
+        [Fact]
         public void ThrowArgumentExceptionForEmptyObject()
         {
             var emptyObject = new {};
             var ex = Assert.Throws<ArgumentException>(
                 () => StartBitFormatter.FormatAsCypherText(emptyObject, null)
             );
-            Assert.AreEqual("startBits", ex.ParamName);
+            Assert.Equal("startBits", ex.ParamName);
         }
 
-        [Test]
+        [Fact]
         public void DontThrowArgumentExceptionForEmptyDictionary()
         {
             var emptyDictionary = new Dictionary<string, object>();
-            Assert.DoesNotThrow(
-                () => StartBitFormatter.FormatAsCypherText(emptyDictionary, null)
-            );
+            var ex = Record.Exception(() => StartBitFormatter.FormatAsCypherText(emptyDictionary, null));
+            ex.Should().BeNull();
         }
 
-        [Test]
+        [Fact]
         public void ThrowNotSupportedExceptionForUnknownType()
         {
             var badObject = new { n1 = new StartBitFormatterTests() };
@@ -309,27 +310,27 @@ namespace Neo4jClient.Test.Cypher
             );
         }
 
-        [Test]
+        [Fact]
         public void NotSupportedExceptionForUnknownTypeIncludesIdentityName()
         {
             var badObject = new { n1 = new StartBitFormatterTests() };
             var exception = Assert.Throws<NotSupportedException>(
                 () => StartBitFormatter.FormatAsCypherText(badObject, null)
             );
-            StringAssert.Contains("n1", exception.Message);
+            Assert.Contains("n1", exception.Message);
         }
 
-        [Test]
+        [Fact]
         public void NotSupportedExceptionForUnknownTypeIncludesTypeName()
         {
             var badObject = new { n1 = new StartBitFormatterTests() };
             var exception = Assert.Throws<NotSupportedException>(
                 () => StartBitFormatter.FormatAsCypherText(badObject, null)
             );
-            StringAssert.Contains(typeof(StartBitFormatterTests).FullName, exception.Message);
+            Assert.Contains(typeof(StartBitFormatterTests).FullName, exception.Message);
         }
 
-        [Test]
+        [Fact]
         public void ThrowArgumentExceptionForNullValue()
         {
             var startBits = new { foo = (object)null };
@@ -338,14 +339,14 @@ namespace Neo4jClient.Test.Cypher
             );
         }
 
-        [Test]
+        [Fact]
         public void ArgumentExceptionForNullValueIncludesPropertyName()
         {
             var startBits = new { foo = (object)null };
             var ex = Assert.Throws<ArgumentException>(
                 () => StartBitFormatter.FormatAsCypherText(startBits, null)
             );
-            StringAssert.Contains("foo", ex.Message);
+            Assert.Contains("foo", ex.Message);
         }
 
         static CypherQuery ToCypher(object startBits)

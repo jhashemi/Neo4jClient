@@ -3,13 +3,14 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Neo4jClient.Extensions;
+using Neo4jClient.Test.Fixtures;
 using Newtonsoft.Json;
-using NUnit.Framework;
+using Xunit;
 
 namespace Neo4jClient.Test.Extensions
 {
-    [TestFixture]
-    public class MemberInfoExtensionsTests
+    
+    public class MemberInfoExtensionsTests 
     {
         class Foo
         {
@@ -22,16 +23,16 @@ namespace Neo4jClient.Test.Extensions
             public string Property3 { get; set; }
         }
 
-        [TestFixture]
-        public class GetNameUsingJsonPropertyMethod
+        
+        public class GetNameUsingJsonPropertyMethod : IClassFixture<CultureInfoSetupFixture>
         {
-            [Test]
+            [Fact]
             public void ThrowsArgumentNullException_WhenMemberInfoIsNull()
             {
                 Assert.Throws<ArgumentNullException>(() => MemberInfoExtensions.GetNameUsingJsonProperty(null));
             }
 
-            [Test]
+            [Fact]
             public void ReturnsCorrectName_WhenPropertyHasJsonPropertyAddedButNoNameSet()
             {
                 const string expected = "Property1";
@@ -39,10 +40,10 @@ namespace Neo4jClient.Test.Extensions
                 var member = typeof (Foo).GetMember("Property1");
                 var actual = member.Single().GetNameUsingJsonProperty();
 
-                Assert.AreEqual(expected, actual);
+                Assert.Equal(expected, actual);
             }
 
-            [Test]
+            [Fact]
             public void ReturnsCorrectName_WhenPropertyHasJsonPropertyAddedWithNameSet()
             {
                 const string expected = "property_2";
@@ -50,10 +51,10 @@ namespace Neo4jClient.Test.Extensions
                 var member = typeof(Foo).GetMember("Property2");
                 var actual = member.Single().GetNameUsingJsonProperty();
 
-                Assert.AreEqual(expected, actual);
+                Assert.Equal(expected, actual);
             }
 
-            [Test]
+            [Fact]
             public void ReturnsCorrectName_WhenPropertyHasNoJsonPropertyAdded()
             {
                 const string expected = "Property3";
@@ -61,7 +62,7 @@ namespace Neo4jClient.Test.Extensions
                 var member = typeof(Foo).GetMember("Property3");
                 var actual = member.Single().GetNameUsingJsonProperty();
 
-                Assert.AreEqual(expected, actual);
+                Assert.Equal(expected, actual);
             }
 
         }

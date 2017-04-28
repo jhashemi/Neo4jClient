@@ -11,6 +11,13 @@ The official neo4jclient build and nuget package is automated via MyGet [build s
 
 ### Stable [![neo4jclient-tx MyGet Build Status](https://www.myget.org/BuildSource/Badge/neo4jclient-tx?identifier=57c22856-7609-4211-a432-a1ecdf6f1497)](https://www.myget.org/)
 
+#### Changes in 3.x
+
+* Bolt!
+* Transactions now use `AsyncLocal<>` instead of `ThreadStatic`
+  * Transactions still don't work in the .NET Core version for the same reason as listed below. 
+
+
 #### Dependency Changes in 2.0
 
 * JSON.NET updated to 9.0.1 

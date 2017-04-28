@@ -5,20 +5,21 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using NUnit.Framework;
+using Xunit;
 using Neo4jClient.ApiModels.Cypher;
 using Neo4jClient.Cypher;
+using Neo4jClient.Test.Fixtures;
 using NSubstitute;
 
 namespace Neo4jClient.Test.GraphClientTests.Cypher
 {
-    [TestFixture]
-    public class ExecuteCypherTests
+    
+    public class ExecuteCypherTests : IClassFixture<CultureInfoSetupFixture>
     {
         /// <summary>
         ///     When executing cypher queries when no parameters are needed, the REST interface doesn't care if we don't send parameters.
         /// </summary>
-        [Test]
+        [Fact]
         public void SendingNullParametersShouldNotRaiseExceptionWhenExecutingCypher()
         {
             const string queryText = @"MATCH (d) RETURN d";
@@ -41,7 +42,7 @@ namespace Neo4jClient.Test.GraphClientTests.Cypher
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldSendCommandAndNotCareAboutResults()
         {
             // Arrange
@@ -70,7 +71,7 @@ namespace Neo4jClient.Test.GraphClientTests.Cypher
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldSendCommandAndNotCareAboutResultsAsync()
         {
             // Arrange
@@ -98,7 +99,7 @@ namespace Neo4jClient.Test.GraphClientTests.Cypher
                 var task = graphClient.ExecuteCypherAsync(cypherQuery);
                 task.Wait();
 
-                Assert.IsTrue(raisedEvent, "Raised OperationCompleted");
+                Assert.True(raisedEvent, "Raised OperationCompleted");
             }
         }
 
@@ -106,7 +107,7 @@ namespace Neo4jClient.Test.GraphClientTests.Cypher
         /// This predates #106. Given Tatham's guidance that the event should fire irrespective is this test proving correct behaviour?
         /// In any case the sync method calls async so it might be hard to avoid double firing an event.
         /// </summary>
-        [Test]
+        [Fact]
         public void WhenAsyncCommandFails_ShouldNotRaiseCompleted()
         {
             // Arrange
@@ -134,19 +135,19 @@ namespace Neo4jClient.Test.GraphClientTests.Cypher
                 var task = graphClient.ExecuteCypherAsync(cypherQuery)
                     .ContinueWith(t =>
                     {
-                        Assert.IsTrue(t.IsFaulted);
-                        Assert.IsInstanceOf<MockResponseThrowsException>(t.Exception.Flatten().InnerException);
+                        Assert.True(t.IsFaulted);
+                        Assert.IsAssignableFrom<MockResponseThrowsException>(t.Exception.Flatten().InnerException);
                     });
                 task.Wait();
 
-                Assert.IsFalse(raisedEvent, "Raised OperationCompleted");
+                Assert.False(raisedEvent, "Raised OperationCompleted");
             }
         }
 
         /// <summary>
         /// #106
         /// </summary>
-        [Test]
+        [Fact]
         public void WhenExecuteGetCypherResultsFails_ShouldRaiseCompletedWithException()
         {
             // Arrange
@@ -174,19 +175,19 @@ namespace Neo4jClient.Test.GraphClientTests.Cypher
                 Assert.Throws<MockResponseThrowsException>(() =>
                 {
                     graphClient.ExecuteGetCypherResults<ExecuteGetCypherResultsTests.SimpleResultDto>(cypherQuery);
-                }, "We should expect an exception");
+                });
                 
-                Assert.IsNotNull(eventArgs, "but we should also have received the completion event");
-                Assert.IsTrue(eventArgs.HasException);
-                Assert.AreEqual(typeof(MockResponseThrowsException), eventArgs.Exception.GetType());
-                Assert.AreEqual(-1, eventArgs.ResourcesReturned);
+                Assert.NotNull(eventArgs);
+                Assert.True(eventArgs.HasException);
+                Assert.Equal(typeof(MockResponseThrowsException), eventArgs.Exception.GetType());
+                Assert.Equal(-1, eventArgs.ResourcesReturned);
             }
         }
 
         /// <summary>
         /// #106
         /// </summary>
-        [Test]
+        [Fact]
         public void WhenExecuteCypherFails_ShouldRaiseCompletedWithException()
         {
             // Arrange
@@ -211,22 +212,19 @@ namespace Neo4jClient.Test.GraphClientTests.Cypher
                 graphClient.OperationCompleted += (sender, e) => { eventArgs = e; };
 
                 //Act
-                Assert.Throws<MockResponseThrowsException>(() =>
-                {
-                    graphClient.ExecuteCypher(cypherQuery);
-                }, "We should expect an exception");
+                Assert.Throws<MockResponseThrowsException>(() => { graphClient.ExecuteCypher(cypherQuery); });
 
-                Assert.IsNotNull(eventArgs, "but we should also have received the completion event");
-                Assert.IsTrue(eventArgs.HasException);
-                Assert.AreEqual(typeof(MockResponseThrowsException), eventArgs.Exception.GetType());
-                Assert.AreEqual(-1, eventArgs.ResourcesReturned);
+                Assert.NotNull(eventArgs);
+                Assert.True(eventArgs.HasException);
+                Assert.Equal(typeof(MockResponseThrowsException), eventArgs.Exception.GetType());
+                Assert.Equal(-1, eventArgs.ResourcesReturned);
             }
         }
 
         /// <summary>
         /// #75
         /// </summary>
-        [Test]
+        [Fact]
         public void SendsCommandWithCorrectTimeout()
         {
             const string queryText = "MATCH n SET n.Value = 'value'";
@@ -257,14 +255,14 @@ namespace Neo4jClient.Test.GraphClientTests.Cypher
                 var call = httpClient.ReceivedCalls().Single();
                 var requestMessage = (HttpRequestMessage)call.GetArguments()[0];
                 var maxExecutionTimeHeader = requestMessage.Headers.Single(h => h.Key == "max-execution-time");
-                Assert.AreEqual(expectedMaxExecutionTime.ToString(CultureInfo.InvariantCulture), maxExecutionTimeHeader.Value.Single());
+                Assert.Equal(expectedMaxExecutionTime.ToString(CultureInfo.InvariantCulture), maxExecutionTimeHeader.Value.Single());
             }
         }
 
         /// <summary>
         /// #75
         /// </summary>
-        [Test]
+        [Fact]
         public void DoesntSetMaxExecutionTime_WhenNotSet()
         {
             const string queryText = "MATCH n SET n.Value = 'value'";
@@ -293,14 +291,14 @@ namespace Neo4jClient.Test.GraphClientTests.Cypher
 
                 var call = httpClient.ReceivedCalls().Single();
                 var requestMessage = (HttpRequestMessage)call.GetArguments()[0];
-                Assert.IsFalse(requestMessage.Headers.Any(h => h.Key == "max-execution-time"));
+                Assert.False(requestMessage.Headers.Any(h => h.Key == "max-execution-time"));
             }
         }
 
         /// <summary>
         /// #141
         /// </summary>
-        [Test]
+        [Fact]
         public void SendsCommandWithCustomHeaders()
         {
             const string queryText = "MATCH n SET n.Value = 'value'";
@@ -336,10 +334,10 @@ namespace Neo4jClient.Test.GraphClientTests.Cypher
                 var call = httpClient.ReceivedCalls().Single();
                 var requestMessage = (HttpRequestMessage)call.GetArguments()[0];
                 var maxExecutionTimeHeader = requestMessage.Headers.Single(h => h.Key == "max-execution-time");
-                Assert.AreEqual(expectedMaxExecutionTime.ToString(CultureInfo.InvariantCulture), maxExecutionTimeHeader.Value.Single());
+                Assert.Equal(expectedMaxExecutionTime.ToString(CultureInfo.InvariantCulture), maxExecutionTimeHeader.Value.Single());
                 var customHeader = requestMessage.Headers.Single(h => h.Key == headerName);
-                Assert.IsNotNull(customHeader);
-                Assert.AreEqual(headerValue, customHeader.Value.Single());
+                Assert.NotNull(customHeader);
+                Assert.Equal(headerValue, customHeader.Value.Single());
             }
         }
 
@@ -347,7 +345,7 @@ namespace Neo4jClient.Test.GraphClientTests.Cypher
         /// <summary>
         /// #141
         /// </summary>
-        [Test]
+        [Fact]
         public void DoesntSetHeaders_WhenNotSet()
         {
             const string queryText = "MATCH n SET n.Value = 'value'";
@@ -376,7 +374,7 @@ namespace Neo4jClient.Test.GraphClientTests.Cypher
 
                 var call = httpClient.ReceivedCalls().Single();
                 var requestMessage = (HttpRequestMessage)call.GetArguments()[0];
-                Assert.IsFalse(requestMessage.Headers.Any(h => h.Key == "max-execution-time"));
+                Assert.False(requestMessage.Headers.Any(h => h.Key == "max-execution-time"));
             }
         }
     }

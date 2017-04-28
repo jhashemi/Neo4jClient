@@ -1,36 +1,37 @@
-﻿using NUnit.Framework;
+﻿using Xunit;
 using Neo4jClient.Gremlin;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.Gremlin
 {
-    [TestFixture]
-    public class GremlinDistinctStepTests
+    
+    public class GremlinDistinctStepTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void GremlinDistinctAppendStepToNodeQuery()
         {
             var query = new NodeReference(123).OutV<object>().GremlinDistinct();
-            Assert.IsInstanceOf<IGremlinNodeQuery<object>>(query);
-            Assert.AreEqual("g.v(p0).outV.dedup()", query.QueryText);
-            Assert.AreEqual(123, query.QueryParameters["p0"]);
+            Assert.IsAssignableFrom<IGremlinNodeQuery<object>>(query);
+            Assert.Equal("g.v(p0).outV.dedup()", query.QueryText);
+            Assert.Equal(123L, query.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void GremlinDistinctAppendStepToRelationshipQuery()
         {
             var query = new NodeReference(123).OutE().GremlinDistinct();
-            Assert.IsInstanceOf<IGremlinRelationshipQuery>(query);
-            Assert.AreEqual("g.v(p0).outE.dedup()", query.QueryText);
-            Assert.AreEqual(123, query.QueryParameters["p0"]);
+            Assert.IsAssignableFrom<IGremlinRelationshipQuery>(query);
+            Assert.Equal("g.v(p0).outE.dedup()", query.QueryText);
+            Assert.Equal(123L, query.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void GremlinDistinctAppendStepToTypedRelationshipQuery()
         {
             var query = new NodeReference(123).OutE<object>().GremlinDistinct();
-            Assert.IsInstanceOf<IGremlinRelationshipQuery<object>>(query);
-            Assert.AreEqual("g.v(p0).outE.dedup()", query.QueryText);
-            Assert.AreEqual(123, query.QueryParameters["p0"]);
+            Assert.IsAssignableFrom<IGremlinRelationshipQuery<object>>(query);
+            Assert.Equal("g.v(p0).outE.dedup()", query.QueryText);
+            Assert.Equal(123L, query.QueryParameters["p0"]);
         }
     }
 }

@@ -1,60 +1,61 @@
-﻿using NUnit.Framework;
+﻿using Xunit;
 using Neo4jClient.Gremlin;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.Gremlin
 {
-    [TestFixture]
-    public class LoopStepTests
+    
+    public class LoopStepTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void LoopVShouldAppendStep()
         {
             var query = new NodeReference(123).LoopV<object>("foo", 6);
-            Assert.AreEqual("g.v(p0).loop(p1){ it.loops < p2 }", query.QueryText);
-            Assert.AreEqual(123, query.QueryParameters["p0"]);
-            Assert.AreEqual("foo", query.QueryParameters["p1"]);
-            Assert.AreEqual(6, query.QueryParameters["p2"]);
+            Assert.Equal("g.v(p0).loop(p1){ it.loops < p2 }", query.QueryText);
+            Assert.Equal(123L, query.QueryParameters["p0"]);
+            Assert.Equal("foo", query.QueryParameters["p1"]);
+            Assert.Equal(6U, query.QueryParameters["p2"]);
         }
 
-        [Test]
+        [Fact]
         public void LoopVShouldReturnTypedNodeEnumerable()
         {
             var query = new NodeReference(123).LoopV<object>("foo", 6);
-            Assert.IsInstanceOf<GremlinNodeEnumerable<object>>(query);
+            Assert.IsAssignableFrom<GremlinNodeEnumerable<object>>(query);
         }
 
-        [Test]
+        [Fact]
         public void LoopEShouldAppendStep()
         {
             var query = new NodeReference(123).LoopE("foo", 6);
-            Assert.AreEqual("g.v(p0).loop(p1){ it.loops < p2 }", query.QueryText);
-            Assert.AreEqual(123, query.QueryParameters["p0"]);
-            Assert.AreEqual("foo", query.QueryParameters["p1"]);
-            Assert.AreEqual(6, query.QueryParameters["p2"]);
+            Assert.Equal("g.v(p0).loop(p1){ it.loops < p2 }", query.QueryText);
+            Assert.Equal(123L, query.QueryParameters["p0"]);
+            Assert.Equal("foo", query.QueryParameters["p1"]);
+            Assert.Equal(6U, query.QueryParameters["p2"]);
         }
 
-        [Test]
+        [Fact]
         public void LoopEShouldReturnRelationshipEnumerable()
         {
             var query = new NodeReference(123).LoopE("foo", 6);
-            Assert.IsInstanceOf<GremlinRelationshipEnumerable>(query);
+            Assert.IsAssignableFrom<GremlinRelationshipEnumerable>(query);
         }
 
-        [Test]
+        [Fact]
         public void LoopEWithTDataShouldAppendStep()
         {
             var query = new NodeReference(123).LoopE<object>("foo", 6);
-            Assert.AreEqual("g.v(p0).loop(p1){ it.loops < p2 }", query.QueryText);
-            Assert.AreEqual(123, query.QueryParameters["p0"]);
-            Assert.AreEqual("foo", query.QueryParameters["p1"]);
-            Assert.AreEqual(6, query.QueryParameters["p2"]);
+            Assert.Equal("g.v(p0).loop(p1){ it.loops < p2 }", query.QueryText);
+            Assert.Equal(123L, query.QueryParameters["p0"]);
+            Assert.Equal("foo", query.QueryParameters["p1"]);
+            Assert.Equal(6U, query.QueryParameters["p2"]);
         }
 
-        [Test]
+        [Fact]
         public void LoopEWithTDataShouldReturnRelationshipEnumerable()
         {
             var query = new NodeReference(123).LoopE<object>("foo", 6);
-            Assert.IsInstanceOf<GremlinRelationshipEnumerable<object>>(query);
+            Assert.IsAssignableFrom<GremlinRelationshipEnumerable<object>>(query);
         }
     }
 }

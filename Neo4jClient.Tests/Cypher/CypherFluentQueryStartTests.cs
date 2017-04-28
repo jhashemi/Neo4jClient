@@ -1,13 +1,14 @@
 ﻿using System;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 using Neo4jClient.Cypher;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.Cypher
 {
-    public class CypherFluentQueryStartTests
+    public class CypherFluentQueryStartTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         [Obsolete]
         public void NodeByIndexLookup()
         {
@@ -21,11 +22,11 @@ namespace Neo4jClient.Test.Cypher
                 .Return<object>("n")
                 .Query;
 
-            Assert.AreEqual("START n=node:`nodes`(name = {p0})\r\nRETURN n", query.QueryText);
-            Assert.AreEqual("A", query.QueryParameters["p0"]);
+            Assert.Equal("START n=node:`nodes`(name = {p0})\r\nRETURN n", query.QueryText);
+            Assert.Equal("A", query.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         [Obsolete]
         public void NodeByIndexLookupMultipleIndexedStartPoints() 
         {
@@ -42,12 +43,12 @@ namespace Neo4jClient.Test.Cypher
                 .Return<object>("a")
                 .Query;
 
-            Assert.AreEqual("START a=node:`nodes`(name = {p0}), b=node:`nodes`(name = {p1})\r\nRETURN a", query.QueryText);
-            Assert.AreEqual("A", query.QueryParameters["p0"]);
-            Assert.AreEqual("B", query.QueryParameters["p1"]);
+            Assert.Equal("START a=node:`nodes`(name = {p0}), b=node:`nodes`(name = {p1})\r\nRETURN a", query.QueryText);
+            Assert.Equal("A", query.QueryParameters["p0"]);
+            Assert.Equal("B", query.QueryParameters["p1"]);
         }
 
-        [Test]
+        [Fact]
         [Obsolete]
         public void NodeByIndexLookupWithAdditionalStartPoint() 
         {
@@ -64,12 +65,12 @@ namespace Neo4jClient.Test.Cypher
                 .Return<object>("a")
                 .Query;
             
-            Assert.AreEqual("START a=node:`nodes`(name = {p0}), b=node({p1})\r\nRETURN a", query.QueryText);
-            Assert.AreEqual("A", query.QueryParameters["p0"]);
-            Assert.AreEqual(2, query.QueryParameters["p1"]);
+            Assert.Equal("START a=node:`nodes`(name = {p0}), b=node({p1})\r\nRETURN a", query.QueryText);
+            Assert.Equal("A", query.QueryParameters["p0"]);
+            Assert.Equal(2L, query.QueryParameters["p1"]);
         }
 
-        [Test]
+        [Fact]
         [Obsolete]
         public void NodeByIndexLookupWithAdditionalStartPointAndExtraIndexedStartPoint() 
         {
@@ -87,13 +88,13 @@ namespace Neo4jClient.Test.Cypher
                 .Return<object>("a")
                 .Query;
             
-            Assert.AreEqual("START a=node:`nodes`(name = {p0}), b=node({p1}), c=node:`nodes`(name = {p2})\r\nRETURN a", query.QueryText);
-            Assert.AreEqual("A", query.QueryParameters["p0"]);
-            Assert.AreEqual(2, query.QueryParameters["p1"]);
-            Assert.AreEqual("C", query.QueryParameters["p2"]);
+            Assert.Equal("START a=node:`nodes`(name = {p0}), b=node({p1}), c=node:`nodes`(name = {p2})\r\nRETURN a", query.QueryText);
+            Assert.Equal("A", query.QueryParameters["p0"]);
+            Assert.Equal(2L, query.QueryParameters["p1"]);
+            Assert.Equal("C", query.QueryParameters["p2"]);
         }
 
-        [Test]
+        [Fact]
         [Obsolete]
         public void StartThenNodeByIndexLookup() 
         {
@@ -110,12 +111,12 @@ namespace Neo4jClient.Test.Cypher
                 .Return<object>("a")
                 .Query;
             
-            Assert.AreEqual("START a=node({p0}), b=node:`nodes`(name = {p1})\r\nRETURN a", query.QueryText);
-            Assert.AreEqual(1, query.QueryParameters["p0"]);
-            Assert.AreEqual("B", query.QueryParameters["p1"]);
+            Assert.Equal("START a=node({p0}), b=node:`nodes`(name = {p1})\r\nRETURN a", query.QueryText);
+            Assert.Equal(1L, query.QueryParameters["p0"]);
+            Assert.Equal("B", query.QueryParameters["p1"]);
         }
 
-        [Test]
+        [Fact]
         [Obsolete]
         public void NodeByIndexLookupWithSingleParameter()
         {
@@ -129,11 +130,11 @@ namespace Neo4jClient.Test.Cypher
                 .Return<object>("n")
                 .Query;
 
-            Assert.AreEqual("START n=node:`nodes`({p0})\r\nRETURN n", query.QueryText);
-            Assert.AreEqual("*.*", query.QueryParameters["p0"]);
+            Assert.Equal("START n=node:`nodes`({p0})\r\nRETURN n", query.QueryText);
+            Assert.Equal("*.*", query.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void AllNodes()
         {
             // http://docs.neo4j.org/chunked/1.8/query-start.html#start-all-nodes
@@ -146,11 +147,11 @@ namespace Neo4jClient.Test.Cypher
                 .Return<object>("n")
                 .Query;
 
-            Assert.AreEqual("START n=node(*)\r\nRETURN n", query.QueryText);
-            Assert.AreEqual(0, query.QueryParameters.Count);
+            Assert.Equal("START n=node(*)\r\nRETURN n", query.QueryText);
+            Assert.Equal(0, query.QueryParameters.Count);
         }
 
-        [Test]
+        [Fact]
         public void AllNodesMultipleTimes()
         {
             // http://docs.neo4j.org/chunked/1.8/query-start.html#start-all-nodes
@@ -167,12 +168,12 @@ namespace Neo4jClient.Test.Cypher
                 .Return<object>("n")
                 .Query;
 
-            Assert.AreEqual("START n=node(*), b=node(*)\r\nRETURN n", query.QueryText);
-            Assert.AreEqual(0, query.QueryParameters.Count);
+            Assert.Equal("START n=node(*), b=node(*)\r\nRETURN n", query.QueryText);
+            Assert.Equal(0, query.QueryParameters.Count);
         }
 
-        [Test]
-        [Description("https://bitbucket.org/Readify/neo4jclient/issue/56/cypher-fluent-api-node-auto-index-start")]
+        [Fact]
+        //[Description("https://bitbucket.org/Readify/neo4jclient/issue/56/cypher-fluent-api-node-auto-index-start")]
         public void NodeByAutoIndexLookup()
         {
             // http://stackoverflow.com/questions/14882562/cypher-query-return-related-nodes-as-children/14986114
@@ -192,12 +193,12 @@ namespace Neo4jClient.Test.Cypher
                 })
                 .Query;
 
-            Assert.AreEqual(string.Format("START s=node:`node_auto_index`(StartType = {{p0}}){0}MATCH s-[:starts]->t, t-[:SubTypes]->ts{0}RETURN t.Id AS Id, t.Name AS Name, collect(ts) AS JobSpecialties", Environment.NewLine), query.QueryText);
-            Assert.AreEqual("JobTypes", query.QueryParameters["p0"]);
+            Assert.Equal(string.Format("START s=node:`node_auto_index`(StartType = {{p0}}){0}MATCH s-[:starts]->t, t-[:SubTypes]->ts{0}RETURN t.Id AS Id, t.Name AS Name, collect(ts) AS JobSpecialties", Environment.NewLine), query.QueryText);
+            Assert.Equal("JobTypes", query.QueryParameters["p0"]);
         }
 
-        [Test]
-        [Description("https://bitbucket.org/Readify/neo4jclient/issue/64/cypher-query-with-multiple-starts")]
+        [Fact]
+        //[Description("https://bitbucket.org/Readify/neo4jclient/issue/64/cypher-query-with-multiple-starts")]
         public void MutipleNodesByReference()
         {
             // START n1=node(1), n2=node(2)
@@ -215,13 +216,13 @@ namespace Neo4jClient.Test.Cypher
                 })
                 .Query;
 
-            Assert.AreEqual("START n1=node({p0}), n2=node({p1})", query.QueryText);
-            Assert.AreEqual(2, query.QueryParameters.Count);
-            Assert.AreEqual(1, query.QueryParameters["p0"]);
-            Assert.AreEqual(2, query.QueryParameters["p1"]);
+            Assert.Equal("START n1=node({p0}), n2=node({p1})", query.QueryText);
+            Assert.Equal(2, query.QueryParameters.Count);
+            Assert.Equal(1L, query.QueryParameters["p0"]);
+            Assert.Equal(2L, query.QueryParameters["p1"]);
         }
 
-        [Test]
+        [Fact]
         [Obsolete]
         public void MutipleNodesByReferenceObsolete()
         {
@@ -241,13 +242,13 @@ namespace Neo4jClient.Test.Cypher
                 )
                 .Query;
 
-            Assert.AreEqual("START n1=node({p0}), n2=node({p1})", query.QueryText);
-            Assert.AreEqual(2, query.QueryParameters.Count);
-            Assert.AreEqual(1, query.QueryParameters["p0"]);
-            Assert.AreEqual(2, query.QueryParameters["p1"]);
+            Assert.Equal("START n1=node({p0}), n2=node({p1})", query.QueryText);
+            Assert.Equal(2, query.QueryParameters.Count);
+            Assert.Equal(1L, query.QueryParameters["p0"]);
+            Assert.Equal(2L, query.QueryParameters["p1"]);
         }
 
-        [Test]
+        [Fact]
         public void SingleNodeByStaticReferenceInAnonymousType()
         {
             // START n1=node(1)
@@ -260,9 +261,9 @@ namespace Neo4jClient.Test.Cypher
                 })
                 .Query;
 
-            Assert.AreEqual("START n1=node({p0})", query.QueryText);
-            Assert.AreEqual(1, query.QueryParameters.Count);
-            Assert.AreEqual(1, query.QueryParameters["p0"]);
+            Assert.Equal("START n1=node({p0})", query.QueryText);
+            Assert.Equal(1, query.QueryParameters.Count);
+            Assert.Equal(1L, query.QueryParameters["p0"]);
         }
 
         public class JobType

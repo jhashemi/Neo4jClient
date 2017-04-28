@@ -61,6 +61,7 @@
     <!-- A reference to the entire .NET Framework is automatically included -->
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BoltGraphClient.cs" />
     <Compile Include="Execution\CypherExecutionPolicy.cs" />
     <Compile Include="Execution\GraphClientBasedExecutionPolicy.cs" />
     <Compile Include="GraphClient.cs" />

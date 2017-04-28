@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
-using NUnit.Framework;
+using Neo4jClient.Test.Fixtures;
+using Xunit;
 
 namespace Neo4jClient.Test.GraphClientTests
 {
-    [TestFixture]
-    public class ReIndexRelationshipsTests
+    
+    public class ReIndexRelationshipsTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void ShouldReindexRelationshipWithIndexEntryContainingSpace()
         {
             //Arrange
@@ -50,11 +51,11 @@ namespace Neo4jClient.Test.GraphClientTests
                 graphClient.ReIndex(relReference, indexEntries);
 
                 // Assert
-                Assert.Pass("Success.");
+                
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldReindexRelationshipWithDateTimeOffsetIndexEntry()
         {
             //Arrange
@@ -96,11 +97,11 @@ namespace Neo4jClient.Test.GraphClientTests
                 graphClient.ReIndex(relReference, indexEntries);
 
                 // Assert
-                Assert.Pass("Success.");
+                
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldAcceptQuestionMarkInRelationshipIndexValue()
         {
             //Arrange
@@ -143,11 +144,11 @@ namespace Neo4jClient.Test.GraphClientTests
                 graphClient.ReIndex(relReference, indexEntries);
 
                 // Assert
-                Assert.Pass("Success.");
+                
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldPreserveSlashInRelationshipIndexValue()
         {
             //Arrange
@@ -190,7 +191,7 @@ namespace Neo4jClient.Test.GraphClientTests
                 graphClient.ReIndex(relReference, indexEntries);
 
                 // Assert
-                Assert.Pass("Success.");
+                
             }
         }
 

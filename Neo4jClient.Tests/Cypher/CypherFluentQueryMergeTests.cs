@@ -1,14 +1,15 @@
-﻿using NUnit.Framework;
+﻿using Xunit;
 using NSubstitute;
 using Neo4jClient.Cypher;
 using System;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.Cypher
 {
-    [TestFixture]
-    public class CypherFluentQueryMergeTests
+    
+    public class CypherFluentQueryMergeTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void MergePropertyWithLabel()
         {
             // Arrange
@@ -18,10 +19,10 @@ namespace Neo4jClient.Test.Cypher
                 .Query;
 
             // Assert
-            Assert.AreEqual("MERGE (robert:Person)", query.QueryText);
+            Assert.Equal("MERGE (robert:Person)", query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void MergeOnCreate()
         {
             // Arrange
@@ -33,10 +34,10 @@ namespace Neo4jClient.Test.Cypher
                 .Query;
 
             // Assert
-            Assert.AreEqual("MERGE (robert:Person)\r\nON CREATE\r\nSET robert.Created = timestamp()", query.QueryText);
+            Assert.Equal("MERGE (robert:Person)\r\nON CREATE\r\nSET robert.Created = timestamp()", query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void MergeOnMatch()
         {
             // Arrange
@@ -48,10 +49,10 @@ namespace Neo4jClient.Test.Cypher
                 .Query;
 
             // Assert
-            Assert.AreEqual("MERGE (robert:Person)\r\nON MATCH\r\nSET robert.LastSeen = timestamp()", query.QueryText);
+            Assert.Equal("MERGE (robert:Person)\r\nON MATCH\r\nSET robert.LastSeen = timestamp()", query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void MergeOnCreateOnMatch()
         {
             // Arrange
@@ -65,7 +66,7 @@ namespace Neo4jClient.Test.Cypher
                 .Query;
 
             // Assert
-            Assert.AreEqual("MERGE (robert:Person)\r\nON CREATE\r\nSET robert.Created = timestamp()\r\nON MATCH\r\nSET robert.LastSeen = timestamp()", query.QueryText);
+            Assert.Equal("MERGE (robert:Person)\r\nON CREATE\r\nSET robert.Created = timestamp()\r\nON MATCH\r\nSET robert.LastSeen = timestamp()", query.QueryText);
         }
     }
 }

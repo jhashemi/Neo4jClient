@@ -5,9 +5,10 @@ using System.Linq.Expressions;
 using System.Net;
 using Newtonsoft.Json.Serialization;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 using Neo4jClient.ApiModels.Cypher;
 using Neo4jClient.Cypher;
+using Neo4jClient.Test.Fixtures;
 using Newtonsoft.Json;
 
 namespace Neo4jClient.Test.Cypher
@@ -19,10 +20,10 @@ namespace Neo4jClient.Test.Cypher
         public string Bar { get; set; }
     }
 
-    [TestFixture]
-    public class CypherFluentQueryReturnTests
+    
+    public class CypherFluentQueryReturnTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void ReturnDistinct()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -31,12 +32,12 @@ namespace Neo4jClient.Test.Cypher
                 .ReturnDistinct<object>("n")
                 .Query;
 
-            Assert.AreEqual("START n=node({p0})\r\nRETURN distinct n", query.QueryText);
-            Assert.AreEqual(3, query.QueryParameters["p0"]);
-            Assert.AreEqual(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
+            Assert.Equal("START n=node({p0})\r\nRETURN distinct n", query.QueryText);
+            Assert.Equal(3L, query.QueryParameters["p0"]);
+            Assert.Equal(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
         }
 
-        [Test]
+        [Fact]
         public void ReturnDistinctWithLimit()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -46,13 +47,13 @@ namespace Neo4jClient.Test.Cypher
                 .Limit(5)
                 .Query;
 
-            Assert.AreEqual("START n=node({p0})\r\nRETURN distinct n\r\nLIMIT {p1}", query.QueryText);
-            Assert.AreEqual(3, query.QueryParameters["p0"]);
-            Assert.AreEqual(5, query.QueryParameters["p1"]);
-            Assert.AreEqual(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
+            Assert.Equal("START n=node({p0})\r\nRETURN distinct n\r\nLIMIT {p1}", query.QueryText);
+            Assert.Equal(3L, query.QueryParameters["p0"]);
+            Assert.Equal(5, query.QueryParameters["p1"]);
+            Assert.Equal(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
         }
 
-        [Test]
+        [Fact]
         public void ReturnDistinctWithLimitAndOrderBy()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -63,13 +64,13 @@ namespace Neo4jClient.Test.Cypher
                 .Limit(5)
                 .Query;
 
-            Assert.AreEqual("START n=node({p0})\r\nRETURN distinct n\r\nORDER BY n.Foo\r\nLIMIT {p1}", query.QueryText);
-            Assert.AreEqual(3, query.QueryParameters["p0"]);
-            Assert.AreEqual(5, query.QueryParameters["p1"]);
-            Assert.AreEqual(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
+            Assert.Equal("START n=node({p0})\r\nRETURN distinct n\r\nORDER BY n.Foo\r\nLIMIT {p1}", query.QueryText);
+            Assert.Equal(3L, query.QueryParameters["p0"]);
+            Assert.Equal(5, query.QueryParameters["p1"]);
+            Assert.Equal(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
         }
 
-        [Test]
+        [Fact]
         public void ReturnIdentity()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -78,12 +79,12 @@ namespace Neo4jClient.Test.Cypher
                 .Return<object>("n")
                 .Query;
 
-            Assert.AreEqual("START n=node({p0})\r\nRETURN n", query.QueryText);
-            Assert.AreEqual(3, query.QueryParameters["p0"]);
-            Assert.AreEqual(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
+            Assert.Equal("START n=node({p0})\r\nRETURN n", query.QueryText);
+            Assert.Equal(3L, query.QueryParameters["p0"]);
+            Assert.Equal(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
         }
 
-        [Test]
+        [Fact]
         public void ReturnsUsingJsonPropertyValueForNameOfProperty()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -91,10 +92,10 @@ namespace Neo4jClient.Test.Cypher
                 .Return(c => c.As<FooWithJsonProperties>().Bar)
                 .Query;
 
-            Assert.AreEqual("RETURN c.bar", query.QueryText);
+            Assert.Equal("RETURN c.bar", query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void ReturnWithLimit()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -104,13 +105,13 @@ namespace Neo4jClient.Test.Cypher
                 .Limit(5)
                 .Query;
 
-            Assert.AreEqual("START n=node({p0})\r\nRETURN n\r\nLIMIT {p1}", query.QueryText);
-            Assert.AreEqual(3, query.QueryParameters["p0"]);
-            Assert.AreEqual(5, query.QueryParameters["p1"]);
-            Assert.AreEqual(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
+            Assert.Equal("START n=node({p0})\r\nRETURN n\r\nLIMIT {p1}", query.QueryText);
+            Assert.Equal(3L, query.QueryParameters["p0"]);
+            Assert.Equal(5, query.QueryParameters["p1"]);
+            Assert.Equal(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
         }
 
-        [Test]
+        [Fact]
         public void ReturnWithLimitAndOrderBy()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -121,14 +122,14 @@ namespace Neo4jClient.Test.Cypher
                 .Limit(5)
                 .Query;
 
-            Assert.AreEqual("START n=node({p0})\r\nRETURN n\r\nORDER BY n.Foo\r\nLIMIT {p1}", query.QueryText);
-            Assert.AreEqual(3, query.QueryParameters["p0"]);
-            Assert.AreEqual(5, query.QueryParameters["p1"]);
-            Assert.AreEqual(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
+            Assert.Equal("START n=node({p0})\r\nRETURN n\r\nORDER BY n.Foo\r\nLIMIT {p1}", query.QueryText);
+            Assert.Equal(3L, query.QueryParameters["p0"]);
+            Assert.Equal(5, query.QueryParameters["p1"]);
+            Assert.Equal(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
         }
 
-        [Test]
-        [Description("https://bitbucket.org/Readify/neo4jclient/issue/42")]
+        [Fact]
+        //[Description("https://bitbucket.org/Readify/neo4jclient/issue/42")]
         public void ShouldCombineWithLimitAndOrderBy()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -144,14 +145,14 @@ namespace Neo4jClient.Test.Cypher
                 .OrderBy("common.FirstName")
                 .Query;
 
-            Assert.AreEqual(string.Format("START me=node({{p0}}), viewer=node({{p1}}){0}MATCH me-[:FRIEND]-common-[:FRIEND]-viewer{0}RETURN common{0}LIMIT {{p2}}{0}ORDER BY common.FirstName", Environment.NewLine), query.QueryText);
-            Assert.AreEqual(123, query.QueryParameters["p0"]);
-            Assert.AreEqual(456, query.QueryParameters["p1"]);
-            Assert.AreEqual(5, query.QueryParameters["p2"]);
-            Assert.AreEqual(CypherResultFormat.Rest, query.ResultFormat);
+            Assert.Equal(string.Format("START me=node({{p0}}), viewer=node({{p1}}){0}MATCH me-[:FRIEND]-common-[:FRIEND]-viewer{0}RETURN common{0}LIMIT {{p2}}{0}ORDER BY common.FirstName", Environment.NewLine), query.QueryText);
+            Assert.Equal(123L, query.QueryParameters["p0"]);
+            Assert.Equal(456L, query.QueryParameters["p1"]);
+            Assert.Equal(5, query.QueryParameters["p2"]);
+            Assert.Equal(CypherResultFormat.Rest, query.ResultFormat);
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnRawFunctionCall()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -159,11 +160,11 @@ namespace Neo4jClient.Test.Cypher
                 .Return<long>("count(item)")
                 .Query;
 
-            Assert.AreEqual("RETURN count(item)", query.QueryText);
-            Assert.AreEqual(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
+            Assert.Equal("RETURN count(item)", query.QueryText);
+            Assert.Equal(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
         }
 
-        [Test]
+        [Fact]
         public void ReturnsWhenIdentityIsACollection()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -172,11 +173,11 @@ namespace Neo4jClient.Test.Cypher
                 .Return<IEnumerable<object>>("[n0,n1]")
                 .Query;
 
-            Assert.AreEqual("MATCH (n0),(n1)\r\nRETURN [n0,n1]", query.QueryText);
-            Assert.AreEqual(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
+            Assert.Equal("MATCH (n0),(n1)\r\nRETURN [n0,n1]", query.QueryText);
+            Assert.Equal(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
         }
 
-        [Test]
+        [Fact]
         public void ReturnsWhenIdentityIsACollectionRegardlessOfPadding()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -185,31 +186,31 @@ namespace Neo4jClient.Test.Cypher
                 .Return<IEnumerable<object>>("  [n0,n1]  ")
                 .Query;
 
-            Assert.AreEqual("MATCH (n0),(n1)\r\nRETURN [n0,n1]", query.QueryText);
-            Assert.AreEqual(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
+            Assert.Equal("MATCH (n0),(n1)\r\nRETURN [n0,n1]", query.QueryText);
+            Assert.Equal(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
         }
         
-        [Test]
+        [Fact]
         public void ShouldThrowWhenIdentityIsCollectionButResultIsNot()
         {
             var client = Substitute.For<IRawGraphClient>();
             var ex = Assert.Throws<ArgumentException>(
                 () => new CypherFluentQuery(client).Return<object>("[foo,bar]")
             );
-            StringAssert.StartsWith(CypherFluentQuery.IdentityLooksLikeACollectionButTheResultIsNotEnumerableMessage, ex.Message);
+            Assert.StartsWith(CypherFluentQuery.IdentityLooksLikeACollectionButTheResultIsNotEnumerableMessage, ex.Message);
         }
 
-        [Test]
+        [Fact]
         public void ShouldThrowWhenIdentityLooksLikeAMultiColumnStatement()
         {
             var client = Substitute.For<IRawGraphClient>();
             var ex = Assert.Throws<ArgumentException>(
                 () => new CypherFluentQuery(client).Return<long>("foo,bar")
             );
-            StringAssert.StartsWith(CypherFluentQuery.IdentityLooksLikeAMultiColumnStatementExceptionMessage, ex.Message);
+            Assert.StartsWith(CypherFluentQuery.IdentityLooksLikeAMultiColumnStatementExceptionMessage, ex.Message);
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnCountOnItsOwn()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -217,10 +218,10 @@ namespace Neo4jClient.Test.Cypher
                 .Return(item => item.Count())
                 .Query;
 
-            Assert.AreEqual("RETURN count(item)", query.QueryText);
+            Assert.Equal("RETURN count(item)", query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnCountAllOnItsOwn()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -228,11 +229,11 @@ namespace Neo4jClient.Test.Cypher
                 .Return(() => All.Count())
                 .Query;
 
-            Assert.AreEqual("RETURN count(*)", query.QueryText);
-            Assert.AreEqual(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
+            Assert.Equal("RETURN count(*)", query.QueryText);
+            Assert.Equal(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnCustomFunctionCall()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -240,11 +241,11 @@ namespace Neo4jClient.Test.Cypher
                 .Return(() => Return.As<long>("sum(foo.bar)"))
                 .Query;
 
-            Assert.AreEqual("RETURN sum(foo.bar)", query.QueryText);
-            Assert.AreEqual(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
+            Assert.Equal("RETURN sum(foo.bar)", query.QueryText);
+            Assert.Equal(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnSpecificPropertyOnItsOwn()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -252,11 +253,11 @@ namespace Neo4jClient.Test.Cypher
                 .Return(a => a.As<Commodity>().Name)
                 .Query;
 
-            Assert.AreEqual("RETURN a.Name", query.QueryText);
-            Assert.AreEqual(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
+            Assert.Equal("RETURN a.Name", query.QueryText);
+            Assert.Equal(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnSpecificPropertyOnItsOwnCamel()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -265,10 +266,10 @@ namespace Neo4jClient.Test.Cypher
                 .Return(a => a.As<Commodity>().Name)
                 .Query;
 
-            Assert.AreEqual("RETURN a.name", query.QueryText);
+            Assert.Equal("RETURN a.name", query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void ShouldThrowForMemberExpressionOffMethodOtherThanAs()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -276,7 +277,7 @@ namespace Neo4jClient.Test.Cypher
                 () => new CypherFluentQuery(client).Return(a => a.Type().Length));
         }
 
-        [Test]
+        [Fact]
         public void ShouldUseSetResultModeForIdentityBasedReturn()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -284,11 +285,11 @@ namespace Neo4jClient.Test.Cypher
                 .Return<object>("foo")
                 .Query;
 
-            Assert.AreEqual(CypherResultMode.Set, query.ResultMode);
-            Assert.AreEqual(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
+            Assert.Equal(CypherResultMode.Set, query.ResultMode);
+            Assert.Equal(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
         }
 
-        [Test]
+        [Fact]
         public void ShouldUseSetResultModeForRawFunctionCallReturn()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -296,11 +297,11 @@ namespace Neo4jClient.Test.Cypher
                 .Return<long>("count(foo)")
                 .Query;
 
-            Assert.AreEqual(CypherResultMode.Set, query.ResultMode);
-            Assert.AreEqual(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
+            Assert.Equal(CypherResultMode.Set, query.ResultMode);
+            Assert.Equal(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
         }
 
-        [Test]
+        [Fact]
         public void ShouldUseSetResultModeForSimpleLambdaReturn()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -308,10 +309,10 @@ namespace Neo4jClient.Test.Cypher
                 .Return(item => item.As<object>())
                 .Query;
 
-            Assert.AreEqual(CypherResultMode.Set, query.ResultMode);
+            Assert.Equal(CypherResultMode.Set, query.ResultMode);
         }
 
-        [Test]
+        [Fact]
         public void ShouldUseSetResultModeForSingleFunctionReturn()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -319,11 +320,11 @@ namespace Neo4jClient.Test.Cypher
                 .Return(item => item.Count())
                 .Query;
 
-            Assert.AreEqual(CypherResultMode.Set, query.ResultMode);
-            Assert.AreEqual(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
+            Assert.Equal(CypherResultMode.Set, query.ResultMode);
+            Assert.Equal(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
         }
 
-        [Test]
+        [Fact]
         public void ShouldUseSetResultModeForAllFunctionReturn()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -331,11 +332,11 @@ namespace Neo4jClient.Test.Cypher
                 .Return(() => All.Count())
                 .Query;
 
-            Assert.AreEqual(CypherResultMode.Set, query.ResultMode);
-            Assert.AreEqual(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
+            Assert.Equal(CypherResultMode.Set, query.ResultMode);
+            Assert.Equal(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
         }
 
-        [Test]
+        [Fact]
         public void ShouldUseSetResultModeForSpecificPropertyReturn()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -343,11 +344,11 @@ namespace Neo4jClient.Test.Cypher
                 .Return(a => a.As<Commodity>().Name)
                 .Query;
 
-            Assert.AreEqual(CypherResultMode.Set, query.ResultMode);
-            Assert.AreEqual(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
+            Assert.Equal(CypherResultMode.Set, query.ResultMode);
+            Assert.Equal(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
         }
 
-        [Test]
+        [Fact]
         public void ShouldUseSetResultModeForSpecificPropertyReturnCamel()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -356,10 +357,10 @@ namespace Neo4jClient.Test.Cypher
                 .Return(a => a.As<Commodity>().Name)
                 .Query;
 
-            Assert.AreEqual(CypherResultMode.Set, query.ResultMode);
+            Assert.Equal(CypherResultMode.Set, query.ResultMode);
         }
 
-        [Test]
+        [Fact]
         public void ShouldUseProjectionResultModeForAnonymousObjectReturn()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -367,11 +368,11 @@ namespace Neo4jClient.Test.Cypher
                 .Return(a => new { Foo = a.As<object>() })
                 .Query;
 
-            Assert.AreEqual(CypherResultMode.Projection, query.ResultMode);
-            Assert.AreEqual(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
+            Assert.Equal(CypherResultMode.Projection, query.ResultMode);
+            Assert.Equal(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
         }
 
-        [Test]
+        [Fact]
         public void ShouldUseProjectionResultModeForNamedObjectReturn()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -379,11 +380,11 @@ namespace Neo4jClient.Test.Cypher
                 .Return(a => new ProjectionResult { Commodity = a.As<Commodity>() })
                 .Query;
 
-            Assert.AreEqual(CypherResultMode.Projection, query.ResultMode);
-            Assert.AreEqual(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
+            Assert.Equal(CypherResultMode.Projection, query.ResultMode);
+            Assert.Equal(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
         }
 
-        [Test]
+        [Fact]
         public void ShouldUseProjectionResultModeForNamedObjectReturnCamel()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -392,10 +393,10 @@ namespace Neo4jClient.Test.Cypher
                 .Return(a => new ProjectionResult { Commodity = a.As<Commodity>() })
                 .Query;
 
-            Assert.AreEqual(CypherResultMode.Projection, query.ResultMode);
+            Assert.Equal(CypherResultMode.Projection, query.ResultMode);
         }
 
-        [Test]
+        [Fact]
         public void ShouldSupportAnonymousReturnTypesEndToEnd()
         {
             const string queryText = "START root=node({p0})\r\nMATCH root-->other\r\nRETURN other AS Foo";
@@ -488,23 +489,23 @@ namespace Neo4jClient.Test.Cypher
                     .Results
                     .ToList();
 
-                Assert.AreEqual(3, results.Count());
+                Assert.Equal(3L, results.Count());
 
                 var result = results[0];
-                Assert.AreEqual("Antimony", result.Foo.Name);
-                Assert.AreEqual(38, result.Foo.UniqueId);
+                Assert.Equal("Antimony", result.Foo.Name);
+                Assert.Equal(38, result.Foo.UniqueId);
 
                 result = results[1];
-                Assert.AreEqual("Bauxite", result.Foo.Name);
-                Assert.AreEqual(24, result.Foo.UniqueId);
+                Assert.Equal("Bauxite", result.Foo.Name);
+                Assert.Equal(24, result.Foo.UniqueId);
 
                 result = results[2];
-                Assert.AreEqual("Bismuth", result.Foo.Name);
-                Assert.AreEqual(37, result.Foo.UniqueId);
+                Assert.Equal("Bismuth", result.Foo.Name);
+                Assert.Equal(37, result.Foo.UniqueId);
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldSupportAnonymousReturnTypesEndToEndCamel()
         {
             const string queryText = "START root=node({p0})\r\nMATCH root-->other\r\nRETURN other AS Foo";
@@ -597,23 +598,23 @@ namespace Neo4jClient.Test.Cypher
                     .Results
                     .ToList();
 
-                Assert.AreEqual(3, results.Count());
+                Assert.Equal(3L, results.Count());
 
                 var result = results[0];
-                Assert.AreEqual("Antimony", result.Foo.Name);
-                Assert.AreEqual(38, result.Foo.UniqueId);
+                Assert.Equal("Antimony", result.Foo.Name);
+                Assert.Equal(38, result.Foo.UniqueId);
 
                 result = results[1];
-                Assert.AreEqual("Bauxite", result.Foo.Name);
-                Assert.AreEqual(24, result.Foo.UniqueId);
+                Assert.Equal("Bauxite", result.Foo.Name);
+                Assert.Equal(24, result.Foo.UniqueId);
 
                 result = results[2];
-                Assert.AreEqual("Bismuth", result.Foo.Name);
-                Assert.AreEqual(37, result.Foo.UniqueId);
+                Assert.Equal("Bismuth", result.Foo.Name);
+                Assert.Equal(37, result.Foo.UniqueId);
             }
         }
 
-        [Test]
+        [Fact]
         public void BinaryExpressionIsNotNull()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -622,11 +623,11 @@ namespace Neo4jClient.Test.Cypher
                 .Return(a => new {NotNull = a != null})
                 .Query;
 
-            Assert.AreEqual("MATCH (a)\r\nRETURN a IS NOT NULL AS NotNull", query.QueryText);
-            Assert.AreEqual(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
+            Assert.Equal("MATCH (a)\r\nRETURN a IS NOT NULL AS NotNull", query.QueryText);
+            Assert.Equal(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
         }
 
-        [Test]
+        [Fact]
         public void BinaryExpressionIsNull()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -635,27 +636,27 @@ namespace Neo4jClient.Test.Cypher
                 .Return(a => new { IsNull = a == null })
                 .Query;
 
-            Assert.AreEqual("MATCH (a)\r\nRETURN a IS NULL AS IsNull", query.QueryText);
-            Assert.AreEqual(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
+            Assert.Equal("MATCH (a)\r\nRETURN a IS NULL AS IsNull", query.QueryText);
+            Assert.Equal(CypherResultFormat.DependsOnEnvironment, query.ResultFormat);
         }
 
-        [Test]
+        [Fact]
         public void BinaryExpressionThrowNotSupportedExceptionForUnsupportedExpressionComparison()
         {
             var client = Substitute.For<IRawGraphClient>();
             var ex = Assert.Throws<NotSupportedException>(() => new CypherFluentQuery(client).Return(a => new { IsNull = a.As<int>() == 10 }));
 
-            StringAssert.StartsWith(CypherReturnExpressionBuilder.UnsupportedBinaryExpressionComparisonExceptionMessage, ex.Message);
+            Assert.StartsWith(CypherReturnExpressionBuilder.UnsupportedBinaryExpressionComparisonExceptionMessage, ex.Message);
         }
 
-        [Test]
+        [Fact]
         public void BinaryExpressionThrowNotSupportedExceptionForUnsupportedExpressionTypes()
         {
             var client = Substitute.For<IRawGraphClient>();
             var ex = Assert.Throws<NotSupportedException>(() => new CypherFluentQuery(client).Return(a => new {IsNull = a.As<int>() > 10}));
 
             var message = string.Format(CypherReturnExpressionBuilder.UnsupportedBinaryExpressionExceptionMessageFormat, ExpressionType.GreaterThan);
-            StringAssert.StartsWith(message, ex.Message);
+            Assert.StartsWith(message, ex.Message);
         }
 
         public class Commodity

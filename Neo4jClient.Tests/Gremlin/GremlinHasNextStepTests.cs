@@ -1,36 +1,37 @@
-using NUnit.Framework;
+using Xunit;
 using Neo4jClient.Gremlin;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.Gremlin
 {
-    [TestFixture]
-    public class GremlinHasNextStepTests
+    
+    public class GremlinHasNextStepTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void GremlinHasNextAppendStepToNodeQuery()
         {
             var query = new NodeReference(123).OutV<object>().GremlinHasNext();
-            Assert.IsInstanceOf<IGremlinNodeQuery<object>>(query);
-            Assert.AreEqual("g.v(p0).outV.hasNext()", query.QueryText);
-            Assert.AreEqual(123, query.QueryParameters["p0"]);
+            Assert.IsAssignableFrom<IGremlinNodeQuery<object>>(query);
+            Assert.Equal("g.v(p0).outV.hasNext()", query.QueryText);
+            Assert.Equal(123L, query.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void GremlinHasNextAppendStepToRelationshipQuery()
         {
             var query = new NodeReference(123).OutE().GremlinHasNext();
-            Assert.IsInstanceOf<IGremlinRelationshipQuery>(query);
-            Assert.AreEqual("g.v(p0).outE.hasNext()", query.QueryText);
-            Assert.AreEqual(123, query.QueryParameters["p0"]);
+            Assert.IsAssignableFrom<IGremlinRelationshipQuery>(query);
+            Assert.Equal("g.v(p0).outE.hasNext()", query.QueryText);
+            Assert.Equal(123L, query.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void GremlinHasNextAppendStepToTypedRelationshipQuery()
         {
             var query = new NodeReference(123).OutE<object>().GremlinHasNext();
-            Assert.IsInstanceOf<IGremlinRelationshipQuery<object>>(query);
-            Assert.AreEqual("g.v(p0).outE.hasNext()", query.QueryText);
-            Assert.AreEqual(123, query.QueryParameters["p0"]);
+            Assert.IsAssignableFrom<IGremlinRelationshipQuery<object>>(query);
+            Assert.Equal("g.v(p0).outE.hasNext()", query.QueryText);
+            Assert.Equal(123L, query.QueryParameters["p0"]);
         }
     }
 }

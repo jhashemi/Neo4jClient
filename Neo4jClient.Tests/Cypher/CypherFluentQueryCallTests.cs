@@ -1,12 +1,13 @@
 using System;
 using Neo4jClient.Cypher;
+using Neo4jClient.Test.Fixtures;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace Neo4jClient.Test.Cypher
 {
-    [TestFixture]
-    public class CypherFluentQueryCallTests
+    
+    public class CypherFluentQueryCallTests : IClassFixture<CultureInfoSetupFixture>
     {
         private static IRawGraphClient GraphClient_30
         {
@@ -18,7 +19,7 @@ namespace Neo4jClient.Test.Cypher
             }
         }
 
-        [Test]
+        [Fact]
         public void CallsStoredProcedureGiven()
         {
             var client = GraphClient_30;
@@ -26,23 +27,23 @@ namespace Neo4jClient.Test.Cypher
                 .Call("apoc.sp()")
                 .Query;
 
-            Assert.AreEqual("CALL apoc.sp()", query.QueryText);
+            Assert.Equal("CALL apoc.sp()", query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void ThrowArgumentException_WhenNoStoredProcedureIsGiven()
         {
             var client = GraphClient_30;
-            Assert.That(() => new CypherFluentQuery(client).Call(null).Query, Throws.ArgumentException);
+            Assert.Throws<ArgumentException>(() => new CypherFluentQuery(client).Call(null).Query);
         }
 
-        [Test]
+        [Fact]
         public void ThrowsInvalidOperationException_WhenClientVersionIsLessThan_30()
         {
             var client = GraphClient_30;
             client.CypherCapabilities.Returns(CypherCapabilities.Cypher23);
 
-            Assert.That(() => new CypherFluentQuery(client).Call("apoc.sp").Query, Throws.InvalidOperationException);
+            Assert.Throws<InvalidOperationException>(() => new CypherFluentQuery(client).Call("apoc.sp").Query);
         }
     }
 }

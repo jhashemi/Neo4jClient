@@ -11,7 +11,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Neo4jClient.Serialization
 {
-    public class CypherJsonDeserializer<TResult>
+    public class CypherJsonDeserializer<TResult> : ICypherJsonDeserializer<TResult>
     {
         readonly IGraphClient client;
         readonly CypherResultMode resultMode;
@@ -19,6 +19,9 @@ namespace Neo4jClient.Serialization
         private readonly bool inTransaction;
 
         readonly CultureInfo culture = CultureInfo.InvariantCulture;
+
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+        public CypherJsonDeserializer() { }
 
         public CypherJsonDeserializer(IGraphClient client, CypherResultMode resultMode, CypherResultFormat resultFormat)
             : this(client, resultMode, resultFormat, false)

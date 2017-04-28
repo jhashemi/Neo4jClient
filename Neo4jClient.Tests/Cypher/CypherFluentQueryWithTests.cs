@@ -1,16 +1,17 @@
 ﻿using System;
 using Newtonsoft.Json.Serialization;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 using Neo4jClient.Cypher;
+using Neo4jClient.Test.Fixtures;
 using Newtonsoft.Json;
 
 namespace Neo4jClient.Test.Cypher
 {
-    [TestFixture]
-    public class CypherFluentQueryWithTests
+    
+    public class CypherFluentQueryWithTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void With()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -19,11 +20,11 @@ namespace Neo4jClient.Test.Cypher
                 .With("foo")
                 .Query;
 
-            Assert.AreEqual("START n=node({p0})\r\nWITH foo", query.QueryText);
-            Assert.AreEqual(3, query.QueryParameters["p0"]);
+            Assert.Equal("START n=node({p0})\r\nWITH foo", query.QueryText);
+            Assert.Equal(3L, query.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnCountOnItsOwn()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -31,10 +32,10 @@ namespace Neo4jClient.Test.Cypher
                 .With(item => item.Count())
                 .Query;
 
-            Assert.AreEqual("WITH count(item)", query.QueryText);
+            Assert.Equal("WITH count(item)", query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnCountAllOnItsOwn()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -42,10 +43,10 @@ namespace Neo4jClient.Test.Cypher
                 .With(() => All.Count())
                 .Query;
 
-            Assert.AreEqual("WITH count(*)", query.QueryText);
+            Assert.Equal("WITH count(*)", query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnCustomFunctionCall()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -53,10 +54,10 @@ namespace Neo4jClient.Test.Cypher
                 .With(() => new { baz = "sum(foo.bar)" })
                 .Query;
 
-            Assert.AreEqual("WITH sum(foo.bar) AS baz", query.QueryText);
+            Assert.Equal("WITH sum(foo.bar) AS baz", query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnSpecificPropertyTakingIntoAccountJsonProperty()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -64,10 +65,10 @@ namespace Neo4jClient.Test.Cypher
                 .With(a => a.As<Cypher.FooWithJsonProperties>().Bar)
                 .Query;
 
-            Assert.AreEqual("WITH a.bar", query.QueryText);
+            Assert.Equal("WITH a.bar", query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnSpecificPropertyOnItsOwn()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -75,10 +76,10 @@ namespace Neo4jClient.Test.Cypher
                 .With(a => a.As<Commodity>().Name)
                 .Query;
 
-            Assert.AreEqual("WITH a.Name", query.QueryText);
+            Assert.Equal("WITH a.Name", query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnSpecificPropertyWithAliasWithNullableSuffixInCypher19()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -90,10 +91,10 @@ namespace Neo4jClient.Test.Cypher
                 })
                 .Query;
 
-            Assert.AreEqual("WITH a.Name? AS SomeAlias", query.QueryText);
+            Assert.Equal("WITH a.Name? AS SomeAlias", query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnSpecificPropertyWithAliasWithoutNullableSuffixInCypher20()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -105,10 +106,10 @@ namespace Neo4jClient.Test.Cypher
                 })
                 .Query;
 
-            Assert.AreEqual("WITH a.Name AS SomeAlias", query.QueryText);
+            Assert.Equal("WITH a.Name AS SomeAlias", query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnSpecificPropertyOnItsOwnCamelAs()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -117,10 +118,10 @@ namespace Neo4jClient.Test.Cypher
                 .With(a => new Commodity(){ Name = a.As<Commodity>().Name})
                 .Query;
 
-            Assert.AreEqual("WITH a.name AS Name", query.QueryText);
+            Assert.Equal("WITH a.name AS Name", query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnSpecificPropertyOnItsOwnCamel()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -129,10 +130,10 @@ namespace Neo4jClient.Test.Cypher
                 .With(a => a.As<Commodity>().Name)
                 .Query;
 
-            Assert.AreEqual("WITH a.name", query.QueryText);
+            Assert.Equal("WITH a.name", query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void ShouldThrowForMemberExpressionOffMethodOtherThanAs()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -140,7 +141,7 @@ namespace Neo4jClient.Test.Cypher
                 () => new CypherFluentQuery(client).With(a => a.Type().Length));
         }
 
-        [Test]
+        [Fact]
         public void ShouldTranslateAnonymousObjectWithExplicitPropertyNames()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -148,10 +149,10 @@ namespace Neo4jClient.Test.Cypher
                 .With(a => new { Foo = a })
                 .Query;
 
-            Assert.AreEqual("WITH a AS Foo", query.QueryText);
+            Assert.Equal("WITH a AS Foo", query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void ShouldTranslateAnonymousObjectWithImplicitPropertyNames()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -159,10 +160,10 @@ namespace Neo4jClient.Test.Cypher
                 .With(a => new { a })
                 .Query;
 
-            Assert.AreEqual("WITH a", query.QueryText);
+            Assert.Equal("WITH a", query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void ShouldTranslateAnonymousObjectWithMultipleProperties()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -170,10 +171,10 @@ namespace Neo4jClient.Test.Cypher
                 .With((a, b) => new { a, b })
                 .Query;
 
-            Assert.AreEqual("WITH a, b", query.QueryText);
+            Assert.Equal("WITH a, b", query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void ShouldTranslateAnonymousObjectWithMixedProperties()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -186,10 +187,10 @@ namespace Neo4jClient.Test.Cypher
                 })
                 .Query;
 
-            Assert.AreEqual("WITH a, count(b) AS foo, collect(b) AS bar", query.QueryText);
+            Assert.Equal("WITH a, count(b) AS foo, collect(b) AS bar", query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void ShouldUseProjectionResultModeForNamedObjectReturnWithConcreteProperties()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -200,10 +201,10 @@ namespace Neo4jClient.Test.Cypher
                 })
                 .Query;
             
-            Assert.AreEqual("WITH a AS Commodity", query.QueryText);
+            Assert.Equal("WITH a AS Commodity", query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void ShouldUseProjectionResultModeForNamedObjectReturnWithICypherResultItems()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -214,7 +215,7 @@ namespace Neo4jClient.Test.Cypher
                 })
                 .Query;
 
-            Assert.AreEqual("WITH a AS Foo", query.QueryText);
+            Assert.Equal("WITH a AS Foo", query.QueryText);
         }
 
         class FooWithJsonProperties

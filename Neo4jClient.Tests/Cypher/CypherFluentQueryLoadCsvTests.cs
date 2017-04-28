@@ -1,18 +1,19 @@
 ﻿using System;
 using System.Security.Cryptography.X509Certificates;
 using Neo4jClient.Cypher;
+using Neo4jClient.Test.Fixtures;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace Neo4jClient.Test.Cypher
 {
     /// <summary>
     ///     Tests for the LOAD CSV command
     /// </summary>
-    [TestFixture]
-    public class CypherFluentQueryLoadCsvTests
+    
+    public class CypherFluentQueryLoadCsvTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void TestLoadCsvConstruction()
         {
             const string expected = "LOAD CSV FROM 'file://localhost/c:/foo/bar.csv' AS row";
@@ -21,10 +22,10 @@ namespace Neo4jClient.Test.Cypher
                 .LoadCsv(new Uri("file://localhost/c:/foo/bar.csv"), "row")
                 .Query;
 
-            Assert.AreEqual(expected, query.QueryText);
+            Assert.Equal(expected, query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void TestLoadCsvAfterWithTResultVariant()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -33,10 +34,10 @@ namespace Neo4jClient.Test.Cypher
                 .LoadCsv(new Uri("file://localhost/c:/foo/bar.csv"), "row")
                 .Query;
 
-            Assert.AreEqual("WITH n\r\nLOAD CSV FROM 'file://localhost/c:/foo/bar.csv' AS row", query.QueryText);
+            Assert.Equal("WITH n\r\nLOAD CSV FROM 'file://localhost/c:/foo/bar.csv' AS row", query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void TestLoadCsvWithHeaders()
         {
             const string expected = "LOAD CSV WITH HEADERS FROM 'file://localhost/c:/foo/bar.csv' AS row";
@@ -45,10 +46,10 @@ namespace Neo4jClient.Test.Cypher
                 .LoadCsv(new Uri("file://localhost/c:/foo/bar.csv"), "row", true)
                 .Query;
 
-            Assert.AreEqual(expected, query.QueryText);
+            Assert.Equal(expected, query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void TestLoadCsvWithHeadersAndCustomFieldTerminator()
         {
             const string expected = "LOAD CSV WITH HEADERS FROM 'file://localhost/c:/foo/bar.csv' AS row FIELDTERMINATOR '|'";
@@ -57,10 +58,10 @@ namespace Neo4jClient.Test.Cypher
                 .LoadCsv(new Uri("file://localhost/c:/foo/bar.csv"), "row", true, "|")
                 .Query;
 
-            Assert.AreEqual(expected, query.QueryText);
+            Assert.Equal(expected, query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void ThrowsExceptionWhenUriIsNull()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -69,7 +70,7 @@ namespace Neo4jClient.Test.Cypher
             Assert.Throws<ArgumentException>(() => query.LoadCsv(null, "row"));
         }
 
-        [Test]
+        [Fact]
         public void LoadCsvWithPeriodicCommitGeneratesCorrectCypher_When0UsedForPeriodicCommit()
         {
             const string expected = "USING PERIODIC COMMIT LOAD CSV FROM 'file://localhost/c:/foo/bar.csv' AS row";
@@ -78,10 +79,10 @@ namespace Neo4jClient.Test.Cypher
                 .LoadCsv(new Uri("file://localhost/c:/foo/bar.csv"), "row", periodicCommit: 0)
                 .Query;
 
-            Assert.AreEqual(expected, query.QueryText);
+            Assert.Equal(expected, query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void LoadCsvWithPeriodicCommitGeneratesCorrectCypher_When1000UsedForPeriodicCommit()
         {
             const string expected = "USING PERIODIC COMMIT 1000 LOAD CSV FROM 'file://localhost/c:/foo/bar.csv' AS row";
@@ -90,7 +91,7 @@ namespace Neo4jClient.Test.Cypher
                 .LoadCsv(new Uri("file://localhost/c:/foo/bar.csv"), "row", periodicCommit: 1000)
                 .Query;
 
-            Assert.AreEqual(expected, query.QueryText);
+            Assert.Equal(expected, query.QueryText);
         }
     }
 }

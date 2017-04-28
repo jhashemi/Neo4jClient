@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
+using Xunit;
 using Neo4jClient.Gremlin;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.Gremlin
 {
-    [TestFixture]
-    public class GremlinPagedEnumeratorTests
+    
+    public class GremlinPagedEnumeratorTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void ShouldNotLoadAnythingUntilEnumerated()
         {
             var loadedQueries = new List<IGremlinQuery>();
@@ -24,10 +25,10 @@ namespace Neo4jClient.Test.Gremlin
             
             new GremlinPagedEnumerator<object>(loadCallback, baseQuery);
 
-            Assert.AreEqual(0, loadedQueries.Count());
+            Assert.Equal(0, loadedQueries.Count());
         }
 
-        [Test]
+        [Fact]
         public void ShouldLoadFirstPageOfResultsWithFirstEnumeration()
         {
             var loadedQueries = new List<IGremlinQuery>();
@@ -43,13 +44,13 @@ namespace Neo4jClient.Test.Gremlin
             var enumerator = new GremlinPagedEnumerator<object>(loadCallback, baseQuery);
             enumerator.MoveNext();
 
-            Assert.AreEqual(1, loadedQueries.Count());
-            Assert.AreEqual("g.v(p0).outV.drop(p1).take(p2)._()", loadedQueries[0].QueryText);
-            Assert.AreEqual(0, loadedQueries[0].QueryParameters["p1"]);
-            Assert.AreEqual(100, loadedQueries[0].QueryParameters["p2"]);
+            Assert.Equal(1, loadedQueries.Count());
+            Assert.Equal("g.v(p0).outV.drop(p1).take(p2)._()", loadedQueries[0].QueryText);
+            Assert.Equal(0, loadedQueries[0].QueryParameters["p1"]);
+            Assert.Equal(100, loadedQueries[0].QueryParameters["p2"]);
         }
 
-        [Test]
+        [Fact]
         public void ShouldEnumerateOverFirstPageOfResults()
         {
             var results = Enumerable.Range(0, 100).ToArray();
@@ -67,12 +68,12 @@ namespace Neo4jClient.Test.Gremlin
             var enumerator = new GremlinPagedEnumerator<int>(loadCallback, baseQuery);
             for (var i = 0; i < 100; i++)
             {
-                Assert.IsTrue(enumerator.MoveNext());
-                Assert.AreEqual(results[i], enumerator.Current);
+                Assert.True(enumerator.MoveNext());
+                Assert.Equal(results[i], enumerator.Current);
             }
         }
 
-        [Test]
+        [Fact]
         public void MoveNextShouldReturnFalseOnFirstCallIfThereAreNoResults()
         {
             var results = new int[0];
@@ -88,10 +89,10 @@ namespace Neo4jClient.Test.Gremlin
                 null);
 
             var enumerator = new GremlinPagedEnumerator<int>(loadCallback, baseQuery);
-            Assert.IsFalse(enumerator.MoveNext());
+            Assert.False(enumerator.MoveNext());
         }
 
-        [Test]
+        [Fact]
         public void MoveNextShouldReturnFalseAfterLastRecordOnFirstPageIfThereAreNoFurtherPages()
         {
             var pages = new Queue<IEnumerable<int>>(new[]
@@ -115,10 +116,10 @@ namespace Neo4jClient.Test.Gremlin
             for (var i = 0; i < 100; i++)
                 enumerator.MoveNext();
 
-            Assert.IsFalse(enumerator.MoveNext());
+            Assert.False(enumerator.MoveNext());
         }
 
-        [Test]
+        [Fact]
         public void MoveNextShouldReturnFalseAfterLastRecordOnPartialPage()
         {
             var pages = new Queue<IEnumerable<int>>(new[]
@@ -141,10 +142,10 @@ namespace Neo4jClient.Test.Gremlin
             for (var i = 0; i < 50; i++)
                 enumerator.MoveNext();
 
-            Assert.IsFalse(enumerator.MoveNext());
+            Assert.False(enumerator.MoveNext());
         }
 
-        [Test]
+        [Fact]
         public void ShouldLoadSecondPageWhenCallingMoveNextAfterLastRecordOfFirstPage()
         {
             var results = Enumerable.Range(0, 100).ToArray();
@@ -167,21 +168,21 @@ namespace Neo4jClient.Test.Gremlin
 
             enumerator.MoveNext();
 
-            Assert.AreEqual(2, loadedQueries.Count());
-            Assert.AreEqual("g.v(p0).outV.drop(p1).take(p2)._()", loadedQueries[0].QueryText);
-            Assert.AreEqual(0, loadedQueries[0].QueryParameters["p1"]);
-            Assert.AreEqual(100, loadedQueries[0].QueryParameters["p2"]);
-            Assert.AreEqual("g.v(p0).outV.drop(p1).take(p2)._()", loadedQueries[1].QueryText);
-            Assert.AreEqual(100, loadedQueries[1].QueryParameters["p1"]);
-            Assert.AreEqual(100, loadedQueries[1].QueryParameters["p2"]);
+            Assert.Equal(2, loadedQueries.Count());
+            Assert.Equal("g.v(p0).outV.drop(p1).take(p2)._()", loadedQueries[0].QueryText);
+            Assert.Equal(0, loadedQueries[0].QueryParameters["p1"]);
+            Assert.Equal(100, loadedQueries[0].QueryParameters["p2"]);
+            Assert.Equal("g.v(p0).outV.drop(p1).take(p2)._()", loadedQueries[1].QueryText);
+            Assert.Equal(100, loadedQueries[1].QueryParameters["p1"]);
+            Assert.Equal(100, loadedQueries[1].QueryParameters["p2"]);
         }
 
-        [TestCase(1)]
-        [TestCase(2)]
-        [TestCase(3)]
-        [TestCase(4)]
-        [TestCase(5)]
-        [TestCase(10)]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        [InlineData(4)]
+        [InlineData(5)]
+        [InlineData(10)]
         public void ShouldEnumerateOverMultiplePagesOfResults(int pageCount)
         {
             var pages = new Queue<IEnumerable<int>>();
@@ -203,8 +204,8 @@ namespace Neo4jClient.Test.Gremlin
             var enumerator = new GremlinPagedEnumerator<int>(loadCallback, baseQuery);
             for (var i = 0; i < pageCount * 100; i++)
             {
-                Assert.IsTrue(enumerator.MoveNext());
-                Assert.AreEqual(i, enumerator.Current);
+                Assert.True(enumerator.MoveNext());
+                Assert.Equal(i, enumerator.Current);
             }
         }
     }

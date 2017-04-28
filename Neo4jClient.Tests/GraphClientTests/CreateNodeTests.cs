@@ -4,30 +4,31 @@ using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Net.Http;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 using Neo4jClient.ApiModels;
 using Neo4jClient.Gremlin;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.GraphClientTests
 {
-    [TestFixture]
-    public class CreateNodeTests
+    
+    public class CreateNodeTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void ShouldThrowArgumentNullExceptionForNullNode()
         {
             var client = new GraphClient(new Uri("http://foo"));
             Assert.Throws<ArgumentNullException>(() => client.Create<object>(null));
         }
 
-        [Test]
+        [Fact]
         public void ShouldThrowInvalidOperationExceptionIfNotConnected()
         {
             var client = new GraphClient(new Uri("http://foo"));
             Assert.Throws<InvalidOperationException>(() => client.Create(new object()));
         }
 
-        [Test]
+        [Fact]
         public void ShouldThrowValidationExceptionForInvalidNodes()
         {
             var graphClient = new GraphClient(new Uri("http://foo/db/data"), null);
@@ -36,7 +37,7 @@ namespace Neo4jClient.Test.GraphClientTests
             Assert.Throws<ValidationException>(() => graphClient.Create(testNode));
         }
 
-        [Test]
+        [Fact]
         public void ShouldThrowArgumentExceptionForPreemptivelyWrappedNode()
         {
             var graphClient = new GraphClient(new Uri("http://foo/db/data"), null);
@@ -44,7 +45,7 @@ namespace Neo4jClient.Test.GraphClientTests
             ex.Message.Should().Be("You're trying to pass in a Node<TestNode> instance. Just pass the TestNode instance instead.\r\nParameter name: node");
         }
 
-        [Test]
+        [Fact]
         public void ShouldThrowNeoExceptionWhenBatchCreationStepJobFails()
         {
             var testHarness = new RestTestHarness
@@ -86,7 +87,7 @@ namespace Neo4jClient.Test.GraphClientTests
             ex.Message.Should().Be("PropertyValueException: Could not set property \"TestNode2\", unsupported type: {Foo=foo, Bar=bar}");
         }
 
-        [Test]
+        [Fact]
         public void ShouldNotThrowANotSupportedExceptionForPre15M02DatabaseWhenThereAreNoIndexEntries()
         {
             var testNode = new TestNode { Foo = "foo", Bar = "bar", Baz = "baz" };
@@ -134,7 +135,7 @@ namespace Neo4jClient.Test.GraphClientTests
             testHarness.AssertRequestConstraintsAreMet();
         }
 
-        [Test]
+        [Fact]
         public void ShouldSerializeAllProperties()
         {
             var testHarness = new RestTestHarness
@@ -184,7 +185,7 @@ namespace Neo4jClient.Test.GraphClientTests
             testHarness.AssertRequestConstraintsAreMet();
         }
 
-        [Test]
+        [Fact]
         public void ShouldPreserveUnicodeCharactersInStringProperties()
         {
             var testHarness = new RestTestHarness
@@ -230,7 +231,7 @@ namespace Neo4jClient.Test.GraphClientTests
             testHarness.AssertRequestConstraintsAreMet();
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnReferenceToCreatedNode()
         {
             var testNode = new TestNode { Foo = "foo", Bar = "bar", Baz = "baz" };
@@ -271,11 +272,11 @@ namespace Neo4jClient.Test.GraphClientTests
 
             var node = graphClient.Create(testNode);
 
-            Assert.AreEqual(760, node.Id);
+            Assert.Equal(760, node.Id);
             testHarness.AssertRequestConstraintsAreMet();
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnReferenceToCreatedNodeWithLongId()
         {
             var testNode = new TestNode { Foo = "foo", Bar = "bar", Baz = "baz" };
@@ -316,11 +317,11 @@ namespace Neo4jClient.Test.GraphClientTests
 
             var node = graphClient.Create(testNode);
 
-            Assert.AreEqual(2157483647, node.Id);
+            Assert.Equal(2157483647, node.Id);
             testHarness.AssertRequestConstraintsAreMet();
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnAttachedNodeReference()
         {
             var testNode = new TestNode { Foo = "foo", Bar = "bar", Baz = "baz" };
@@ -361,10 +362,10 @@ namespace Neo4jClient.Test.GraphClientTests
 
             var node = graphClient.Create(testNode);
 
-            Assert.IsNotNull(((IGremlinQuery)node).Client);
+            Assert.NotNull(((IGremlinQuery)node).Client);
         }
 
-        [Test]
+        [Fact]
         public void ShouldCreateOutgoingRelationship()
         {
             var testNode = new TestNode { Foo = "foo", Bar = "bar", Baz = "baz" };
@@ -427,7 +428,7 @@ namespace Neo4jClient.Test.GraphClientTests
             testHarness.AssertRequestConstraintsAreMet();
         }
 
-        [Test]
+        [Fact]
         public void ShouldCreateIndexEntries()
         {
             var testNode = new TestNode { Foo = "foo", Bar = "bar", Baz = "baz" };
@@ -507,7 +508,7 @@ namespace Neo4jClient.Test.GraphClientTests
                 });
         }
 
-        [Test]
+        [Fact]
         public void ShouldCreateIncomingRelationship()
         {
             var testNode = new TestNode2 { Foo = "foo", Bar = "bar" };

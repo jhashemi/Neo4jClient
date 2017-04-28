@@ -1,14 +1,15 @@
-﻿using NUnit.Framework;
+﻿using Xunit;
 using NSubstitute;
 using Neo4jClient.Cypher;
 using System;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.Cypher
 {
-    [TestFixture]
-    public class CypherFluentQueryRemoveTests
+    
+    public class CypherFluentQueryRemoveTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void RemoveProperty()
         {
             // Arrange
@@ -20,11 +21,11 @@ namespace Neo4jClient.Test.Cypher
                 .Query;
 
             // Assert
-            Assert.AreEqual("START n=node({p0})\r\nREMOVE n.age\r\nRETURN n", query.QueryText);
-            Assert.AreEqual(3, query.QueryParameters["p0"]);
+            Assert.Equal("START n=node({p0})\r\nREMOVE n.age\r\nRETURN n", query.QueryText);
+            Assert.Equal(3L, query.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void RemoveLabel()
         {
             // Arrange
@@ -36,8 +37,8 @@ namespace Neo4jClient.Test.Cypher
                 .Query;
 
             // Assert
-            Assert.AreEqual("START n=node({p0})\r\nREMOVE n:Person\r\nRETURN n", query.QueryText);
-            Assert.AreEqual(3, query.QueryParameters["p0"]);
+            Assert.Equal("START n=node({p0})\r\nREMOVE n:Person\r\nRETURN n", query.QueryText);
+            Assert.Equal(3L, query.QueryParameters["p0"]);
         }
     }
 }

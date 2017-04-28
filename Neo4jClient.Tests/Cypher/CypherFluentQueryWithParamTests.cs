@@ -1,17 +1,18 @@
 ﻿using System.Globalization;
 using Neo4jClient.Serialization;
 using Newtonsoft.Json.Serialization;
-using NUnit.Framework;
+using Xunit;
 using NSubstitute;
 using Neo4jClient.Cypher;
 using System;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.Cypher
 {
-    [TestFixture]
-    public class CypherFluentQueryWithParamTests
+    
+    public class CypherFluentQueryWithParamTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void WithParam()
         {
             // Arrange
@@ -22,13 +23,14 @@ namespace Neo4jClient.Test.Cypher
                 .Query;
 
             // Assert
-            Assert.AreEqual("START n=node({p0})", query.QueryText);
-            Assert.AreEqual(2, query.QueryParameters.Count);
-            Assert.AreEqual(3, query.QueryParameters["p0"]);
-            Assert.AreEqual(123, query.QueryParameters["foo"]);
+            Assert.Equal("START n=node({p0})", query.QueryText);
+            Assert.Equal(2, query.QueryParameters.Count);
+            Assert.Equal(3L, query.QueryParameters["p0"]);
+            Assert.Equal(123, query.QueryParameters["foo"]);
         }
 
-        [Test(Description = "https://bitbucket.org/Readify/neo4jclient/issue/156/passing-cypher-parameters-by-anonymous")]
+        [Fact]
+        //(Description = "https://bitbucket.org/Readify/neo4jclient/issue/156/passing-cypher-parameters-by-anonymous")
         public void WithParams()
         {
             // Arrange
@@ -42,14 +44,14 @@ namespace Neo4jClient.Test.Cypher
                 .Query;
 
             // Assert
-            Assert.AreEqual("START n=node({p0})", query.QueryText);
-            Assert.AreEqual(3, query.QueryParameters.Count);
-            Assert.AreEqual(3, query.QueryParameters["p0"]);
-            Assert.AreEqual(123, query.QueryParameters["foo"]);
-            Assert.AreEqual("string value", query.QueryParameters["bar"]);
+            Assert.Equal("START n=node({p0})", query.QueryText);
+            Assert.Equal(3, query.QueryParameters.Count);
+            Assert.Equal(3L, query.QueryParameters["p0"]);
+            Assert.Equal(123, query.QueryParameters["foo"]);
+            Assert.Equal("string value", query.QueryParameters["bar"]);
         }
 
-        [Test]
+        [Fact]
         public void ThrowsExceptionForDuplicateManualKey()
         {
             // Arrange
@@ -62,11 +64,11 @@ namespace Neo4jClient.Test.Cypher
             var ex = Assert.Throws<ArgumentException>(
                 () => query.WithParam("foo", 456)
             );
-            Assert.AreEqual("key", ex.ParamName);
-            Assert.AreEqual("A parameter with the given key is already defined in the query.\r\nParameter name: key", ex.Message);
+            Assert.Equal("key", ex.ParamName);
+            Assert.Equal("A parameter with the given key is already defined in the query.\r\nParameter name: key", ex.Message);
         }
 
-        [Test]
+        [Fact]
         public void ThrowsExceptionForDuplicateOfAutoKey()
         {
             // Arrange
@@ -78,8 +80,8 @@ namespace Neo4jClient.Test.Cypher
             var ex = Assert.Throws<ArgumentException>(
                 () => query.WithParam("p0", 456)
             );
-            Assert.AreEqual("key", ex.ParamName);
-            Assert.AreEqual("A parameter with the given key is already defined in the query.\r\nParameter name: key", ex.Message);
+            Assert.Equal("key", ex.ParamName);
+            Assert.Equal("A parameter with the given key is already defined in the query.\r\nParameter name: key", ex.Message);
         }
 
         public class ComplexObjForWithParamTest
@@ -90,7 +92,7 @@ namespace Neo4jClient.Test.Cypher
             public string CamelCaseProperty { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void ComplexObjectInWithParam()
         {
             // Arrange
@@ -104,14 +106,14 @@ namespace Neo4jClient.Test.Cypher
                 .Query;
 
             // Assert
-            Assert.AreEqual("START n=node(3)" +
+            Assert.Equal("START n=node(3)" +
                             "\r\nCREATE UNIQUE n-[:X]-(leaf {" +
                             "\r\n  \"Id\": 123," +
                             "\r\n  \"Name\": \"Bar\"," +
                             "\r\n  \"Currency\": 12.143," +
                             "\r\n  \"CamelCaseProperty\": \"Foo\"" +
                             "\r\n})", query.DebugQueryText);
-            Assert.AreEqual(2, query.QueryParameters.Count);
+            Assert.Equal(2, query.QueryParameters.Count);
         }
 
         private ComplexObjForWithParamTest CreateComplexObjForWithParamTest()
@@ -125,7 +127,7 @@ namespace Neo4jClient.Test.Cypher
             };
         }
 
-        [Test]
+        [Fact]
         public void ComplexObjectInWithParamCamelCase()
         {
             // Arrange
@@ -140,14 +142,14 @@ namespace Neo4jClient.Test.Cypher
                 .Query;
 
             // Assert
-            Assert.AreEqual("START n=node(3)" +
+            Assert.Equal("START n=node(3)" +
                             "\r\nCREATE UNIQUE n-[:X]-(leaf {" +
                             "\r\n  \"id\": 123," +
                             "\r\n  \"name\": \"Bar\"," +
                             "\r\n  \"currency\": 12.143," +
                             "\r\n  \"camelCaseProperty\": \"Foo\"" +
                             "\r\n})", query.DebugQueryText);
-            Assert.AreEqual(2, query.QueryParameters.Count);
+            Assert.Equal(2, query.QueryParameters.Count);
         }
     }
 }

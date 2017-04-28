@@ -1,13 +1,14 @@
-﻿using NUnit.Framework;
+﻿using Xunit;
 using System.Linq;
 using System.Net;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.GraphClientTests
 {
-    [TestFixture]
-    public class LookupIndexTests
+    
+    public class LookupIndexTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void ShouldReturnLookupIndexResult()
         {
             //Arrange
@@ -38,10 +39,10 @@ namespace Neo4jClient.Test.GraphClientTests
                     .LookupIndex<UserTestNode>("users", IndexFor.Node, "Id", 1000)
                     .ToArray();
 
-                Assert.AreEqual(1, results.Count());
+                Assert.Equal(1, results.Count());
                 var result = results[0];
-                Assert.AreEqual(456, result.Reference.Id);
-                Assert.AreEqual(1000, result.Data.Id);
+                Assert.Equal(456, result.Reference.Id);
+                Assert.Equal(1000, result.Data.Id);
             }
         }
 

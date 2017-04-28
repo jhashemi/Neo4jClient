@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Net;
-using NUnit.Framework;
+using Neo4jClient.Test.Fixtures;
+using Xunit;
 
 namespace Neo4jClient.Test.GraphClientTests.Gremlin
 {
-    [TestFixture]
-    public class ExecuteScalarGremlinTests
+    
+    public class ExecuteScalarGremlinTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void ShouldThrowInvalidOperationExceptionIfNotConnected()
         {
             var client = new GraphClient(new Uri("http://foo"));
             Assert.Throws<InvalidOperationException>(() => client.ExecuteScalarGremlin("", null));
         }
 
-        [Test]
+        [Fact]
         public void ShouldReturnScalarValue()
         {
             //Arrange
@@ -34,11 +35,11 @@ namespace Neo4jClient.Test.GraphClientTests.Gremlin
                 var node = graphClient.ExecuteScalarGremlin("foo bar query", null);
 
                 //Assert
-                Assert.AreEqual(1, int.Parse(node));
+                Assert.Equal(1, int.Parse(node));
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldFailGracefullyWhenGremlinIsNotAvailable()
         {
             using (var testHarness = new RestTestHarness
@@ -53,7 +54,7 @@ namespace Neo4jClient.Test.GraphClientTests.Gremlin
 
                 var ex = Assert.Throws<Exception>(
                     () => graphClient.ExecuteScalarGremlin("foo bar query", null));
-                Assert.AreEqual(GraphClient.GremlinPluginUnavailable, ex.Message);
+                Assert.Equal(GraphClient.GremlinPluginUnavailable, ex.Message);
             }
         }
     }

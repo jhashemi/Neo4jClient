@@ -4,15 +4,16 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using NUnit.Framework;
+using Xunit;
 using Neo4jClient.ApiModels.Cypher;
 using Neo4jClient.Cypher;
+using Neo4jClient.Test.Fixtures;
 using NSubstitute;
 
 namespace Neo4jClient.Test.GraphClientTests.Cypher
 {
-    [TestFixture]
-    public class ExecuteGetCypherResultsTests
+    
+    public class ExecuteGetCypherResultsTests : IClassFixture<CultureInfoSetupFixture>
     {
         public class SimpleResultDto
         {
@@ -21,7 +22,7 @@ namespace Neo4jClient.Test.GraphClientTests.Cypher
             public long? UniqueId { get; set; }
         }
 
-        [Test] public void ShouldDeserializePathsResultAsSetBased()
+        [Fact] public void ShouldDeserializePathsResultAsSetBased()
         {
             // Arrange
             const string queryText = @"START d=node({p0}), e=node({p1})
@@ -69,17 +70,17 @@ namespace Neo4jClient.Test.GraphClientTests.Cypher
                     .ToArray();
 
                 //Assert
-                Assert.IsInstanceOf<IEnumerable<PathsResult>>(results);
-                Assert.AreEqual(results.First().Length, 2);
-                Assert.AreEqual(results.First().Start, "http://foo/db/data/node/215");
-                Assert.AreEqual(results.First().End, "http://foo/db/data/node/219");
-                Assert.AreEqual(results.Skip(1).First().Length, 2);
-                Assert.AreEqual(results.Skip(1).First().Start, "http://foo/db/data/node/215");
-                Assert.AreEqual(results.Skip(1).First().End, "http://foo/db/data/node/219");
+                Assert.IsAssignableFrom<IEnumerable<PathsResult>>(results);
+                Assert.Equal(results.First().Length, 2);
+                Assert.Equal(results.First().Start, "http://foo/db/data/node/215");
+                Assert.Equal(results.First().End, "http://foo/db/data/node/219");
+                Assert.Equal(results.Skip(1).First().Length, 2);
+                Assert.Equal(results.Skip(1).First().Start, "http://foo/db/data/node/215");
+                Assert.Equal(results.Skip(1).First().End, "http://foo/db/data/node/219");
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldDeserializeSimpleTableStructure()
         {
             // Arrange
@@ -116,29 +117,29 @@ namespace Neo4jClient.Test.GraphClientTests.Cypher
                 var results = graphClient.ExecuteGetCypherResults<SimpleResultDto>(cypherQuery);
 
                 //Assert
-                Assert.IsInstanceOf<IEnumerable<SimpleResultDto>>(results);
+                Assert.IsAssignableFrom<IEnumerable<SimpleResultDto>>(results);
 
                 var resultsArray = results.ToArray();
-                Assert.AreEqual(3, resultsArray.Count());
+                Assert.Equal(3, resultsArray.Count());
 
                 var firstResult = resultsArray[0];
-                Assert.AreEqual("HOSTS", firstResult.RelationshipType);
-                Assert.AreEqual("foo", firstResult.Name);
-                Assert.AreEqual(44321, firstResult.UniqueId);
+                Assert.Equal("HOSTS", firstResult.RelationshipType);
+                Assert.Equal("foo", firstResult.Name);
+                Assert.Equal(44321, firstResult.UniqueId);
 
                 var secondResult = resultsArray[1];
-                Assert.AreEqual("LIKES", secondResult.RelationshipType);
-                Assert.AreEqual("bar", secondResult.Name);
-                Assert.AreEqual(44311, secondResult.UniqueId);
+                Assert.Equal("LIKES", secondResult.RelationshipType);
+                Assert.Equal("bar", secondResult.Name);
+                Assert.Equal(44311, secondResult.UniqueId);
 
                 var thirdResult = resultsArray[2];
-                Assert.AreEqual("HOSTS", thirdResult.RelationshipType);
-                Assert.AreEqual("baz", thirdResult.Name);
-                Assert.AreEqual(42586, thirdResult.UniqueId);
+                Assert.Equal("HOSTS", thirdResult.RelationshipType);
+                Assert.Equal("baz", thirdResult.Name);
+                Assert.Equal(42586, thirdResult.UniqueId);
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldDeserializeArrayOfNodesInPropertyAsResultOfCollectFunctionInCypherQuery()
         {
             // Arrange
@@ -224,28 +225,28 @@ namespace Neo4jClient.Test.GraphClientTests.Cypher
                 var results = graphClient.ExecuteGetCypherResults<CollectResult>(cypherQuery);
 
                 //Assert
-                Assert.IsInstanceOf<IEnumerable<CollectResult>>(results);
+                Assert.IsAssignableFrom<IEnumerable<CollectResult>>(results);
 
                 var resultsArray = results.ToArray();
-                Assert.AreEqual(1, resultsArray.Count());
+                Assert.Equal(1, resultsArray.Count());
 
                 var firstResult = resultsArray[0];
-                Assert.AreEqual(358, firstResult.ColumnA.Reference.Id);
-                Assert.AreEqual("BHP", firstResult.ColumnA.Data.Bar);
-                Assert.AreEqual("1", firstResult.ColumnA.Data.Baz);
+                Assert.Equal(358, firstResult.ColumnA.Reference.Id);
+                Assert.Equal("BHP", firstResult.ColumnA.Data.Bar);
+                Assert.Equal("1", firstResult.ColumnA.Data.Baz);
 
                 var collectedResults = firstResult.ColumnBFromCollect.ToArray();
-                Assert.AreEqual(2, collectedResults.Count());
+                Assert.Equal(2, collectedResults.Count());
 
                 var firstCollectedResult = collectedResults[0];
-                Assert.AreEqual(362, firstCollectedResult.Reference.Id);
-                Assert.AreEqual("Board", firstCollectedResult.Data.OpportunityType);
-                Assert.AreEqual("Foo", firstCollectedResult.Data.Description);
+                Assert.Equal(362, firstCollectedResult.Reference.Id);
+                Assert.Equal("Board", firstCollectedResult.Data.OpportunityType);
+                Assert.Equal("Foo", firstCollectedResult.Data.Description);
 
                 var secondCollectedResult = collectedResults[1];
-                Assert.AreEqual(359, secondCollectedResult.Reference.Id);
-                Assert.AreEqual("Executive", secondCollectedResult.Data.OpportunityType);
-                Assert.AreEqual("Bar", secondCollectedResult.Data.Description);
+                Assert.Equal(359, secondCollectedResult.Reference.Id);
+                Assert.Equal("Executive", secondCollectedResult.Data.OpportunityType);
+                Assert.Equal("Bar", secondCollectedResult.Data.Description);
             }
         }
 
@@ -292,7 +293,7 @@ namespace Neo4jClient.Test.GraphClientTests.Cypher
             public long? UniqueId { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void ShouldDeserializeTableStructureWithNodes()
         {
             // Arrange
@@ -386,38 +387,38 @@ namespace Neo4jClient.Test.GraphClientTests.Cypher
                  var results = graphClient.ExecuteGetCypherResults<ResultWithNodeDto>(cypherQuery);
 
                  //Assert
-                 Assert.IsInstanceOf<IEnumerable<ResultWithNodeDto>>(results);
+                 Assert.IsAssignableFrom<IEnumerable<ResultWithNodeDto>>(results);
 
                  var resultsArray = results.ToArray();
-                 Assert.AreEqual(3, resultsArray.Count());
+                 Assert.Equal(3, resultsArray.Count());
 
                  var firstResult = resultsArray[0];
-                 Assert.AreEqual(0, firstResult.Fooness.Reference.Id);
-                 Assert.AreEqual("bar", firstResult.Fooness.Data.Bar);
-                 Assert.AreEqual("baz", firstResult.Fooness.Data.Baz);
-                 Assert.AreEqual("HOSTS", firstResult.RelationshipType);
-                 Assert.AreEqual("foo", firstResult.Name);
-                 Assert.AreEqual(44321, firstResult.UniqueId);
+                 Assert.Equal(0, firstResult.Fooness.Reference.Id);
+                 Assert.Equal("bar", firstResult.Fooness.Data.Bar);
+                 Assert.Equal("baz", firstResult.Fooness.Data.Baz);
+                 Assert.Equal("HOSTS", firstResult.RelationshipType);
+                 Assert.Equal("foo", firstResult.Name);
+                 Assert.Equal(44321, firstResult.UniqueId);
 
                  var secondResult = resultsArray[1];
-                 Assert.AreEqual(2, secondResult.Fooness.Reference.Id);
-                 Assert.AreEqual("bar", secondResult.Fooness.Data.Bar);
-                 Assert.AreEqual("baz", secondResult.Fooness.Data.Baz);
-                 Assert.AreEqual("LIKES", secondResult.RelationshipType);
-                 Assert.AreEqual("bar", secondResult.Name);
-                 Assert.AreEqual(44311, secondResult.UniqueId);
+                 Assert.Equal(2, secondResult.Fooness.Reference.Id);
+                 Assert.Equal("bar", secondResult.Fooness.Data.Bar);
+                 Assert.Equal("baz", secondResult.Fooness.Data.Baz);
+                 Assert.Equal("LIKES", secondResult.RelationshipType);
+                 Assert.Equal("bar", secondResult.Name);
+                 Assert.Equal(44311, secondResult.UniqueId);
 
                  var thirdResult = resultsArray[2];
-                 Assert.AreEqual(12, thirdResult.Fooness.Reference.Id);
-                 Assert.AreEqual("bar", thirdResult.Fooness.Data.Bar);
-                 Assert.AreEqual("baz", thirdResult.Fooness.Data.Baz);
-                 Assert.AreEqual("HOSTS", thirdResult.RelationshipType);
-                 Assert.AreEqual("baz", thirdResult.Name);
-                 Assert.AreEqual(42586, thirdResult.UniqueId);
+                 Assert.Equal(12, thirdResult.Fooness.Reference.Id);
+                 Assert.Equal("bar", thirdResult.Fooness.Data.Bar);
+                 Assert.Equal("baz", thirdResult.Fooness.Data.Baz);
+                 Assert.Equal("HOSTS", thirdResult.RelationshipType);
+                 Assert.Equal("baz", thirdResult.Name);
+                 Assert.Equal(42586, thirdResult.UniqueId);
              }
         }
 
-        [Test]
+        [Fact]
         public void ShouldDeserializeTableStructureWithNodeDataObjects()
         {
             // Arrange
@@ -511,35 +512,35 @@ namespace Neo4jClient.Test.GraphClientTests.Cypher
                 var results = graphClient.ExecuteGetCypherResults<ResultWithNodeDataObjectsDto>(cypherQuery);
 
                 //Assert
-                Assert.IsInstanceOf<IEnumerable<ResultWithNodeDataObjectsDto>>(results);
+                Assert.IsAssignableFrom<IEnumerable<ResultWithNodeDataObjectsDto>>(results);
 
                 var resultsArray = results.ToArray();
-                Assert.AreEqual(3, resultsArray.Count());
+                Assert.Equal(3, resultsArray.Count());
 
                 var firstResult = resultsArray[0];
-                Assert.AreEqual("bar", firstResult.Fooness.Bar);
-                Assert.AreEqual("baz", firstResult.Fooness.Baz);
-                Assert.AreEqual("HOSTS", firstResult.RelationshipType);
-                Assert.AreEqual("foo", firstResult.Name);
-                Assert.AreEqual(44321, firstResult.UniqueId);
+                Assert.Equal("bar", firstResult.Fooness.Bar);
+                Assert.Equal("baz", firstResult.Fooness.Baz);
+                Assert.Equal("HOSTS", firstResult.RelationshipType);
+                Assert.Equal("foo", firstResult.Name);
+                Assert.Equal(44321, firstResult.UniqueId);
 
                 var secondResult = resultsArray[1];
-                Assert.AreEqual("bar", secondResult.Fooness.Bar);
-                Assert.AreEqual("baz", secondResult.Fooness.Baz);
-                Assert.AreEqual("LIKES", secondResult.RelationshipType);
-                Assert.AreEqual("bar", secondResult.Name);
-                Assert.AreEqual(44311, secondResult.UniqueId);
+                Assert.Equal("bar", secondResult.Fooness.Bar);
+                Assert.Equal("baz", secondResult.Fooness.Baz);
+                Assert.Equal("LIKES", secondResult.RelationshipType);
+                Assert.Equal("bar", secondResult.Name);
+                Assert.Equal(44311, secondResult.UniqueId);
 
                 var thirdResult = resultsArray[2];
-                Assert.AreEqual("bar", thirdResult.Fooness.Bar);
-                Assert.AreEqual("baz", thirdResult.Fooness.Baz);
-                Assert.AreEqual("HOSTS", thirdResult.RelationshipType);
-                Assert.AreEqual("baz", thirdResult.Name);
-                Assert.AreEqual(42586, thirdResult.UniqueId);
+                Assert.Equal("bar", thirdResult.Fooness.Bar);
+                Assert.Equal("baz", thirdResult.Fooness.Baz);
+                Assert.Equal("HOSTS", thirdResult.RelationshipType);
+                Assert.Equal("baz", thirdResult.Name);
+                Assert.Equal(42586, thirdResult.UniqueId);
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldDeserializeTableStructureWithRelationships()
         {
             // Arrange
@@ -616,38 +617,38 @@ namespace Neo4jClient.Test.GraphClientTests.Cypher
                 var results = graphClient.ExecuteGetCypherResults<ResultWithRelationshipDto>(cypherQuery);
 
                 //Assert
-                Assert.IsInstanceOf<IEnumerable<ResultWithRelationshipDto>>(results);
+                Assert.IsAssignableFrom<IEnumerable<ResultWithRelationshipDto>>(results);
 
                 var resultsArray = results.ToArray();
-                Assert.AreEqual(3, resultsArray.Count());
+                Assert.Equal(3, resultsArray.Count());
 
                 var firstResult = resultsArray[0];
-                Assert.AreEqual(0, firstResult.Fooness.Reference.Id);
-                Assert.AreEqual("bar", firstResult.Fooness.Data.Bar);
-                Assert.AreEqual("baz", firstResult.Fooness.Data.Baz);
-                Assert.AreEqual("HOSTS", firstResult.RelationshipType);
-                Assert.AreEqual("foo", firstResult.Name);
-                Assert.AreEqual(44321, firstResult.UniqueId);
+                Assert.Equal(0, firstResult.Fooness.Reference.Id);
+                Assert.Equal("bar", firstResult.Fooness.Data.Bar);
+                Assert.Equal("baz", firstResult.Fooness.Data.Baz);
+                Assert.Equal("HOSTS", firstResult.RelationshipType);
+                Assert.Equal("foo", firstResult.Name);
+                Assert.Equal(44321, firstResult.UniqueId);
 
                 var secondResult = resultsArray[1];
-                Assert.AreEqual(1, secondResult.Fooness.Reference.Id);
-                Assert.AreEqual("bar", secondResult.Fooness.Data.Bar);
-                Assert.AreEqual("baz", secondResult.Fooness.Data.Baz);
-                Assert.AreEqual("LIKES", secondResult.RelationshipType);
-                Assert.AreEqual("bar", secondResult.Name);
-                Assert.AreEqual(44311, secondResult.UniqueId);
+                Assert.Equal(1, secondResult.Fooness.Reference.Id);
+                Assert.Equal("bar", secondResult.Fooness.Data.Bar);
+                Assert.Equal("baz", secondResult.Fooness.Data.Baz);
+                Assert.Equal("LIKES", secondResult.RelationshipType);
+                Assert.Equal("bar", secondResult.Name);
+                Assert.Equal(44311, secondResult.UniqueId);
 
                 var thirdResult = resultsArray[2];
-                Assert.AreEqual(2, thirdResult.Fooness.Reference.Id);
-                Assert.AreEqual("bar", thirdResult.Fooness.Data.Bar);
-                Assert.AreEqual("baz", thirdResult.Fooness.Data.Baz);
-                Assert.AreEqual("HOSTS", thirdResult.RelationshipType);
-                Assert.AreEqual("baz", thirdResult.Name);
-                Assert.AreEqual(42586, thirdResult.UniqueId);
+                Assert.Equal(2, thirdResult.Fooness.Reference.Id);
+                Assert.Equal("bar", thirdResult.Fooness.Data.Bar);
+                Assert.Equal("baz", thirdResult.Fooness.Data.Baz);
+                Assert.Equal("HOSTS", thirdResult.RelationshipType);
+                Assert.Equal("baz", thirdResult.Name);
+                Assert.Equal(42586, thirdResult.UniqueId);
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldPromoteBadQueryResponseToNiceException()
         {
             // Arrange
@@ -671,10 +672,10 @@ namespace Neo4jClient.Test.GraphClientTests.Cypher
                 var graphClient = testHarness.CreateAndConnectGraphClient();
 
                 var ex = Assert.Throws<NeoException>(() => graphClient.ExecuteGetCypherResults<ResultWithRelationshipDto>(cypherQuery));
-                Assert.AreEqual("SyntaxException: expected START or CREATE\n'bad query'\n ^", ex.Message);
-                Assert.AreEqual("expected START or CREATE\n'bad query'\n ^", ex.NeoMessage);
-                Assert.AreEqual("SyntaxException", ex.NeoExceptionName);
-                Assert.AreEqual("org.neo4j.cypher.SyntaxException", ex.NeoFullName);
+                Assert.Equal("SyntaxException: expected START or CREATE\n'bad query'\n ^", ex.Message);
+                Assert.Equal("expected START or CREATE\n'bad query'\n ^", ex.NeoMessage);
+                Assert.Equal("SyntaxException", ex.NeoExceptionName);
+                Assert.Equal("org.neo4j.cypher.SyntaxException", ex.NeoFullName);
 
                 var expectedStack = new[]
                 {
@@ -691,11 +692,11 @@ namespace Neo4jClient.Test.GraphClientTests.Cypher
                     "java.lang.reflect.Method.invoke(Unknown Source)",
                     "org.neo4j.server.rest.security.SecurityFilter.doFilter(SecurityFilter.java:112)"
                 };
-                CollectionAssert.AreEqual(expectedStack, ex.NeoStackTrace);
+                Assert.Equal(expectedStack, ex.NeoStackTrace);
             }
         }
 
-        [Test]
+        [Fact]
         public void SendsCommandWithCorrectTimeout()
         {
             const int expectedMaxExecutionTime = 100;
@@ -752,11 +753,11 @@ namespace Neo4jClient.Test.GraphClientTests.Cypher
                 var call = httpClient.ReceivedCalls().Single();
                 var requestMessage = (HttpRequestMessage)call.GetArguments()[0];
                 var maxExecutionTimeHeader = requestMessage.Headers.Single(h => h.Key == "max-execution-time");
-                Assert.AreEqual(expectedMaxExecutionTime.ToString(CultureInfo.InvariantCulture), maxExecutionTimeHeader.Value.Single());
+                Assert.Equal(expectedMaxExecutionTime.ToString(CultureInfo.InvariantCulture), maxExecutionTimeHeader.Value.Single());
             }
         }
 
-        [Test]
+        [Fact]
         public void DoesntSendMaxExecutionTime_WhenNotAddedToQuery()
         {
             const string queryText = @"START d=node({p0}), e=node({p1})
@@ -809,7 +810,7 @@ namespace Neo4jClient.Test.GraphClientTests.Cypher
 
                 var call = httpClient.ReceivedCalls().Single();
                 var requestMessage = (HttpRequestMessage)call.GetArguments()[0];
-                Assert.IsFalse(requestMessage.Headers.Any(h => h.Key == "max-execution-time"));
+                Assert.False(requestMessage.Headers.Any(h => h.Key == "max-execution-time"));
             }
         }
 

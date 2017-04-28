@@ -3,15 +3,16 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 using Neo4jClient.Cypher;
 using Neo4jClient.Serialization;
+using Neo4jClient.Test.Fixtures;
 using Newtonsoft.Json;
 
 namespace Neo4jClient.Test.Serialization
 {
-    [TestFixture]
-    public class CypherJsonDeserializerTests
+    
+    public class CypherJsonDeserializerTests : IClassFixture<CultureInfoSetupFixture>
     {
         const string SetModeContentFormat =
             @"{{
@@ -27,13 +28,13 @@ namespace Neo4jClient.Test.Serialization
 
         private class DateTimeTestCasesFactory
         {
-            private static IEnumerable TestCases
+            public static IEnumerable<object> TestCases
             {
                 get
                 {
-                    yield return new TestCaseData("2015-06-01T15:03:39.1462808", DateTimeKind.Unspecified);
-                    yield return new TestCaseData("2015-06-01T15:03:39.1462808Z", DateTimeKind.Utc);
-                    yield return new TestCaseData("2015-06-01T15:03:39.1462808+00:00", DateTimeKind.Local);
+                    yield return new object[]{"2015-06-01T15:03:39.1462808", DateTimeKind.Unspecified};
+                    yield return new object[] { "2015-06-01T15:03:39.1462808Z", DateTimeKind.Utc};
+                    yield return new object[] { "2015-06-01T15:03:39.1462808+00:00", DateTimeKind.Local};
                 }
             }
         }
@@ -41,42 +42,42 @@ namespace Neo4jClient.Test.Serialization
 
         private class DateTimeOffsetCasesFactory
         {
-            private static IEnumerable TestCases
+            public static IEnumerable TestCases
             {
                 get
                 {
-                    yield return new TestCaseData(CypherResultMode.Set, CypherResultFormat.Rest, SetModeContentFormat, "", null);
-                    yield return new TestCaseData(CypherResultMode.Set, CypherResultFormat.Rest, SetModeContentFormat, "rekjre", null);
-                    yield return new TestCaseData(CypherResultMode.Set, CypherResultFormat.Rest, SetModeContentFormat, "/Date(abcs)/", null);
-                    yield return new TestCaseData(CypherResultMode.Set, CypherResultFormat.Rest, SetModeContentFormat, "/Date(abcs+0000)/", null);
-                    yield return new TestCaseData(CypherResultMode.Set, CypherResultFormat.Rest, SetModeContentFormat, "/Date(1315271562384)/", "2011-09-06 01:12:42 +00:00");
-                    yield return new TestCaseData(CypherResultMode.Set, CypherResultFormat.Rest, SetModeContentFormat, "/Date(1315271562384+0000)/", "2011-09-06 01:12:42 +00:00");
-                    yield return new TestCaseData(CypherResultMode.Set, CypherResultFormat.Rest, SetModeContentFormat, "/Date(1315271562384+0200)/", "2011-09-06 03:12:42 +02:00");
-                    yield return new TestCaseData(CypherResultMode.Set, CypherResultFormat.Rest, SetModeContentFormat, "/Date(1315271562384+1000)/", "2011-09-06 11:12:42 +10:00");
-                    yield return new TestCaseData(CypherResultMode.Set, CypherResultFormat.Rest, SetModeContentFormat, "/Date(-2187290565386+0000)/", "1900-09-09 03:17:14 +00:00");
-                    yield return new TestCaseData(CypherResultMode.Set, CypherResultFormat.Rest, SetModeContentFormat, "2011-09-06T01:12:42+10:00", "2011-09-06 01:12:42 +10:00");
-                    yield return new TestCaseData(CypherResultMode.Set, CypherResultFormat.Rest, SetModeContentFormat, "2011-09-06T01:12:42+00:00", "2011-09-06 01:12:42 +00:00");
-                    yield return new TestCaseData(CypherResultMode.Set, CypherResultFormat.Rest, SetModeContentFormat, "2012-08-31T10:11:00.3642578+10:00", "2012-08-31 10:11:00 +10:00");
-                    yield return new TestCaseData(CypherResultMode.Projection, CypherResultFormat.Rest, ProjectionModeContentFormat, "", null);
-                    yield return new TestCaseData(CypherResultMode.Projection, CypherResultFormat.Rest, ProjectionModeContentFormat, "rekjre", null);
-                    yield return new TestCaseData(CypherResultMode.Projection, CypherResultFormat.Rest, ProjectionModeContentFormat, "/Date(abcs)/", null);
-                    yield return new TestCaseData(CypherResultMode.Projection, CypherResultFormat.Rest, ProjectionModeContentFormat, "/Date(abcs+0000)/", null);
-                    yield return new TestCaseData(CypherResultMode.Projection, CypherResultFormat.Rest, ProjectionModeContentFormat, "/Date(1315271562384)/", "2011-09-06 01:12:42 +00:00");
-                    yield return new TestCaseData(CypherResultMode.Projection, CypherResultFormat.Rest, ProjectionModeContentFormat, "/Date(1315271562384+0000)/", "2011-09-06 01:12:42 +00:00");
-                    yield return new TestCaseData(CypherResultMode.Projection, CypherResultFormat.Rest, ProjectionModeContentFormat, "/Date(1315271562384+0200)/", "2011-09-06 03:12:42 +02:00");
-                    yield return new TestCaseData(CypherResultMode.Projection, CypherResultFormat.Rest, ProjectionModeContentFormat, "/Date(1315271562384+1000)/", "2011-09-06 11:12:42 +10:00");
-                    yield return new TestCaseData(CypherResultMode.Projection, CypherResultFormat.Rest, ProjectionModeContentFormat, "/Date(-2187290565386+0000)/", "1900-09-09 03:17:14 +00:00");
-                    yield return new TestCaseData(CypherResultMode.Projection, CypherResultFormat.Rest, ProjectionModeContentFormat, "2011-09-06T01:12:42+10:00", "2011-09-06 01:12:42 +10:00");
-                    yield return new TestCaseData(CypherResultMode.Projection, CypherResultFormat.Rest, ProjectionModeContentFormat, "2011-09-06T01:12:42+00:00", "2011-09-06 01:12:42 +00:00");
-                    yield return new TestCaseData(CypherResultMode.Projection, CypherResultFormat.Rest, ProjectionModeContentFormat, "2012-08-31T10:11:00.3642578+10:00", "2012-08-31 10:11:00 +10:00");
+                    yield return new object[]{CypherResultMode.Set, CypherResultFormat.Rest, SetModeContentFormat, "", null};
+                    yield return new object[]{CypherResultMode.Set, CypherResultFormat.Rest, SetModeContentFormat, "rekjre", null};
+                    yield return new object[]{CypherResultMode.Set, CypherResultFormat.Rest, SetModeContentFormat, "/Date(abcs)/", null};
+                    yield return new object[]{CypherResultMode.Set, CypherResultFormat.Rest, SetModeContentFormat, "/Date(abcs+0000)/", null};
+                    yield return new object[]{CypherResultMode.Set, CypherResultFormat.Rest, SetModeContentFormat, "/Date(1315271562384)/", "2011-09-06 01:12:42 +00:00"};
+                    yield return new object[]{CypherResultMode.Set, CypherResultFormat.Rest, SetModeContentFormat, "/Date(1315271562384+0000)/", "2011-09-06 01:12:42 +00:00"};
+                    yield return new object[]{CypherResultMode.Set, CypherResultFormat.Rest, SetModeContentFormat, "/Date(1315271562384+0200)/", "2011-09-06 03:12:42 +02:00"};
+                    yield return new object[]{CypherResultMode.Set, CypherResultFormat.Rest, SetModeContentFormat, "/Date(1315271562384+1000)/", "2011-09-06 11:12:42 +10:00"};
+                    yield return new object[]{CypherResultMode.Set, CypherResultFormat.Rest, SetModeContentFormat, "/Date(-2187290565386+0000)/", "1900-09-09 03:17:14 +00:00"};
+                    yield return new object[]{CypherResultMode.Set, CypherResultFormat.Rest, SetModeContentFormat, "2011-09-06T01:12:42+10:00", "2011-09-06 01:12:42 +10:00"};
+                    yield return new object[]{CypherResultMode.Set, CypherResultFormat.Rest, SetModeContentFormat, "2011-09-06T01:12:42+00:00", "2011-09-06 01:12:42 +00:00"};
+                    yield return new object[]{CypherResultMode.Set, CypherResultFormat.Rest, SetModeContentFormat, "2012-08-31T10:11:00.3642578+10:00", "2012-08-31 10:11:00 +10:00"};
+                    yield return new object[]{CypherResultMode.Projection, CypherResultFormat.Rest, ProjectionModeContentFormat, "", null};
+                    yield return new object[]{CypherResultMode.Projection, CypherResultFormat.Rest, ProjectionModeContentFormat, "rekjre", null};
+                    yield return new object[]{CypherResultMode.Projection, CypherResultFormat.Rest, ProjectionModeContentFormat, "/Date(abcs)/", null};
+                    yield return new object[]{CypherResultMode.Projection, CypherResultFormat.Rest, ProjectionModeContentFormat, "/Date(abcs+0000)/", null};
+                    yield return new object[]{CypherResultMode.Projection, CypherResultFormat.Rest, ProjectionModeContentFormat, "/Date(1315271562384)/", "2011-09-06 01:12:42 +00:00"};
+                    yield return new object[]{CypherResultMode.Projection, CypherResultFormat.Rest, ProjectionModeContentFormat, "/Date(1315271562384+0000)/", "2011-09-06 01:12:42 +00:00"};
+                    yield return new object[]{CypherResultMode.Projection, CypherResultFormat.Rest, ProjectionModeContentFormat, "/Date(1315271562384+0200)/", "2011-09-06 03:12:42 +02:00"};
+                    yield return new object[]{CypherResultMode.Projection, CypherResultFormat.Rest, ProjectionModeContentFormat, "/Date(1315271562384+1000)/", "2011-09-06 11:12:42 +10:00"};
+                    yield return new object[]{CypherResultMode.Projection, CypherResultFormat.Rest, ProjectionModeContentFormat, "/Date(-2187290565386+0000)/", "1900-09-09 03:17:14 +00:00"};
+                    yield return new object[]{CypherResultMode.Projection, CypherResultFormat.Rest, ProjectionModeContentFormat, "2011-09-06T01:12:42+10:00", "2011-09-06 01:12:42 +10:00"};
+                    yield return new object[]{CypherResultMode.Projection, CypherResultFormat.Rest, ProjectionModeContentFormat, "2011-09-06T01:12:42+00:00", "2011-09-06 01:12:42 +00:00"};
+                    yield return new object[]{CypherResultMode.Projection, CypherResultFormat.Rest, ProjectionModeContentFormat, "2012-08-31T10:11:00.3642578+10:00", "2012-08-31 10:11:00 +10:00"};
                 }
             }
         }          
                     
-        [Test]
-        [TestCaseSource(typeof(DateTimeOffsetCasesFactory), "TestCases")]
+        [Theory]
+        [MemberData("TestCases", MemberType = typeof(DateTimeOffsetCasesFactory))]
         public void DeserializeShouldPreserveOffsetValues(CypherResultMode resultMode, CypherResultFormat format, string contentFormat, string input, string expectedResult)
-        {
+        {  
             // Arrange
             var client = Substitute.For<IGraphClient>();
             var deserializer = new CypherJsonDeserializer<DateTimeOffsetModel>(client, resultMode, format);
@@ -87,19 +88,19 @@ namespace Neo4jClient.Test.Serialization
 
             // Assert
             if (expectedResult == null)
-                Assert.IsNull(result.Foo);
+                Assert.Null(result.Foo);
             else
             {
-                Assert.IsNotNull(result.Foo);
-                Assert.AreEqual(expectedResult, result.Foo.Value.ToString("yyyy-MM-dd HH:mm:ss zzz"));
-                Assert.AreEqual("Bar", result.Bar);
+                Assert.NotNull(result.Foo);
+                Assert.Equal(expectedResult, result.Foo.Value.ToString("yyyy-MM-dd HH:mm:ss zzz"));
+                Assert.Equal("Bar", result.Bar);
             }
         }
 
-        [Test]
-        [TestCaseSource(typeof(DateTimeTestCasesFactory), "TestCases")]
+        [Theory]
+        [MemberData("TestCases", MemberType = typeof(DateTimeTestCasesFactory))]
         public void DeserializeDateShouldPreserveKind(string dateTime, DateTimeKind kind)
-        {
+        { 
             //Arrange
             var client = Substitute.For<IGraphClient>();
             var deserializer = new CypherJsonDeserializer<DateTimeModel>(client, CypherResultMode.Projection, CypherResultFormat.Rest);
@@ -109,13 +110,13 @@ namespace Neo4jClient.Test.Serialization
             var result = deserializer.Deserialize(content).Single();
 
             //Assert
-            Assert.AreEqual(result.Foo.Kind, kind);
+            Assert.Equal(result.Foo.Kind, kind);
         }
 
-        [Test]
-        [TestCaseSource(typeof(DateTimeTestCasesFactory), "TestCases")]
+        [Theory]
+        [MemberData("TestCases", MemberType = typeof(DateTimeTestCasesFactory))]
         public void DeserializeDateShouldPreservePointInTime(string dateTime, DateTimeKind kind)
-        {
+        { 
             //Arrange
             var client = Substitute.For<IGraphClient>();
             var deserializer = new CypherJsonDeserializer<DateTimeModel>(client, CypherResultMode.Projection, CypherResultFormat.Rest);
@@ -125,7 +126,7 @@ namespace Neo4jClient.Test.Serialization
             var result = deserializer.Deserialize(content).Single();
 
             //Assert
-            Assert.AreEqual(result.Foo.ToUniversalTime(), DateTime.Parse(dateTime).ToUniversalTime());
+            Assert.Equal(result.Foo.ToUniversalTime(), DateTime.Parse(dateTime).ToUniversalTime());
         }
 
         public class DateTimeOffsetModel
@@ -140,7 +141,7 @@ namespace Neo4jClient.Test.Serialization
             public string Bar { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void DeserializeShouldMapNodesInSetMode()
         {
             // Arrange
@@ -210,22 +211,22 @@ namespace Neo4jClient.Test.Serialization
             var results = deserializer.Deserialize(content).ToArray();
 
             // Assert
-            Assert.AreEqual(3, results.Count());
+            Assert.Equal(3, results.Count());
 
             var node = results.ElementAt(0);
-            Assert.AreEqual(5, node.Reference.Id);
-            Assert.AreEqual("東京", node.Data.Name);
+            Assert.Equal(5, node.Reference.Id);
+            Assert.Equal("東京", node.Data.Name);
 
             node = results.ElementAt(1);
-            Assert.AreEqual(4, node.Reference.Id);
-            Assert.AreEqual("London", node.Data.Name);
+            Assert.Equal(4, node.Reference.Id);
+            Assert.Equal("London", node.Data.Name);
 
             node = results.ElementAt(2);
-            Assert.AreEqual(3, node.Reference.Id);
-            Assert.AreEqual("Sydney", node.Data.Name);
+            Assert.Equal(3, node.Reference.Id);
+            Assert.Equal("Sydney", node.Data.Name);
         }
 
-        [Test]
+        [Fact]
         public void DeserializeShouldMapRelationshipsInSetMode()
         {
             // Arrange
@@ -276,19 +277,19 @@ namespace Neo4jClient.Test.Serialization
             var results = deserializer.Deserialize(content).ToArray();
 
             // Assert
-            Assert.AreEqual(3, results.Count());
+            Assert.Equal(3, results.Count());
 
             var relationships = results.ElementAt(0);
-            Assert.AreEqual("東京", relationships.Data.Name);
+            Assert.Equal("東京", relationships.Data.Name);
 
             relationships = results.ElementAt(1);
-            Assert.AreEqual("London", relationships.Data.Name);
+            Assert.Equal("London", relationships.Data.Name);
 
             relationships = results.ElementAt(2);
-            Assert.AreEqual("Sydney", relationships.Data.Name);
+            Assert.Equal("Sydney", relationships.Data.Name);
         }
 
-        [Test]
+        [Fact]
         public void DeserializeShouldMapIEnumerableOfRelationshipsInAProjectionMode()
         {
             // Arrange
@@ -409,23 +410,23 @@ namespace Neo4jClient.Test.Serialization
 
             // Assert
             var result = results[0];
-            Assert.AreEqual("東京", result.Node.Data.Name);
-            Assert.AreEqual(13000000, result.Node.Data.Population);
-            Assert.AreEqual(66, result.Relationships.First().Data.Number);
+            Assert.Equal("東京", result.Node.Data.Name);
+            Assert.Equal(13000000, result.Node.Data.Population);
+            Assert.Equal(66, result.Relationships.First().Data.Number);
 
             result = results[1];
-            Assert.AreEqual("東京", result.Node.Data.Name);
-            Assert.AreEqual(13000000, result.Node.Data.Population);
-            Assert.AreEqual(66, result.Relationships.ToArray()[0].Data.Number);
-            Assert.AreEqual(77, result.Relationships.ToArray()[1].Data.Number);
+            Assert.Equal("東京", result.Node.Data.Name);
+            Assert.Equal(13000000, result.Node.Data.Population);
+            Assert.Equal(66, result.Relationships.ToArray()[0].Data.Number);
+            Assert.Equal(77, result.Relationships.ToArray()[1].Data.Number);
 
             result = results[2];
-            Assert.AreEqual("東京", result.Node.Data.Name);
-            Assert.AreEqual(13000000, result.Node.Data.Population);
-            Assert.AreEqual(77, result.Relationships.First().Data.Number);
+            Assert.Equal("東京", result.Node.Data.Name);
+            Assert.Equal(13000000, result.Node.Data.Population);
+            Assert.Equal(77, result.Relationships.First().Data.Number);
         }
 
-        [Test]
+        [Fact]
         public void DeserializeShouldMapIEnumerableOfNodesReturnedByCollectInAProjectionMode()
         {
             // Arrange
@@ -477,19 +478,19 @@ namespace Neo4jClient.Test.Serialization
             // Act
             var results = deserializer.Deserialize(content).ToArray();
 
-            Assert.IsInstanceOf<IEnumerable<ResultWithNestedNodeDto>>(results);
-            Assert.AreEqual(1, results.Count());
-            Assert.AreEqual(2, results[0].Fooness.Count());
+            Assert.IsAssignableFrom<IEnumerable<ResultWithNestedNodeDto>>(results);
+            Assert.Equal(1, results.Count());
+            Assert.Equal(2, results[0].Fooness.Count());
 
-            Assert.AreEqual("bar", results[0].Fooness.ToArray()[0].Data.Bar);
-            Assert.AreEqual("baz", results[0].Fooness.ToArray()[0].Data.Baz);
+            Assert.Equal("bar", results[0].Fooness.ToArray()[0].Data.Bar);
+            Assert.Equal("baz", results[0].Fooness.ToArray()[0].Data.Baz);
 
-            Assert.AreEqual("bar", results[0].Fooness.ToArray()[1].Data.Bar);
-            Assert.AreEqual("baz", results[0].Fooness.ToArray()[1].Data.Baz);
+            Assert.Equal("bar", results[0].Fooness.ToArray()[1].Data.Bar);
+            Assert.Equal("baz", results[0].Fooness.ToArray()[1].Data.Baz);
 
         }
 
-        [Test]
+        [Fact]
         public void DeserializeShouldMapIEnumerableOfNodesReturnedByCollectInColumnInProjectionMode()
         {
             // Arrange
@@ -600,22 +601,22 @@ namespace Neo4jClient.Test.Serialization
             // Act
             var results = deserializer.Deserialize(content).ToArray();
             
-            Assert.AreEqual(1, results.Count());
-            Assert.IsNotNull(results[0].Post);
-            Assert.IsNotNull(results[0].User);
-            Assert.IsNotNull(results[0].Likers);
+            Assert.Equal(1, results.Count());
+            Assert.NotNull(results[0].Post);
+            Assert.NotNull(results[0].User);
+            Assert.NotNull(results[0].Likers);
             
-            Assert.IsInstanceOf<IEnumerable<User>>(results[0].Likers);
+            Assert.IsAssignableFrom<IEnumerable<User>>(results[0].Likers);
             
-            Assert.AreEqual(2, results[0].Likers.Count());
-            Assert.AreEqual("USER1", results[0].User.UserIdentifier);
-            Assert.AreEqual("USER1POST0", results[0].Post.PostIdentifier);
+            Assert.Equal(2, results[0].Likers.Count());
+            Assert.Equal("USER1", results[0].User.UserIdentifier);
+            Assert.Equal("USER1POST0", results[0].Post.PostIdentifier);
             //and make sure the likers properties have been set
-            Assert.AreEqual("USER1", results[0].Likers.ToArray()[0].UserIdentifier);
-            Assert.AreEqual("USER2", results[0].Likers.ToArray()[1].UserIdentifier);
+            Assert.Equal("USER1", results[0].Likers.ToArray()[0].UserIdentifier);
+            Assert.Equal("USER2", results[0].Likers.ToArray()[1].UserIdentifier);
         }
 
-        [Test]
+        [Fact]
         public void DeserializeShouldMapNullIEnumerableOfNodesReturnedByCollectInInAProjectionMode()
         {
 
@@ -630,13 +631,13 @@ namespace Neo4jClient.Test.Serialization
 
             var results = deserializer.Deserialize(content).ToArray();
 
-            Assert.IsInstanceOf<IEnumerable<ResultWithNestedNodeDto>>(results);
-            Assert.AreEqual(1, results.Count());
+            Assert.IsAssignableFrom<IEnumerable<ResultWithNestedNodeDto>>(results);
+            Assert.Equal(1, results.Count());
 
-            Assert.IsNull(results[0].Fooness);
+            Assert.Null(results[0].Fooness);
         }
 
-        [Test]
+        [Fact]
         public void DeserializeShouldMapIEnumerableOfStringsInAProjectionMode()
         {
             // Arrange
@@ -651,11 +652,11 @@ namespace Neo4jClient.Test.Serialization
             var results = deserializer.Deserialize(content).ToArray().First().Names.ToArray();
 
             // Assert
-            Assert.AreEqual("Ben Tu", results[0]);
-            Assert.AreEqual("Romiko Derbynew", results[1]);
+            Assert.Equal("Ben Tu", results[0]);
+            Assert.Equal("Romiko Derbynew", results[1]);
         }
 
-        [Test]
+        [Fact]
         public void DeserializeShouldMapIEnumerableOfStringsThatAreEmptyInAProjectionMode()
         {
             // Arrange
@@ -670,10 +671,10 @@ namespace Neo4jClient.Test.Serialization
             var results = deserializer.Deserialize(content).ToArray();
 
             // Assert
-            Assert.AreEqual(0, results.First().Names.Count());
+            Assert.Equal(0, results.First().Names.Count());
         }
 
-        [Test]
+        [Fact]
         public void DeserializeShouldMapIEnumerableOfStringsInSetMode()
         {
             // Arrange
@@ -688,11 +689,11 @@ namespace Neo4jClient.Test.Serialization
             var results = deserializer.Deserialize(content).ToArray().First().ToArray();
 
             // Assert
-            Assert.AreEqual("Ben Tu", results[0]);
-            Assert.AreEqual("Romiko Derbynew", results[1]);
+            Assert.Equal("Ben Tu", results[0]);
+            Assert.Equal("Romiko Derbynew", results[1]);
         }
 
-        [Test]
+        [Fact]
         public void DeserializeShouldMapArrayOfStringsInSetMode()
         {
             // Arrange
@@ -707,11 +708,11 @@ namespace Neo4jClient.Test.Serialization
             var results = deserializer.Deserialize(content).ToArray().First().ToArray();
 
             // Assert
-            Assert.AreEqual("Ben Tu", results[0]);
-            Assert.AreEqual("Romiko Derbynew", results[1]);
+            Assert.Equal("Ben Tu", results[0]);
+            Assert.Equal("Romiko Derbynew", results[1]);
         }
 
-        [Test]
+        [Fact]
         public void DeserializeShouldMapArrayOfIntegersInSetMode()
         {
             // Arrange
@@ -726,11 +727,11 @@ namespace Neo4jClient.Test.Serialization
             var results = deserializer.Deserialize(content).ToArray().First().ToArray();
 
             // Assert
-            Assert.AreEqual(666, results[0]);
-            Assert.AreEqual(777, results[1]);
+            Assert.Equal(666, results[0]);
+            Assert.Equal(777, results[1]);
         }
 
-        [Test]
+        [Fact]
         public void DeserializeShouldMapIntegerInSetMode()
         {
             // Arrange
@@ -745,11 +746,11 @@ namespace Neo4jClient.Test.Serialization
             var results = deserializer.Deserialize(content).ToArray();
 
             // Assert
-            Assert.AreEqual(666, results.First());
+            Assert.Equal(666, results.First());
 
         }
 
-        [Test]
+        [Fact]
         public void DeserializeShouldRespectJsonPropertyAttribute()
         {
             // Arrange
@@ -782,11 +783,11 @@ namespace Neo4jClient.Test.Serialization
             var results = deserializer.Deserialize(content).ToArray();
 
             // Assert
-            Assert.AreEqual("Bob", results.Single().Name);
+            Assert.Equal("Bob", results.Single().Name);
         }
 
-        [Test]
-        [Description("https://bitbucket.org/Readify/neo4jclient/issue/63")]
+        [Fact]
+        //[Description("https://bitbucket.org/Readify/neo4jclient/issue/63")]
         public void DeserializeShouldMapNullCollectResultsWithOtherProperties()
         {
             // Arrange
@@ -819,15 +820,15 @@ namespace Neo4jClient.Test.Serialization
             var results = deserializer.Deserialize(content).ToArray();
 
             // Assert
-            Assert.AreEqual(1, results.Count());
-            Assert.AreEqual(null, results[0].Fans);
-            Assert.IsInstanceOf<Node<User>>(results[0].Poster);
-            Assert.AreEqual(740, results[0].Poster.Reference.Id);
-            Assert.AreEqual("Bob", results[0].Poster.Data.GivenName);
+            Assert.Equal(1, results.Count());
+            Assert.Equal(null, results[0].Fans);
+            Assert.IsAssignableFrom<Node<User>>(results[0].Poster);
+            Assert.Equal(740, results[0].Poster.Reference.Id);
+            Assert.Equal("Bob", results[0].Poster.Data.GivenName);
         }
 
-        [Test]
-        [Description("https://bitbucket.org/Readify/neo4jclient/issue/67")]
+        [Fact]
+        //[Description("https://bitbucket.org/Readify/neo4jclient/issue/67")]
         public void DeserializeShouldMapNullCollectResultsWithOtherProperties_Test2()
         {
             // START app=node(0) MATCH app<-[?:Alternative]-alternatives RETURN app AS App, collect(alternatives) AS Alternatives;
@@ -861,14 +862,14 @@ namespace Neo4jClient.Test.Serialization
             var results = deserializer.Deserialize(content).ToArray();
 
             // Assert
-            Assert.AreEqual(1, results.Count());
-            Assert.IsNull(results[0].Alternatives);
-            Assert.IsInstanceOf<Node<App>>(results[0].Application);
-            Assert.AreEqual(123, results[0].Application.Reference.Id);
+            Assert.Equal(1, results.Count());
+            Assert.Null(results[0].Alternatives);
+            Assert.IsAssignableFrom<Node<App>>(results[0].Application);
+            Assert.Equal(123, results[0].Application.Reference.Id);
         }
 
-        [Test]
-        [Description("https://bitbucket.org/Readify/neo4jclient/issue/67")]
+        [Fact]
+        //[Description("https://bitbucket.org/Readify/neo4jclient/issue/67")]
         public void DeserializeShouldMapNullCollectResultsWithOtherProperties_Test3()
         {
             // Arrange
@@ -880,12 +881,12 @@ namespace Neo4jClient.Test.Serialization
             var results = deserializer.Deserialize(content).ToArray();
 
             // Assert
-            Assert.AreEqual(1, results.Count());
-            Assert.IsNull(results[0].Fans);
+            Assert.Equal(1, results.Count());
+            Assert.Null(results[0].Fans);
         }
 
-        [Test]
-        [Description("http://stackoverflow.com/questions/23764217/argumentexception-when-result-is-empty")]
+        [Fact]
+        //[Description("http://stackoverflow.com/questions/23764217/argumentexception-when-result-is-empty")]
         public void DeserializeShouldMapNullResult()
         {
             // Arrange
@@ -897,11 +898,11 @@ namespace Neo4jClient.Test.Serialization
             var results = deserializer.Deserialize(content).ToArray();
 
             // Assert
-            Assert.AreEqual(1, results.Count());
-            Assert.IsNull(results[0]);
+            Assert.Equal(1, results.Count());
+            Assert.Null(results[0]);
         }
 
-        [Test]
+        [Fact]
         public void DeserializeShouldMapProjectionIntoAnonymousType()
         {
             DeserializeShouldMapProjectionIntoAnonymousType(new { Name = "", Population = 0 });
@@ -927,23 +928,23 @@ namespace Neo4jClient.Test.Serialization
             var results = deserializer.Deserialize(content).ToArray();
 
             // Assert
-            Assert.AreEqual(3, results.Count());
+            Assert.Equal(3, results.Count());
 
             dynamic city = results.ElementAt(0);
-            Assert.AreEqual("Tokyo", city.Name);
-            Assert.AreEqual(13000000, city.Population);
+            Assert.Equal("Tokyo", city.Name);
+            Assert.Equal(13000000, city.Population);
 
             city = results.ElementAt(1);
-            Assert.AreEqual("London", city.Name);
-            Assert.AreEqual(8000000, city.Population);
+            Assert.Equal("London", city.Name);
+            Assert.Equal(8000000, city.Population);
 
             city = results.ElementAt(2);
-            Assert.AreEqual("Sydney", city.Name);
-            Assert.AreEqual(4000000, city.Population);
+            Assert.Equal("Sydney", city.Name);
+            Assert.Equal(4000000, city.Population);
         }
 
-        [Test]
-        [Description("https://bitbucket.org/Readify/neo4jclient/issue/67/cypher-deserialization-error-when-using")]
+        [Fact]
+        //[Description("https://bitbucket.org/Readify/neo4jclient/issue/67/cypher-deserialization-error-when-using")]
         public void DeserializeShouldMapProjectionIntoAnonymousTypeWithNullCollectResult()
         {
             DeserializeShouldMapProjectionIntoAnonymousTypeWithNullCollectResult(new { Name = "", Friends = new object[0] });
@@ -967,11 +968,11 @@ namespace Neo4jClient.Test.Serialization
             var results = deserializer.Deserialize(content).ToArray();
 
             // Assert
-            Assert.AreEqual(1, results.Count());
+            Assert.Equal(1, results.Count());
 
             dynamic person = results.ElementAt(0);
-            Assert.AreEqual("Jim", person.Name);
-            Assert.AreEqual(null, person.Friends);
+            Assert.Equal("Jim", person.Name);
+            Assert.Equal(null, person.Friends);
         }
 
         public class App
@@ -1081,7 +1082,7 @@ namespace Neo4jClient.Test.Serialization
             public IEnumerable<Node<City>> Cities { get; set; }
         }
 
-        [Test]
+        [Fact]
         public void DeserializeNestedObjectsInTransactionReturningNode()
         {
             var client = Substitute.For<IGraphClient>();
@@ -1143,24 +1144,24 @@ namespace Neo4jClient.Test.Serialization
                 }
             ]}";
             var results = deserializer.Deserialize(content).ToArray();
-            Assert.AreEqual(1, results.Length);
+            Assert.Equal(1, results.Length);
             var result = results[0];
-            Assert.AreEqual("Baja California", result.State.Name);
-            Assert.AreEqual("State", result.Labels.First());
+            Assert.Equal("Baja California", result.State.Name);
+            Assert.Equal("State", result.Labels.First());
 
             var cities = result.Cities.ToArray();
-            Assert.AreEqual(2, cities.Length);
+            Assert.Equal(2, cities.Length);
 
             var city = cities[0];
-            Assert.AreEqual("Tijuana", city.Data.Name);
-            Assert.AreEqual(1300000, city.Data.Population);
+            Assert.Equal("Tijuana", city.Data.Name);
+            Assert.Equal(1300000, city.Data.Population);
 
             city = cities[1];
-            Assert.AreEqual("Mexicali", city.Data.Name);
-            Assert.AreEqual(500000, city.Data.Population);
+            Assert.Equal("Mexicali", city.Data.Name);
+            Assert.Equal(500000, city.Data.Population);
         }
 
-        [Test]
+        [Fact]
         public void DeserializeNestedObjectsInTransaction()
         {
             var client = Substitute.For<IGraphClient>();
@@ -1185,25 +1186,25 @@ namespace Neo4jClient.Test.Serialization
                 }
             ]}";
             var results = deserializer.Deserialize(content).ToArray();
-            Assert.AreEqual(1, results.Length);
+            Assert.Equal(1, results.Length);
             var result = results[0];
-            Assert.AreEqual("Baja California", result.State.Name);
-            Assert.AreEqual("State", result.Labels.First());
+            Assert.Equal("Baja California", result.State.Name);
+            Assert.Equal("State", result.Labels.First());
 
             var cities = result.Cities.ToArray();
-            Assert.AreEqual(2, cities.Length);
+            Assert.Equal(2, cities.Length);
 
             var city = cities[0];
-            Assert.AreEqual("Tijuana", city.Name);
-            Assert.AreEqual(1300000, city.Population);
+            Assert.Equal("Tijuana", city.Name);
+            Assert.Equal(1300000, city.Population);
 
             city = cities[1];
-            Assert.AreEqual("Mexicali", city.Name);
-            Assert.AreEqual(500000, city.Population);
+            Assert.Equal("Mexicali", city.Name);
+            Assert.Equal(500000, city.Population);
         }
 
 
-        [Test]
+        [Fact]
         public void DeserializerTwoLevelProjectionInTransaction()
         {
             var client = Substitute.For<IGraphClient>();
@@ -1224,18 +1225,18 @@ namespace Neo4jClient.Test.Serialization
                 }
             ]}";
             var results = deserializer.Deserialize(content).ToArray();
-            Assert.AreEqual(2, results.Length);
+            Assert.Equal(2, results.Length);
             var city = results[0];
-            Assert.AreEqual("Sydney", city.City.Name);
-            Assert.AreEqual(4000000, city.City.Population);
-            Assert.AreEqual("City1", city.Labels.First());
+            Assert.Equal("Sydney", city.City.Name);
+            Assert.Equal(4000000, city.City.Population);
+            Assert.Equal("City1", city.Labels.First());
             city = results[1];
-            Assert.AreEqual("Tijuana", city.City.Name);
-            Assert.AreEqual(1300000, city.City.Population);
-            Assert.AreEqual("City2", city.Labels.First());
+            Assert.Equal("Tijuana", city.City.Name);
+            Assert.Equal(1300000, city.City.Population);
+            Assert.Equal("City2", city.Labels.First());
         }
 
-        [Test]
+        [Fact]
         public void DeserializerProjectionInTransaction()
         {
             var client = Substitute.For<IGraphClient>();
@@ -1256,16 +1257,16 @@ namespace Neo4jClient.Test.Serialization
                 }
             ]}";
             var results = deserializer.Deserialize(content).ToArray();
-            Assert.AreEqual(2, results.Length);
+            Assert.Equal(2, results.Length);
             var city = results[0];
-            Assert.AreEqual("Sydney", city.Name);
-            Assert.AreEqual(4000000, city.Population);
+            Assert.Equal("Sydney", city.Name);
+            Assert.Equal(4000000, city.Population);
             city = results[1];
-            Assert.AreEqual("Tijuana", city.Name);
-            Assert.AreEqual(1300000, city.Population);
+            Assert.Equal("Tijuana", city.Name);
+            Assert.Equal(1300000, city.Population);
         }
 
-        [Test]
+        [Fact]
         public void DeserializeSimpleSetInTransaction()
         {
             var client = Substitute.For<IGraphClient>();
@@ -1283,11 +1284,11 @@ namespace Neo4jClient.Test.Serialization
                 }
             ]}";
             var results = deserializer.Deserialize(content).ToArray();
-            Assert.AreEqual(1, results.Length);
-            Assert.AreEqual(3, results[0]);
+            Assert.Equal(1, results.Length);
+            Assert.Equal(3, results[0]);
         }
 
-        [Test]
+        [Fact]
         public void DeserializeResultsSetInTransaction()
         {
             var client = Substitute.For<IGraphClient>();
@@ -1307,13 +1308,13 @@ namespace Neo4jClient.Test.Serialization
                 }
             ]}";
             var results = deserializer.Deserialize(content).ToArray();
-            Assert.AreEqual(1, results.Length);
+            Assert.Equal(1, results.Length);
             var city = results[0];
-            Assert.AreEqual("Sydney", city.Name);
-            Assert.AreEqual(4000000, city.Population);
+            Assert.Equal("Sydney", city.Name);
+            Assert.Equal(4000000, city.Population);
         }
 
-        [Test]
+        [Fact]
         public void DeserializeShouldPreserveUtf8Characters()
         {
             // Arrange
@@ -1332,22 +1333,22 @@ namespace Neo4jClient.Test.Serialization
             var results = deserializer.Deserialize(content).ToArray();
 
             // Assert
-            Assert.AreEqual(3, results.Count());
+            Assert.Equal(3, results.Count());
 
             var city = results.ElementAt(0);
-            Assert.AreEqual("東京", city.Name);
-            Assert.AreEqual(13000000, city.Population);
+            Assert.Equal("東京", city.Name);
+            Assert.Equal(13000000, city.Population);
 
             city = results.ElementAt(1);
-            Assert.AreEqual("London", city.Name);
-            Assert.AreEqual(8000000, city.Population);
+            Assert.Equal("London", city.Name);
+            Assert.Equal(8000000, city.Population);
 
             city = results.ElementAt(2);
-            Assert.AreEqual("Sydney", city.Name);
-            Assert.AreEqual(4000000, city.Population);
+            Assert.Equal("Sydney", city.Name);
+            Assert.Equal(4000000, city.Population);
         }
 
-        [Test]
+        [Fact]
         public void DeserializeShouldMapNodesToObjectsInSetModeWhenTheSourceLooksLikeANodeButTheDestinationDoesnt()
         {
             // Arrange
@@ -1402,18 +1403,18 @@ namespace Neo4jClient.Test.Serialization
 
             // Assert
             var resultsArray = results.ToArray();
-            Assert.AreEqual(2, resultsArray.Count());
+            Assert.Equal(2, resultsArray.Count());
 
             var firstResult = resultsArray[0];
-            Assert.AreEqual("67", firstResult.Name);
-            Assert.AreEqual(2, firstResult.UniqueId);
+            Assert.Equal("67", firstResult.Name);
+            Assert.Equal(2, firstResult.UniqueId);
 
             var secondResult = resultsArray[1];
-            Assert.AreEqual("15 Mile", secondResult.Name);
-            Assert.AreEqual(1, secondResult.UniqueId);
+            Assert.Equal("15 Mile", secondResult.Name);
+            Assert.Equal(1, secondResult.UniqueId);
         }
 
-        [Test]
+        [Fact]
         public void BadJsonShouldThrowExceptionThatIncludesJson()
         {
             var client = Substitute.For<IGraphClient>();
@@ -1423,10 +1424,10 @@ namespace Neo4jClient.Test.Serialization
             var ex = Assert.Throws<ArgumentException>(() =>
                 deserializer.Deserialize(content)
             );
-            StringAssert.Contains(content, ex.Message);
+            Assert.Contains(content, ex.Message);
         }
 
-        [Test]
+        [Fact]
         public void BadJsonShouldThrowExceptionThatIncludesFullNameOfTargetType()
         {
             var client = Substitute.For<IGraphClient>();
@@ -1435,10 +1436,10 @@ namespace Neo4jClient.Test.Serialization
             var ex = Assert.Throws<ArgumentException>(() =>
                 deserializer.Deserialize("xyz-json-zyx")
             );
-            StringAssert.Contains(typeof(Asset).FullName, ex.Message);
+            Assert.Contains(typeof(Asset).FullName, ex.Message);
         }
 
-        [Test]
+        [Fact]
         public void ClassWithoutDefaultPublicConstructorShouldThrowExceptionThatExplainsThis()
         {
             var client = Substitute.For<IGraphClient>();
@@ -1453,7 +1454,7 @@ namespace Neo4jClient.Test.Serialization
                 }".Replace("'", "\"");
 
             var ex = Assert.Throws<ArgumentException>(() => deserializer.Deserialize(content));
-            StringAssert.StartsWith("We expected a default public constructor on ClassWithoutDefaultPublicConstructor so that we could create instances of it to deserialize data into, however this constructor does not exist or is inaccessible.", ex.Message);
+            Assert.StartsWith("We expected a default public constructor on ClassWithoutDefaultPublicConstructor so that we could create instances of it to deserialize data into, however this constructor does not exist or is inaccessible.", ex.Message);
         }
 
         public class ClassWithoutDefaultPublicConstructor
@@ -1472,8 +1473,8 @@ namespace Neo4jClient.Test.Serialization
             public string Name { get; set; }
         }
 
-        [Test]
-        [Description("https://bitbucket.org/Readify/neo4jclient/issue/162/deserialization-of-int-long-into-nullable")]
+        [Fact]
+        //[Description("https://bitbucket.org/Readify/neo4jclient/issue/162/deserialization-of-int-long-into-nullable")]
         public void DeserializeInt64IntoNullableInt64()
         {
             // Arrange
@@ -1488,7 +1489,7 @@ namespace Neo4jClient.Test.Serialization
             var result = deserializer.Deserialize(content).First();
 
             // Assert
-            Assert.AreEqual(123, result);
+            Assert.Equal(123, result);
         }
 
         public class ModelWithByteArray
@@ -1496,8 +1497,8 @@ namespace Neo4jClient.Test.Serialization
             public byte[] Array { get; set; }
         }
 
-        [Test]
-        [Description("https://bitbucket.org/Readify/neo4jclient/issue/114/byte-support")]
+        [Fact]
+        //[Description("https://bitbucket.org/Readify/neo4jclient/issue/114/byte-support")]
         public void DeserializeBase64StringIntoByteArrayInProjectionResultMode()
         {
             // Arrange
@@ -1512,11 +1513,11 @@ namespace Neo4jClient.Test.Serialization
             var result = deserializer.Deserialize(content).First();
 
             // Assert
-            CollectionAssert.AreEqual(new byte[] {1, 2, 3, 4}, result.Array);
+            Assert.Equal(new byte[] {1, 2, 3, 4}, result.Array);
         }
 
-        [Test]
-        [Description("https://bitbucket.org/Readify/neo4jclient/issue/114/byte-support")]
+        [Fact]
+        //[Description("https://bitbucket.org/Readify/neo4jclient/issue/114/byte-support")]
         public void DeserializeBase64StringIntoByteArrayInSetResultMode()
         {
             // Arrange
@@ -1531,7 +1532,7 @@ namespace Neo4jClient.Test.Serialization
             var result = deserializer.Deserialize(content).First();
 
             // Assert
-            CollectionAssert.AreEqual(new byte[] { 1, 2, 3, 4 }, result);
+            Assert.Equal(new byte[] { 1, 2, 3, 4 }, result);
         }
     }
 }

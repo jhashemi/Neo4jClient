@@ -1,18 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using NUnit.Framework;
+using Xunit;
 using Neo4jClient.ApiModels;
 using System.Linq;
 using Neo4jClient.ApiModels.Gremlin;
+using Neo4jClient.Test.Fixtures;
 using Newtonsoft.Json;
 
 namespace Neo4jClient.Test.ApiModels
 {
-    [TestFixture]
-    public class GremlinTableCapResponseTests
+    
+    public class GremlinTableCapResponseTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void VerifyTransferTableCapResponseToResult()
         {
             var list = new List<List<GremlinTableCapResponse>>();
@@ -39,11 +40,11 @@ namespace Neo4jClient.Test.ApiModels
                 });
             var response = GremlinTableCapResponse.TransferResponseToResult<SimpleClass>(list, new JsonConverter[0]).ToArray();
 
-            Assert.IsTrue(response.Any(r => r.Foo == dataforfoo));
-            Assert.IsTrue(response.Any(r => r.Bar == dataforbar));
+            Assert.True(response.Any(r => r.Foo == dataforfoo));
+            Assert.True(response.Any(r => r.Bar == dataforbar));
         }
 
-        [Test]
+        [Fact]
         public void VerifyTransferTableCapResponseToResultFromStringWithLongToLong()
         {
             var list = new List<List<GremlinTableCapResponse>>();
@@ -66,10 +67,10 @@ namespace Neo4jClient.Test.ApiModels
                         }
                 });
             var response = GremlinTableCapResponse.TransferResponseToResult<SimpleClass>(list, new JsonConverter[0]).ToArray();
-            Assert.IsTrue(response.Any(r => r.Long == 123));
+            Assert.True(response.Any(r => r.Long == 123));
         }
 
-        [Test]
+        [Fact]
         public void VerifyTransferTableCapResponseToResultFromStringWithEnumValueToEnum()
         {
             var list = new List<List<GremlinTableCapResponse>>();
@@ -92,10 +93,10 @@ namespace Neo4jClient.Test.ApiModels
                         }
                 });
             var response = GremlinTableCapResponse.TransferResponseToResult<SimpleClass>(list, new JsonConverter[0]).ToArray();
-            Assert.IsTrue(response.Any(r => r.EnumValue == MyEnum.Foo));
+            Assert.True(response.Any(r => r.EnumValue == MyEnum.Foo));
         }
 
-        [Test]
+        [Fact]
         public void VerifyTransferTableCapResponseToResultFromStringWithNullableEnumValueToEnum()
         {
             var list = new List<List<GremlinTableCapResponse>>();
@@ -118,10 +119,10 @@ namespace Neo4jClient.Test.ApiModels
                         }
                 });
             var response = GremlinTableCapResponse.TransferResponseToResult<SimpleClass>(list, new JsonConverter[0]).ToArray();
-            Assert.IsTrue(response.Any(r => r.EnumValueNullable == MyEnum.Foo));
+            Assert.True(response.Any(r => r.EnumValueNullable == MyEnum.Foo));
         }
 
-        [Test]
+        [Fact]
         public void VerifyTransferTableCapResponseToResultFromStringWithLongToNullableLong()
         {
             var list = new List<List<GremlinTableCapResponse>>();
@@ -144,10 +145,10 @@ namespace Neo4jClient.Test.ApiModels
                         }
                 });
             var response = GremlinTableCapResponse.TransferResponseToResult<SimpleClass>(list, new JsonConverter[0]).ToArray();
-            Assert.IsTrue(response.Any(r => r.NullableLong.Value == 123));
+            Assert.True(response.Any(r => r.NullableLong.Value == 123));
         }
 
-        [Test]
+        [Fact]
         public void VerifyTransferTableCapResponseToResultFromStringWithLongNullToNullableLong()
         {
             var list = new List<List<GremlinTableCapResponse>>();
@@ -170,10 +171,10 @@ namespace Neo4jClient.Test.ApiModels
                         }
                 });
             var response = GremlinTableCapResponse.TransferResponseToResult<SimpleClass>(list, new JsonConverter[0]).ToArray();
-            Assert.IsTrue(response.Any(r => !r.NullableLong.HasValue));
+            Assert.True(response.Any(r => !r.NullableLong.HasValue));
         }
 
-        [Test]
+        [Fact]
         public void VerifyTransferTableCapResponseToResultFromStringWithIntNullToNullableInt()
         {
             var list = new List<List<GremlinTableCapResponse>>();
@@ -196,10 +197,10 @@ namespace Neo4jClient.Test.ApiModels
                         }
                 });
             var response = GremlinTableCapResponse.TransferResponseToResult<SimpleClass>(list, new JsonConverter[0]).ToArray();
-            Assert.IsTrue(response.Any(r => !r.NullableLong.HasValue));
+            Assert.True(response.Any(r => !r.NullableLong.HasValue));
         }
 
-        [Test]
+        [Fact]
         public void VerifyTransferTableCapResponseToResultFromStringWithLongNullAsStringToNullableLong()
         {
             var list = new List<List<GremlinTableCapResponse>>();
@@ -222,10 +223,10 @@ namespace Neo4jClient.Test.ApiModels
                         }
                 });
             var response = GremlinTableCapResponse.TransferResponseToResult<SimpleClass>(list, new JsonConverter[0]).ToArray();
-            Assert.IsTrue(response.Any(r => !r.NullableLong.HasValue));
+            Assert.True(response.Any(r => !r.NullableLong.HasValue));
         }
 
-        [Test]
+        [Fact]
         public void VerifyTransferTableCapResponseToResultFromStringWithDateTimeOffsetToNullableDateTimeOffset()
         {
             var list = new List<List<GremlinTableCapResponse>>();
@@ -249,10 +250,10 @@ namespace Neo4jClient.Test.ApiModels
                         }
                 });
             var response = GremlinTableCapResponse.TransferResponseToResult<SimpleClass>(list, new JsonConverter[0]).ToArray();
-            Assert.IsTrue(response.Any(r => r.DateTimeOffsetNullable.ToString("dd MMM yyyy", CultureInfo.InvariantCulture) == expectedDate));
+            Assert.True(response.Any(r => r.DateTimeOffsetNullable.ToString("dd MMM yyyy", CultureInfo.InvariantCulture) == expectedDate));
         }
 
-        [Test]
+        [Fact]
         public void VerifyTransferTableCapResponseToResultFromStringWithDateTimeOffsetToDateTimeOffsetUsingNeoDate()
         {
             var list = new List<List<GremlinTableCapResponse>>();
@@ -276,10 +277,10 @@ namespace Neo4jClient.Test.ApiModels
                         }
                 });
             var response = GremlinTableCapResponse.TransferResponseToResult<SimpleClass>(list, new JsonConverter[0]).ToArray();
-            Assert.IsTrue(response.Any(r => r.DateTimeOffset.ToString("dd MMM yyyy", CultureInfo.InvariantCulture) == "23 Nov 2011"));
+            Assert.True(response.Any(r => r.DateTimeOffset.ToString("dd MMM yyyy", CultureInfo.InvariantCulture) == "23 Nov 2011"));
         }
 
-        [Test]
+        [Fact]
         public void VerifyTransferTableCapResponseToResultFromStringWithDateTimeOffsetToDateTimeOffset()
         {
             var list = new List<List<GremlinTableCapResponse>>();
@@ -303,10 +304,10 @@ namespace Neo4jClient.Test.ApiModels
                         }
                 });
             var response = GremlinTableCapResponse.TransferResponseToResult<SimpleClass>(list, new JsonConverter[0]).ToArray();
-            Assert.IsTrue(response.Any(r => r.DateTimeOffset.ToString("dd MMM yyyy", CultureInfo.InvariantCulture) == expectedDate));
+            Assert.True(response.Any(r => r.DateTimeOffset.ToString("dd MMM yyyy", CultureInfo.InvariantCulture) == expectedDate));
         }
 
-        [Test]
+        [Fact]
         public void VerifyTransferTableCapResponseToResultFromStringWithDateTimeToDateTime()
         {
             var list = new List<List<GremlinTableCapResponse>>();
@@ -330,7 +331,7 @@ namespace Neo4jClient.Test.ApiModels
                         }
                 });
             var response = GremlinTableCapResponse.TransferResponseToResult<SimpleClass>(list, new JsonConverter[0]).ToArray();
-            Assert.IsTrue(response.Any(r => r.DateTime.ToString("dd MMM yyyy", CultureInfo.InvariantCulture) == expectedDate));
+            Assert.True(response.Any(r => r.DateTime.ToString("dd MMM yyyy", CultureInfo.InvariantCulture) == expectedDate));
         }
 
     internal enum MyEnum {Foo, Bar, Baz}

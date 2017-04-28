@@ -1,22 +1,23 @@
 ﻿using Neo4jClient.Cypher;
+using Neo4jClient.Test.Fixtures;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 
 namespace Neo4jClient.Test.Cypher
 {
-    [TestFixture]
-    public class CypherQueryTests
+    
+    public class CypherQueryTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void DebugQueryShouldBeSuccessfulWithNullAsParameters()
         {
             var query = new CypherQuery("MATCH (n) RETURN (n)", null, CypherResultMode.Set);
 
             const string expected = "MATCH (n) RETURN (n)";
-            Assert.AreEqual(expected, query.DebugQueryText);
+            Assert.Equal(expected, query.DebugQueryText);
         }
 
-        [Test]
+        [Fact]
         public void DebugQueryTextShouldPreserveNewLines()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -26,10 +27,10 @@ namespace Neo4jClient.Test.Cypher
                 .Query;
 
             const string expected = "MATCH foo\r\nCREATE UNIQUE bar";
-            Assert.AreEqual(expected, query.DebugQueryText);
+            Assert.Equal(expected, query.DebugQueryText);
         }
 
-        [Test]
+        [Fact]
         public void DebugQueryTextShouldSubstituteNumericParameters()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -42,10 +43,10 @@ namespace Neo4jClient.Test.Cypher
                 .Query;
 
             const string expected = "MATCH 123";
-            Assert.AreEqual(expected, query.DebugQueryText);
+            Assert.Equal(expected, query.DebugQueryText);
         }
 
-        [Test]
+        [Fact]
         public void DebugQueryTextShouldSubstituteStringParametersWithEncoding()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -58,10 +59,10 @@ namespace Neo4jClient.Test.Cypher
                 .Query;
 
             const string expected = "MATCH \"hello\"";
-            Assert.AreEqual(expected, query.DebugQueryText);
+            Assert.Equal(expected, query.DebugQueryText);
         }
 
-        [Test]
+        [Fact]
         public void DebugQueryTextShouldSubstituteStringParametersWithEncodingOfSpecialCharacters()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -74,11 +75,11 @@ namespace Neo4jClient.Test.Cypher
                 .Query;
 
             const string expected = "MATCH \"hel\\\"lo\"";
-            Assert.AreEqual(expected, query.DebugQueryText);
+            Assert.Equal(expected, query.DebugQueryText);
         }
 
-        [Test]
-        [Description("https://github.com/Readify/Neo4jClient/issues/50")]
+        [Fact]
+        //[Description("https://github.com/Readify/Neo4jClient/issues/50")]
         public void DebugQueryTextShouldSubstituteNullParameters()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -91,7 +92,7 @@ namespace Neo4jClient.Test.Cypher
                 .Query;
 
             const string expected = "MATCH null";
-            Assert.AreEqual(expected, query.DebugQueryText);
+            Assert.Equal(expected, query.DebugQueryText);
         }
     }
 }

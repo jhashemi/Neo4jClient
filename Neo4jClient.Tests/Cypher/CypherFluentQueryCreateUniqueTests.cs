@@ -1,13 +1,14 @@
 ﻿using System;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 using Neo4jClient.Cypher;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.Cypher
 {
-    class CypherFluentQueryCreateUniqueTests
+    class CypherFluentQueryCreateUniqueTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void CreateNodeWithValuesViaCreateUnique()
         {
             // http://docs.neo4j.org/chunked/1.8.M03/query-relate.html#relate-create-nodes-with-values
@@ -23,11 +24,11 @@ namespace Neo4jClient.Test.Cypher
                 .Return<object>("leaf")
                 .Query;
 
-            Assert.AreEqual("START root=node({p0})\r\nCREATE UNIQUE root-[:X]-(leaf {name:'D'} )\r\nRETURN leaf", query.QueryText);
-            Assert.AreEqual(2, query.QueryParameters["p0"]);
+            Assert.Equal("START root=node({p0})\r\nCREATE UNIQUE root-[:X]-(leaf {name:'D'} )\r\nRETURN leaf", query.QueryText);
+            Assert.Equal(2, query.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void CreateNodeWithValuesViaCreateUniqueAfterMatch()
         {
             //START root=node(2)
@@ -44,8 +45,8 @@ namespace Neo4jClient.Test.Cypher
                 .Return<object>("leaf")
                 .Query;
 
-            Assert.AreEqual("START root=node({p0})\r\nMATCH root-[:X]-foo\r\nCREATE UNIQUE foo-[:Y]-(leaf {name:'D'} )\r\nRETURN leaf", query.QueryText);
-            Assert.AreEqual(2, query.QueryParameters["p0"]);
+            Assert.Equal("START root=node({p0})\r\nMATCH root-[:X]-foo\r\nCREATE UNIQUE foo-[:Y]-(leaf {name:'D'} )\r\nRETURN leaf", query.QueryText);
+            Assert.Equal(2, query.QueryParameters["p0"]);
         }
     }
 }

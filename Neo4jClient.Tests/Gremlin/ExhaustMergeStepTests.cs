@@ -1,36 +1,37 @@
-﻿using NUnit.Framework;
+﻿using Xunit;
 using Neo4jClient.Gremlin;
+using Neo4jClient.Test.Fixtures;
 
 namespace Neo4jClient.Test.Gremlin
 {
-    [TestFixture]
-    public class ExhaustMergeStepTests
+    
+    public class ExhaustMergeStepTests : IClassFixture<CultureInfoSetupFixture>
     {
-        [Test]
+        [Fact]
         public void ExhaustMergeAppendStepToNodeQuery()
         {
             var query = new NodeReference(123).OutV<object>().ExhaustMerge();
-            Assert.IsInstanceOf<IGremlinNodeQuery<object>>(query);
-            Assert.AreEqual("g.v(p0).outV.exhaustMerge", query.QueryText);
-            Assert.AreEqual(123, query.QueryParameters["p0"]);
+            Assert.IsAssignableFrom<IGremlinNodeQuery<object>>(query);
+            Assert.Equal("g.v(p0).outV.exhaustMerge", query.QueryText);
+            Assert.Equal(123L, query.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void ExhaustMergeAppendStepToRelationshipQuery()
         {
             var query = new NodeReference(123).OutE().ExhaustMerge();
-            Assert.IsInstanceOf<IGremlinRelationshipQuery>(query);
-            Assert.AreEqual("g.v(p0).outE.exhaustMerge", query.QueryText);
-            Assert.AreEqual(123, query.QueryParameters["p0"]);
+            Assert.IsAssignableFrom<IGremlinRelationshipQuery>(query);
+            Assert.Equal("g.v(p0).outE.exhaustMerge", query.QueryText);
+            Assert.Equal(123L, query.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void ExhaustMergeAppendStepToTypedRelationshipQuery()
         {
             var query = new NodeReference(123).OutE<object>().ExhaustMerge();
-            Assert.IsInstanceOf<IGremlinRelationshipQuery<object>>(query);
-            Assert.AreEqual("g.v(p0).outE.exhaustMerge", query.QueryText);
-            Assert.AreEqual(123, query.QueryParameters["p0"]);
+            Assert.IsAssignableFrom<IGremlinRelationshipQuery<object>>(query);
+            Assert.Equal("g.v(p0).outE.exhaustMerge", query.QueryText);
+            Assert.Equal(123L, query.QueryParameters["p0"]);
         }
     }
 }

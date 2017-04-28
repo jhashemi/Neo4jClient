@@ -1,14 +1,15 @@
 ﻿using System;
 using Newtonsoft.Json.Serialization;
 using NSubstitute;
-using NUnit.Framework;
+using Xunit;
 using Neo4jClient.Cypher;
+using Neo4jClient.Test.Fixtures;
 using Newtonsoft.Json;
 
 namespace Neo4jClient.Test.Cypher
 {
-    [TestFixture]
-    public class CypherFluentQueryWhereTests
+    
+    public class CypherFluentQueryWhereTests : IClassFixture<CultureInfoSetupFixture>
     {
         // ReSharper disable ClassNeverInstantiated.Local
         // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -30,12 +31,6 @@ namespace Neo4jClient.Test.Cypher
             public string Bar { get; set; }
         }
 
-        [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-        class FooWithCamelCaseNamingStrategy
-        {
-            public string Bar { get; set; }
-        }
-
         class MockWithNullField
         {
             public string NullField { get; set; }
@@ -44,7 +39,7 @@ namespace Neo4jClient.Test.Cypher
         // ReSharper restore UnusedAutoPropertyAccessor.Local
 
 
-        [Test]
+        [Fact]
         public void CreatesStartWithQuery()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -52,38 +47,38 @@ namespace Neo4jClient.Test.Cypher
             const string startsWith = "Bar";
             var query = new CypherFluentQuery(client).Where((FooWithJsonProperties foo) => foo.Bar.StartsWith(startsWith)).Query;
 
-            Assert.AreEqual("WHERE (foo.bar STARTS WITH {p0})", query.QueryText);
-            Assert.AreEqual(1, query.QueryParameters.Count);
-            Assert.AreEqual(startsWith, query.QueryParameters["p0"]);
+            Assert.Equal("WHERE (foo.bar STARTS WITH {p0})", query.QueryText);
+            Assert.Equal(1, query.QueryParameters.Count);
+            Assert.Equal(startsWith, query.QueryParameters["p0"]);
         }
 
-        [Test]
+ 		[Fact]
         public void CreatesEndsWithQuery()
         {
             var client = Substitute.For<IRawGraphClient>();
             client.CypherCapabilities.Returns(CypherCapabilities.Cypher23);
-            const string startsWith = "Bar";
-            var query = new CypherFluentQuery(client).Where((FooWithJsonProperties foo) => foo.Bar.EndsWith(startsWith)).Query;
+            const string endsWith = "Bar";
+            var query = new CypherFluentQuery(client).Where((FooWithJsonProperties foo) => foo.Bar.EndsWith(endsWith)).Query;
 
-            Assert.AreEqual("WHERE (foo.bar ENDS WITH {p0})", query.QueryText);
-            Assert.AreEqual(1, query.QueryParameters.Count);
-            Assert.AreEqual(startsWith, query.QueryParameters["p0"]);
+            Assert.Equal("WHERE (foo.bar ENDS WITH {p0})", query.QueryText);
+            Assert.Equal(1, query.QueryParameters.Count);
+            Assert.Equal(endsWith, query.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void CreatesContainsQuery()
         {
             var client = Substitute.For<IRawGraphClient>();
             client.CypherCapabilities.Returns(CypherCapabilities.Cypher23);
-            const string startsWith = "Bar";
-            var query = new CypherFluentQuery(client).Where((FooWithJsonProperties foo) => foo.Bar.Contains(startsWith)).Query;
+            const string contains = "Bar";
+            var query = new CypherFluentQuery(client).Where((FooWithJsonProperties foo) => foo.Bar.Contains(contains)).Query;
 
-            Assert.AreEqual("WHERE (foo.bar CONTAINS {p0})", query.QueryText);
-            Assert.AreEqual(1, query.QueryParameters.Count);
-            Assert.AreEqual(startsWith, query.QueryParameters["p0"]);
+            Assert.Equal("WHERE (foo.bar CONTAINS {p0})", query.QueryText);
+            Assert.Equal(1, query.QueryParameters.Count);
+            Assert.Equal(contains, query.QueryParameters["p0"]);
         }
 
-        [Test]
+        [Fact]
         public void ThrowsNotSupportedException_WhenNeo4jInstanceIsLowerThan23()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -92,25 +87,25 @@ namespace Neo4jClient.Test.Cypher
             Assert.Throws<NotSupportedException>(() => new CypherFluentQuery(client).Where((FooWithJsonProperties foo) => foo.Bar.StartsWith(startsWith)));
         }
 
-        [Test]
+        [Fact]
         public void UsesJsonPropertyNameOverPropertyName()
         {
             var client = Substitute.For<IRawGraphClient>();
             var query = new CypherFluentQuery(client).Where((FooWithJsonProperties foo) => foo.Bar == "Bar").Query;
 
-            Assert.AreEqual("WHERE (foo.bar = {p0})", query.QueryText);
+            Assert.Equal("WHERE (foo.bar = {p0})", query.QueryText);
         }
-
-        [Test]
+		
+		[Fact]
         public void UsesCamelCaseNamingStrategyOverPropertyName()
         {
             var client = Substitute.For<IRawGraphClient>();
             var query = new CypherFluentQuery(client).Where((FooWithCamelCaseNamingStrategy foo) => foo.Bar == "Bar").Query;
 
-            Assert.AreEqual("WHERE (foo.bar = {p0})", query.QueryText);
+            Assert.Equal("WHERE (foo.bar = {p0})", query.QueryText);
         }
 
-        [Test]
+        [Fact]
         public void ComparePropertiesAcrossEntitiesEqual()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -118,11 +113,11 @@ namespace Neo4jClient.Test.Cypher
                 .Where<Foo, Foo>((a, b) => a.Bar == b.Bar)
                 .Query;
 
-            Assert.AreEqual("WHERE (a.Bar = b.Bar)", query.QueryText);
-            Assert.AreEqual(0, query.QueryParameters.Count);
+            Assert.Equal("WHERE (a.Bar = b.Bar)", query.QueryText);
+            Assert.Equal(0, query.QueryParameters.Count);
         }
 
-        [Test]
+        [Fact]
         public void ComparePropertiesAcrossEntitiesNotEqual()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -130,11 +125,11 @@ namespace Neo4jClient.Test.Cypher
                 .Where<Foo, Foo>((a, b) => a.Bar != b.Bar)
                 .Query;
 
-            Assert.AreEqual("WHERE (a.Bar <> b.Bar)", query.QueryText);
-            Assert.AreEqual(0, query.QueryParameters.Count);
+            Assert.Equal("WHERE (a.Bar <> b.Bar)", query.QueryText);
+            Assert.Equal(0, query.QueryParameters.Count);
         }
 
-        [Test]
+        [Fact]
         public void NestOrAndAndCorrectly()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -143,11 +138,11 @@ namespace Neo4jClient.Test.Cypher
                 .AndWhere((Foo c) => c.Bar == 789)
                 .Query;
 
-            Assert.AreEqual("WHERE ((a.Bar = {p0}) OR (b.Bar = {p1}))\r\nAND (c.Bar = {p2})", query.QueryText);
-            Assert.AreEqual(3, query.QueryParameters.Count);
+            Assert.Equal("WHERE ((a.Bar = {p0}) OR (b.Bar = {p1}))\r\nAND (c.Bar = {p2})", query.QueryText);
+            Assert.Equal(3, query.QueryParameters.Count);
         }
 
-        [Test]
+        [Fact]
         public void ComparePropertiesAcrossEntitiesEqualCamel()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -156,11 +151,11 @@ namespace Neo4jClient.Test.Cypher
                 .Where<FooCamel, FooCamel>((a, b) => a.Bar == b.Bar && a.LongBar == b.LongBar && a.a == b.a && a.B == b.B)
                 .Query;
 
-            Assert.AreEqual("WHERE ((((a.bar = b.bar) AND (a.longBar = b.longBar)) AND (a.a = b.a)) AND (a.b = b.b))", query.QueryText);
-            Assert.AreEqual(0, query.QueryParameters.Count);
+            Assert.Equal("WHERE ((((a.bar = b.bar) AND (a.longBar = b.longBar)) AND (a.a = b.a)) AND (a.b = b.b))", query.QueryText);
+            Assert.Equal(0, query.QueryParameters.Count);
         }
 
-        [Test]
+        [Fact]
         public void ComparePropertiesAcrossEntitiesNotEqualCamel()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -169,11 +164,11 @@ namespace Neo4jClient.Test.Cypher
                 .Where<FooCamel, FooCamel>((a, b) => a.Bar != b.Bar && a.LongBar != b.LongBar && a.a != b.a && a.B != b.B)
                 .Query;
 
-            Assert.AreEqual("WHERE ((((a.bar <> b.bar) AND (a.longBar <> b.longBar)) AND (a.a <> b.a)) AND (a.b <> b.b))", query.QueryText);
-            Assert.AreEqual(0, query.QueryParameters.Count);
+            Assert.Equal("WHERE ((((a.bar <> b.bar) AND (a.longBar <> b.longBar)) AND (a.a <> b.a)) AND (a.b <> b.b))", query.QueryText);
+            Assert.Equal(0, query.QueryParameters.Count);
         }
 
-        [Test]
+        [Fact]
         public void NestOrAndAndCorrectlyCamel()
         {
             var client = Substitute.For<IRawGraphClient>();
@@ -183,8 +178,8 @@ namespace Neo4jClient.Test.Cypher
                 .AndWhere((FooCamel c) => c.B == 789)
                 .Query;
 
-            Assert.AreEqual("WHERE ((a.longBar = {p0}) OR (b.bar = {p1}))\r\nAND (c.b = {p2})", query.QueryText);
-            Assert.AreEqual(3, query.QueryParameters.Count);
+            Assert.Equal("WHERE ((a.longBar = {p0}) OR (b.bar = {p1}))\r\nAND (c.b = {p2})", query.QueryText);
+            Assert.Equal(3, query.QueryParameters.Count);
         }
     }
 }
