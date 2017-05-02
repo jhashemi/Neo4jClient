@@ -159,7 +159,7 @@ namespace Neo4jClient.Test
         public class Deserialize_TMethod : IClassFixture<CultureInfoSetupFixture>
         {
             [Fact]
-            public void Test()
+            public void DeserializesListOfObjectsCorrectly()
             {
                 var node = new TestNode(new Dictionary<string, object> { { "Value", "foo" } });
                 var record = Substitute.For<IRecord>();
@@ -178,7 +178,7 @@ namespace Neo4jClient.Test
             }
 
             [Fact]
-            public void Test2()
+            public void DeserilizesProjectedListCorrectly()
             {
                 var expectedContent = "{ \"columns\":[\"a\",\"b\"], \"data\":[[ {\"data\":{ \"Value\":\"foo\" }},[{\"nested_b1\":{\"data\":{ \"Value\":\"bar\" }}},{\"nested_b2\":{\"data\":{ \"Value\":\"foobar\" }}}] ]] }";
 
@@ -207,9 +207,8 @@ namespace Neo4jClient.Test
             }
 
             [Fact]
-            public void Test3()
+            public void DeserializesStringContentCorrectly()
             {
-//                var expectedContent = "{\"columns\":[\"n.Prop\"],\"data\":[[\"Foo\"]]}";
                 var expectedContent = "{ \"columns\":[\"n.Prop\"], \"data\":[[ \"Foo\" ]] }";
                 var record = Substitute.For<IRecord>();
                 record.Keys.Returns(new List<string> { "n.Prop" });
@@ -219,6 +218,23 @@ namespace Neo4jClient.Test
                 mockDeserializer
                     .Setup(d => d.Deserialize(It.IsAny<string>()))
                     .Returns(new List<string>());
+
+                record.Deserialize(mockDeserializer.Object, CypherResultMode.Set);
+                mockDeserializer.Verify(d => d.Deserialize(expectedContent), Times.Once);
+            }
+
+            [Fact]
+            public void DeserializesIntContentCorrectly()
+            {
+                var expectedContent = "{ \"columns\":[\"n.Prop\"], \"data\":[[ 1 ]] }";
+                var record = Substitute.For<IRecord>();
+                record.Keys.Returns(new List<string> { "n.Prop" });
+                record["n.Prop"].Returns(1);
+
+                var mockDeserializer = new Mock<ICypherJsonDeserializer<int>>();
+                mockDeserializer
+                    .Setup(d => d.Deserialize(It.IsAny<string>()))
+                    .Returns(new List<int>());
 
                 record.Deserialize(mockDeserializer.Object, CypherResultMode.Set);
                 mockDeserializer.Verify(d => d.Deserialize(expectedContent), Times.Once);
