@@ -8,7 +8,6 @@ using Newtonsoft.Json;
 
 //TODO: Logging
 //TODO: Config Stuff
-//TODO: Transaction Stuff
 
 namespace Neo4jClient
 {
