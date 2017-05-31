@@ -31,6 +31,12 @@ namespace Neo4jClient.Test.Cypher
             public string Bar { get; set; }
         }
 
+        [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
+        class FooWithCamelCaseNamingStrategy
+        {
+            public string Bar { get; set; }
+        }
+
         class MockWithNullField
         {
             public string NullField { get; set; }
